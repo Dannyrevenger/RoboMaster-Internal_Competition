@@ -15,7 +15,7 @@ This is the repo for the HKUST RoboMaster Internal Competition.
 
 
 
-!(https://github.com/Dannyrevenger/RoboMaster-Internal_Competition/blob/main/image/IMG_0633.jpg)
+![image2](https://github.com/Dannyrevenger/RoboMaster-Internal_Competition/blob/main/image/IMG_0633.jpg)
 
 ==**The received data processed is as follows**==
 
