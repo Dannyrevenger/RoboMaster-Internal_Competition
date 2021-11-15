@@ -11,7 +11,7 @@ This is the repo for the HKUST RoboMaster Internal Competition.
 
 ## 1.1 remote controller
 
-![截屏2021-11-15 上午10.36.00](/Users/caiyongjie/RoboMaster-Internal_Competition/README.assets/截屏2021-11-15 上午10.36.00.png)
+![截屏2021-11-15 上午10.36.00](https://github.com/Dannyrevenger/RoboMaster-Internal_Competition/blob/main/image/remoterflowchart.png)
 
 
 
@@ -19,7 +19,7 @@ This is the repo for the HKUST RoboMaster Internal Competition.
 
 
 
-![image2](https://github.com/Dannyrevenger/RoboMaster-Internal_Competition/blob/main/image/IMG_0633.jpg)
+![image2](https://github.com/Dannyrevenger/RoboMaster-Internal_Competition/blob/main/image/serialportdebuggersoftware.jpg)
 
 ==**The received data processed is as follows**==
 
@@ -61,7 +61,7 @@ your control code …. }
 
 ==Using p w m to drive the servo motor==
 
-<img src="/Users/caiyongjie/RoboMaster-Internal_Competition/README.assets/IMG_0635.JPG" alt="IMG_0635" style="zoom:10%;" />
+<img src="https://github.com/Dannyrevenger/RoboMaster-Internal_Competition/blob/main/image/servomotor.JPG" alt="IMG_0635" style="zoom:10%;" />
 
 ```c
  /* USER CODE BEGIN 2 */
@@ -81,7 +81,7 @@ your control code …. }
 
 ==using can protocol to drive the brushless motor 3508==
 
-![IMG_0636](/Users/caiyongjie/RoboMaster-Internal_Competition/README.assets/IMG_0636.JPG)
+![IMG_0636](https://github.com/Dannyrevenger/RoboMaster-Internal_Competition/blob/main/image/brushlessmotor.JPG)
 
 ```c
 /* the stm32 send message to control the chassis -> 4 motors */
