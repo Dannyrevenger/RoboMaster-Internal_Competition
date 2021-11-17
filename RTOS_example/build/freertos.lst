@@ -1,0 +1,405 @@
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccd9e9pV.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 1
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"freertos.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.StartBlink01,"ax",%progbits
+  16              		.align	1
+  17              		.global	StartBlink01
+  18              		.arch armv7-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	StartBlink01:
+  25              	.LFB70:
+  26              		.file 1 "Core/Src/freertos.c"
+   1:Core/Src/freertos.c **** /* USER CODE BEGIN Header */
+   2:Core/Src/freertos.c **** /**
+   3:Core/Src/freertos.c ****   ******************************************************************************
+   4:Core/Src/freertos.c ****   * File Name          : freertos.c
+   5:Core/Src/freertos.c ****   * Description        : Code for freertos applications
+   6:Core/Src/freertos.c ****   ******************************************************************************
+   7:Core/Src/freertos.c ****   * @attention
+   8:Core/Src/freertos.c ****   *
+   9:Core/Src/freertos.c ****   * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+  10:Core/Src/freertos.c ****   * All rights reserved.</center></h2>
+  11:Core/Src/freertos.c ****   *
+  12:Core/Src/freertos.c ****   * This software component is licensed by ST under Ultimate Liberty license
+  13:Core/Src/freertos.c ****   * SLA0044, the "License"; You may not use this file except in compliance with
+  14:Core/Src/freertos.c ****   * the License. You may obtain a copy of the License at:
+  15:Core/Src/freertos.c ****   *                             www.st.com/SLA0044
+  16:Core/Src/freertos.c ****   *
+  17:Core/Src/freertos.c ****   ******************************************************************************
+  18:Core/Src/freertos.c ****   */
+  19:Core/Src/freertos.c **** /* USER CODE END Header */
+  20:Core/Src/freertos.c **** 
+  21:Core/Src/freertos.c **** /* Includes ------------------------------------------------------------------*/
+  22:Core/Src/freertos.c **** #include "FreeRTOS.h"
+  23:Core/Src/freertos.c **** #include "task.h"
+  24:Core/Src/freertos.c **** #include "main.h"
+  25:Core/Src/freertos.c **** #include "cmsis_os.h"
+  26:Core/Src/freertos.c **** 
+  27:Core/Src/freertos.c **** /* Private includes ----------------------------------------------------------*/
+  28:Core/Src/freertos.c **** /* USER CODE BEGIN Includes */
+  29:Core/Src/freertos.c **** 
+  30:Core/Src/freertos.c **** /* USER CODE END Includes */
+  31:Core/Src/freertos.c **** 
+  32:Core/Src/freertos.c **** /* Private typedef -----------------------------------------------------------*/
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccd9e9pV.s 			page 2
+
+
+  33:Core/Src/freertos.c **** /* USER CODE BEGIN PTD */
+  34:Core/Src/freertos.c **** 
+  35:Core/Src/freertos.c **** /* USER CODE END PTD */
+  36:Core/Src/freertos.c **** 
+  37:Core/Src/freertos.c **** /* Private define ------------------------------------------------------------*/
+  38:Core/Src/freertos.c **** /* USER CODE BEGIN PD */
+  39:Core/Src/freertos.c **** 
+  40:Core/Src/freertos.c **** /* USER CODE END PD */
+  41:Core/Src/freertos.c **** 
+  42:Core/Src/freertos.c **** /* Private macro -------------------------------------------------------------*/
+  43:Core/Src/freertos.c **** /* USER CODE BEGIN PM */
+  44:Core/Src/freertos.c **** 
+  45:Core/Src/freertos.c **** /* USER CODE END PM */
+  46:Core/Src/freertos.c **** 
+  47:Core/Src/freertos.c **** /* Private variables ---------------------------------------------------------*/
+  48:Core/Src/freertos.c **** /* USER CODE BEGIN Variables */
+  49:Core/Src/freertos.c **** 
+  50:Core/Src/freertos.c **** /* USER CODE END Variables */
+  51:Core/Src/freertos.c **** /* Definitions for blink01 */
+  52:Core/Src/freertos.c **** osThreadId_t blink01Handle;
+  53:Core/Src/freertos.c **** const osThreadAttr_t blink01_attributes = {
+  54:Core/Src/freertos.c ****   .name = "blink01",
+  55:Core/Src/freertos.c ****   .stack_size = 128 * 4,
+  56:Core/Src/freertos.c ****   .priority = (osPriority_t) osPriorityNormal,
+  57:Core/Src/freertos.c **** };
+  58:Core/Src/freertos.c **** /* Definitions for blink02 */
+  59:Core/Src/freertos.c **** osThreadId_t blink02Handle;
+  60:Core/Src/freertos.c **** const osThreadAttr_t blink02_attributes = {
+  61:Core/Src/freertos.c ****   .name = "blink02",
+  62:Core/Src/freertos.c ****   .stack_size = 128 * 4,
+  63:Core/Src/freertos.c ****   .priority = (osPriority_t) osPriorityLow,
+  64:Core/Src/freertos.c **** };
+  65:Core/Src/freertos.c **** 
+  66:Core/Src/freertos.c **** /* Private function prototypes -----------------------------------------------*/
+  67:Core/Src/freertos.c **** /* USER CODE BEGIN FunctionPrototypes */
+  68:Core/Src/freertos.c **** 
+  69:Core/Src/freertos.c **** /* USER CODE END FunctionPrototypes */
+  70:Core/Src/freertos.c **** 
+  71:Core/Src/freertos.c **** void StartBlink01(void *argument);
+  72:Core/Src/freertos.c **** void StartBlink02(void *argument);
+  73:Core/Src/freertos.c **** 
+  74:Core/Src/freertos.c **** void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+  75:Core/Src/freertos.c **** 
+  76:Core/Src/freertos.c **** /**
+  77:Core/Src/freertos.c ****   * @brief  FreeRTOS initialization
+  78:Core/Src/freertos.c ****   * @param  None
+  79:Core/Src/freertos.c ****   * @retval None
+  80:Core/Src/freertos.c ****   */
+  81:Core/Src/freertos.c **** void MX_FREERTOS_Init(void) {
+  82:Core/Src/freertos.c ****   /* USER CODE BEGIN Init */
+  83:Core/Src/freertos.c **** 
+  84:Core/Src/freertos.c ****   /* USER CODE END Init */
+  85:Core/Src/freertos.c **** 
+  86:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_MUTEX */
+  87:Core/Src/freertos.c ****   /* add mutexes, ... */
+  88:Core/Src/freertos.c ****   /* USER CODE END RTOS_MUTEX */
+  89:Core/Src/freertos.c **** 
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccd9e9pV.s 			page 3
+
+
+  90:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_SEMAPHORES */
+  91:Core/Src/freertos.c ****   /* add semaphores, ... */
+  92:Core/Src/freertos.c ****   /* USER CODE END RTOS_SEMAPHORES */
+  93:Core/Src/freertos.c **** 
+  94:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_TIMERS */
+  95:Core/Src/freertos.c ****   /* start timers, add new ones, ... */
+  96:Core/Src/freertos.c ****   /* USER CODE END RTOS_TIMERS */
+  97:Core/Src/freertos.c **** 
+  98:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_QUEUES */
+  99:Core/Src/freertos.c ****   /* add queues, ... */
+ 100:Core/Src/freertos.c ****   /* USER CODE END RTOS_QUEUES */
+ 101:Core/Src/freertos.c **** 
+ 102:Core/Src/freertos.c ****   /* Create the thread(s) */
+ 103:Core/Src/freertos.c ****   /* creation of blink01 */
+ 104:Core/Src/freertos.c ****   blink01Handle = osThreadNew(StartBlink01, NULL, &blink01_attributes);
+ 105:Core/Src/freertos.c **** 
+ 106:Core/Src/freertos.c ****   /* creation of blink02 */
+ 107:Core/Src/freertos.c ****   blink02Handle = osThreadNew(StartBlink02, NULL, &blink02_attributes);
+ 108:Core/Src/freertos.c **** 
+ 109:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_THREADS */
+ 110:Core/Src/freertos.c ****   /* add threads, ... */
+ 111:Core/Src/freertos.c ****   /* USER CODE END RTOS_THREADS */
+ 112:Core/Src/freertos.c **** 
+ 113:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_EVENTS */
+ 114:Core/Src/freertos.c ****   /* add events, ... */
+ 115:Core/Src/freertos.c ****   /* USER CODE END RTOS_EVENTS */
+ 116:Core/Src/freertos.c **** 
+ 117:Core/Src/freertos.c **** }
+ 118:Core/Src/freertos.c **** 
+ 119:Core/Src/freertos.c **** /* USER CODE BEGIN Header_StartBlink01 */
+ 120:Core/Src/freertos.c **** /**
+ 121:Core/Src/freertos.c ****   * @brief  Function implementing the blink01 thread.
+ 122:Core/Src/freertos.c ****   * @param  argument: Not used
+ 123:Core/Src/freertos.c ****   * @retval None
+ 124:Core/Src/freertos.c ****   */
+ 125:Core/Src/freertos.c **** /* USER CODE END Header_StartBlink01 */
+ 126:Core/Src/freertos.c **** void StartBlink01(void *argument)
+ 127:Core/Src/freertos.c **** {
+  27              		.loc 1 127 1 view -0
+  28              		.cfi_startproc
+  29              		@ Volatile: function does not return.
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              	.LVL0:
+  33              		.loc 1 127 1 is_stmt 0 view .LVU1
+  34 0000 08B5     		push	{r3, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 8
+  37              		.cfi_offset 3, -8
+  38              		.cfi_offset 14, -4
+  39              	.LVL1:
+  40              	.L2:
+ 128:Core/Src/freertos.c ****   /* USER CODE BEGIN StartBlink01 */
+ 129:Core/Src/freertos.c ****   /* Infinite loop */
+ 130:Core/Src/freertos.c ****   for(;;)
+  41              		.loc 1 130 3 is_stmt 1 discriminator 1 view .LVU2
+ 131:Core/Src/freertos.c ****   {
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccd9e9pV.s 			page 4
+
+
+ 132:Core/Src/freertos.c ****     HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
+  42              		.loc 1 132 5 discriminator 1 view .LVU3
+  43 0002 4FF40051 		mov	r1, #8192
+  44 0006 0448     		ldr	r0, .L4
+  45 0008 FFF7FEFF 		bl	HAL_GPIO_TogglePin
+  46              	.LVL2:
+ 133:Core/Src/freertos.c ****     osDelay(500);
+  47              		.loc 1 133 5 discriminator 1 view .LVU4
+  48 000c 4FF4FA70 		mov	r0, #500
+  49 0010 FFF7FEFF 		bl	osDelay
+  50              	.LVL3:
+  51 0014 F5E7     		b	.L2
+  52              	.L5:
+  53 0016 00BF     		.align	2
+  54              	.L4:
+  55 0018 00100140 		.word	1073811456
+  56              		.cfi_endproc
+  57              	.LFE70:
+  59              		.section	.text.StartBlink02,"ax",%progbits
+  60              		.align	1
+  61              		.global	StartBlink02
+  62              		.syntax unified
+  63              		.thumb
+  64              		.thumb_func
+  65              		.fpu softvfp
+  67              	StartBlink02:
+  68              	.LFB71:
+ 134:Core/Src/freertos.c ****   }
+ 135:Core/Src/freertos.c **** 
+ 136:Core/Src/freertos.c ****   osThreadTerminate(NULL);
+ 137:Core/Src/freertos.c ****   /* USER CODE END StartBlink01 */
+ 138:Core/Src/freertos.c **** }
+ 139:Core/Src/freertos.c **** 
+ 140:Core/Src/freertos.c **** /* USER CODE BEGIN Header_StartBlink02 */
+ 141:Core/Src/freertos.c **** /**
+ 142:Core/Src/freertos.c **** * @brief Function implementing the blink02 thread.
+ 143:Core/Src/freertos.c **** * @param argument: Not used
+ 144:Core/Src/freertos.c **** * @retval None
+ 145:Core/Src/freertos.c **** */
+ 146:Core/Src/freertos.c **** /* USER CODE END Header_StartBlink02 */
+ 147:Core/Src/freertos.c **** void StartBlink02(void *argument)
+ 148:Core/Src/freertos.c **** {
+  69              		.loc 1 148 1 view -0
+  70              		.cfi_startproc
+  71              		@ Volatile: function does not return.
+  72              		@ args = 0, pretend = 0, frame = 0
+  73              		@ frame_needed = 0, uses_anonymous_args = 0
+  74              	.LVL4:
+  75              		.loc 1 148 1 is_stmt 0 view .LVU6
+  76 0000 08B5     		push	{r3, lr}
+  77              	.LCFI1:
+  78              		.cfi_def_cfa_offset 8
+  79              		.cfi_offset 3, -8
+  80              		.cfi_offset 14, -4
+  81              	.LVL5:
+  82              	.L7:
+ 149:Core/Src/freertos.c ****   /* USER CODE BEGIN StartBlink02 */
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccd9e9pV.s 			page 5
+
+
+ 150:Core/Src/freertos.c ****   /* Infinite loop */
+ 151:Core/Src/freertos.c ****   for(;;)
+  83              		.loc 1 151 3 is_stmt 1 discriminator 1 view .LVU7
+ 152:Core/Src/freertos.c ****   {
+ 153:Core/Src/freertos.c ****     HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
+  84              		.loc 1 153 5 discriminator 1 view .LVU8
+  85 0002 4FF40051 		mov	r1, #8192
+  86 0006 0448     		ldr	r0, .L9
+  87 0008 FFF7FEFF 		bl	HAL_GPIO_TogglePin
+  88              	.LVL6:
+ 154:Core/Src/freertos.c ****     osDelay(600);
+  89              		.loc 1 154 5 discriminator 1 view .LVU9
+  90 000c 4FF41670 		mov	r0, #600
+  91 0010 FFF7FEFF 		bl	osDelay
+  92              	.LVL7:
+  93 0014 F5E7     		b	.L7
+  94              	.L10:
+  95 0016 00BF     		.align	2
+  96              	.L9:
+  97 0018 00100140 		.word	1073811456
+  98              		.cfi_endproc
+  99              	.LFE71:
+ 101              		.section	.text.MX_FREERTOS_Init,"ax",%progbits
+ 102              		.align	1
+ 103              		.global	MX_FREERTOS_Init
+ 104              		.syntax unified
+ 105              		.thumb
+ 106              		.thumb_func
+ 107              		.fpu softvfp
+ 109              	MX_FREERTOS_Init:
+ 110              	.LFB69:
+  81:Core/Src/freertos.c ****   /* USER CODE BEGIN Init */
+ 111              		.loc 1 81 29 view -0
+ 112              		.cfi_startproc
+ 113              		@ args = 0, pretend = 0, frame = 0
+ 114              		@ frame_needed = 0, uses_anonymous_args = 0
+ 115 0000 08B5     		push	{r3, lr}
+ 116              	.LCFI2:
+ 117              		.cfi_def_cfa_offset 8
+ 118              		.cfi_offset 3, -8
+ 119              		.cfi_offset 14, -4
+ 104:Core/Src/freertos.c **** 
+ 120              		.loc 1 104 3 view .LVU11
+ 104:Core/Src/freertos.c **** 
+ 121              		.loc 1 104 19 is_stmt 0 view .LVU12
+ 122 0002 074A     		ldr	r2, .L13
+ 123 0004 0021     		movs	r1, #0
+ 124 0006 0748     		ldr	r0, .L13+4
+ 125 0008 FFF7FEFF 		bl	osThreadNew
+ 126              	.LVL8:
+ 104:Core/Src/freertos.c **** 
+ 127              		.loc 1 104 17 view .LVU13
+ 128 000c 064B     		ldr	r3, .L13+8
+ 129 000e 1860     		str	r0, [r3]
+ 107:Core/Src/freertos.c **** 
+ 130              		.loc 1 107 3 is_stmt 1 view .LVU14
+ 107:Core/Src/freertos.c **** 
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccd9e9pV.s 			page 6
+
+
+ 131              		.loc 1 107 19 is_stmt 0 view .LVU15
+ 132 0010 064A     		ldr	r2, .L13+12
+ 133 0012 0021     		movs	r1, #0
+ 134 0014 0648     		ldr	r0, .L13+16
+ 135 0016 FFF7FEFF 		bl	osThreadNew
+ 136              	.LVL9:
+ 107:Core/Src/freertos.c **** 
+ 137              		.loc 1 107 17 view .LVU16
+ 138 001a 064B     		ldr	r3, .L13+20
+ 139 001c 1860     		str	r0, [r3]
+ 117:Core/Src/freertos.c **** 
+ 140              		.loc 1 117 1 view .LVU17
+ 141 001e 08BD     		pop	{r3, pc}
+ 142              	.L14:
+ 143              		.align	2
+ 144              	.L13:
+ 145 0020 00000000 		.word	.LANCHOR0
+ 146 0024 00000000 		.word	StartBlink01
+ 147 0028 00000000 		.word	blink01Handle
+ 148 002c 00000000 		.word	.LANCHOR1
+ 149 0030 00000000 		.word	StartBlink02
+ 150 0034 00000000 		.word	blink02Handle
+ 151              		.cfi_endproc
+ 152              	.LFE69:
+ 154              		.global	blink02_attributes
+ 155              		.comm	blink02Handle,4,4
+ 156              		.global	blink01_attributes
+ 157              		.comm	blink01Handle,4,4
+ 158              		.section	.rodata.blink01_attributes,"a"
+ 159              		.align	2
+ 160              		.set	.LANCHOR0,. + 0
+ 163              	blink01_attributes:
+ 164 0000 08000000 		.word	.LC1
+ 165 0004 00000000 		.space	16
+ 165      00000000 
+ 165      00000000 
+ 165      00000000 
+ 166 0014 00020000 		.word	512
+ 167 0018 18000000 		.word	24
+ 168 001c 00000000 		.space	8
+ 168      00000000 
+ 169              		.section	.rodata.blink02_attributes,"a"
+ 170              		.align	2
+ 171              		.set	.LANCHOR1,. + 0
+ 174              	blink02_attributes:
+ 175 0000 00000000 		.word	.LC0
+ 176 0004 00000000 		.space	16
+ 176      00000000 
+ 176      00000000 
+ 176      00000000 
+ 177 0014 00020000 		.word	512
+ 178 0018 08000000 		.word	8
+ 179 001c 00000000 		.space	8
+ 179      00000000 
+ 180              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 181              		.align	2
+ 182              	.LC0:
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccd9e9pV.s 			page 7
+
+
+ 183 0000 626C696E 		.ascii	"blink02\000"
+ 183      6B303200 
+ 184              	.LC1:
+ 185 0008 626C696E 		.ascii	"blink01\000"
+ 185      6B303100 
+ 186              		.text
+ 187              	.Letext0:
+ 188              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 189              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 190              		.file 4 "Core/Inc/FreeRTOSConfig.h"
+ 191              		.file 5 "Drivers/CMSIS/Include/core_cm3.h"
+ 192              		.file 6 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h"
+ 193              		.file 7 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 194              		.file 8 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"
+ 195              		.file 9 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h"
+ 196              		.file 10 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccd9e9pV.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 freertos.c
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:16     .text.StartBlink01:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:24     .text.StartBlink01:00000000 StartBlink01
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:55     .text.StartBlink01:00000018 $d
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:60     .text.StartBlink02:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:67     .text.StartBlink02:00000000 StartBlink02
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:97     .text.StartBlink02:00000018 $d
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:102    .text.MX_FREERTOS_Init:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:109    .text.MX_FREERTOS_Init:00000000 MX_FREERTOS_Init
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:145    .text.MX_FREERTOS_Init:00000020 $d
+                            *COM*:00000004 blink01Handle
+                            *COM*:00000004 blink02Handle
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:174    .rodata.blink02_attributes:00000000 blink02_attributes
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:163    .rodata.blink01_attributes:00000000 blink01_attributes
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:159    .rodata.blink01_attributes:00000000 $d
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:170    .rodata.blink02_attributes:00000000 $d
+C:\Users\user\AppData\Local\Temp\ccd9e9pV.s:181    .rodata.str1.4:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_GPIO_TogglePin
+osDelay
+osThreadNew
