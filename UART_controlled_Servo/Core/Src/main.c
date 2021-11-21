@@ -23,7 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -69,7 +70,7 @@ void StartReadUART_Servo(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+float current_pos = 250;
 /* USER CODE END 0 */
 
 /**
@@ -104,6 +105,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )current_pos); //go to initial position
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -310,43 +312,56 @@ void StartReadUART_Servo(void *argument)
   for(;;)
   {
     char buffer[8];
-    char msg[30];
+    char msg[50];
     uint8_t arr[9] = {0};
-    uint16_t i = 0, myInt = 0;
+    uint16_t i = 0;
+    float goal_pos = 0;
     if (HAL_UART_Receive(&huart1, buffer, 1, 1000) == HAL_OK && buffer[0] == '!') //only read if serial is OK and there is a start char "!"
     {
       while (buffer[0] != '#') //loop till encounter the end char "#"
       {
         HAL_UART_Receive(&huart1, buffer, 1, 1000);
-        // if (buffer[0] == ':') //save all char before ":" in myInt
+        // if (buffer[0] == ':') //save all char before ":" in goal_pos
         // {
         //   i = 0;
-        //   myInt = atoi(arr);
+        //   goal_pos = atoi(arr);
         //   memset(&arr[0], 0, sizeof(arr)); //clear arr array
         //   continue;
         // }
-        if (buffer[0] == '#') //add all char before "#" to myInt
+        if (buffer[0] == '#') //add all char before "#" to goal_pos
         {
-          myInt += atoi(arr);
+          goal_pos += atoi(arr);
           memset(&arr[0], 0, sizeof(arr)); //clear arr array
         }
         arr[i] = buffer[0]; //add buffer char to array
         i++;
       }
-      if(myInt>1250){
-        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )1250);
+      if(goal_pos>1250){
+        goal_pos = 1250;
       }
-      else if(myInt<250){
-        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )250);
+      else if(goal_pos<250){
+        goal_pos = 250;
       }
-      else{
-        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )myInt);
-      }
-      sprintf(msg, "Set servo to: %d \n\r", myInt);
+      
+      sprintf(msg, "Set servo to: %f \n\r", goal_pos);
       HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+      float servo1Smoothed;
+      while(1){
+        servo1Smoothed = (goal_pos * 0.05) + (current_pos * 0.95);
+        
+        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )servo1Smoothed);
+        sprintf(msg, "servo smoothed: %f \n\r", servo1Smoothed);
+        HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+        osDelay(3);
+        if (abs(servo1Smoothed - goal_pos)<10){
+          break;
+        }
+        current_pos = servo1Smoothed;
+      }
     }
     osDelay(1);
   }
+  osThreadTerminate(NULL);
   /* USER CODE END 5 */
 }
 
