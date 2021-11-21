@@ -45,19 +45,12 @@ TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
 
-/* Definitions for readUART */
-osThreadId_t readUARTHandle;
-const osThreadAttr_t readUART_attributes = {
-  .name = "readUART",
+/* Definitions for readUART_Servo */
+osThreadId_t readUART_ServoHandle;
+const osThreadAttr_t readUART_Servo_attributes = {
+  .name = "readUART_Servo",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for Servo01 */
-osThreadId_t Servo01Handle;
-const osThreadAttr_t Servo01_attributes = {
-  .name = "Servo01",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
 };
 /* USER CODE BEGIN PV */
 
@@ -68,8 +61,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART1_UART_Init(void);
-void StartReadUART(void *argument);
-void StartServo01(void *argument);
+void StartReadUART_Servo(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -134,11 +126,8 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of readUART */
-  readUARTHandle = osThreadNew(StartReadUART, NULL, &readUART_attributes);
-
-  /* creation of Servo01 */
-  Servo01Handle = osThreadNew(StartServo01, NULL, &Servo01_attributes);
+  /* creation of readUART_Servo */
+  readUART_ServoHandle = osThreadNew(StartReadUART_Servo, NULL, &readUART_Servo_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -307,14 +296,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartReadUART */
+/* USER CODE BEGIN Header_StartReadUART_Servo */
 /**
-  * @brief  Function implementing the readUART thread.
+  * @brief  Function implementing the readUART_Servo thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartReadUART */
-void StartReadUART(void *argument)
+/* USER CODE END Header_StartReadUART_Servo */
+void StartReadUART_Servo(void *argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
@@ -359,24 +348,6 @@ void StartReadUART(void *argument)
     osDelay(1);
   }
   /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_StartServo01 */
-/**
-* @brief Function implementing the Servo01 thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartServo01 */
-void StartServo01(void *argument)
-{
-  /* USER CODE BEGIN StartServo01 */
-  /* Infinite loop */
-  for(;;)
-  {
-    
-  }
-  /* USER CODE END StartServo01 */
 }
 
 /**

@@ -1,7 +1,7 @@
 #MicroXplorer Configuration settings - do not modify
 FREERTOS.FootprintOK=true
 FREERTOS.IPParameters=Tasks01,FootprintOK
-FREERTOS.Tasks01=readUART,24,128,StartReadUART,Default,NULL,Dynamic,NULL,NULL;Servo01,8,128,StartServo01,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.Tasks01=readUART_Servo,24,128,StartReadUART_Servo,Default,NULL,Dynamic,NULL,NULL
 File.Version=6
 GPIO.groupedBy=
 KeepUserPlacement=false
