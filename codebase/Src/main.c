@@ -33,6 +33,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define kp 10
+#define ki 0
+#define kd 10
+#define i_max 3000
+#define out_max 3000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -48,7 +53,13 @@ TIM_HandleTypeDef htim1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+uint8_t msg[8] = {0, 0, 0, 0, 0, 0, 0, 0};                   // CAN Bus Send Buffer
 static volatile uint8_t canRX[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // CAN Bus Receive Buffer
+static CAN_RxHeaderTypeDef rxHeader;                         // CAN Bus Transmit Header
+static volatile HAL_StatusTypeDef canTxStatus = HAL_OK;
+static volatile HAL_StatusTypeDef canRxStatus = HAL_OK;
+uint16_t target = 60, current_rpm;
+pid_struct_t motorA;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,7 +69,8 @@ static void MX_TIM1_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_CAN_Init(void);
 /* USER CODE BEGIN PFP */
-
+// HAL_StatusTypeDef CAN_RxFifo1MsgPendingCallBack(CAN_HandleTypeDef *hcan);
+void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint8_t target_buffer[]);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -67,9 +79,9 @@ static void MX_CAN_Init(void);
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -98,7 +110,6 @@ int main(void)
   MX_USART2_UART_Init();
   MX_CAN_Init();
   /* USER CODE BEGIN 2 */
-  static CAN_RxHeaderTypeDef rxHeader;                         // CAN Bus Transmit Header
   CAN_TxHeaderTypeDef txHeader;                                // CAN Bus Receive Header
   static volatile uint16_t encoder = 0;
   CAN_FilterTypeDef canfil; // CAN Bus Filter
@@ -106,7 +117,7 @@ int main(void)
 
   canfil.FilterBank = 0;
   canfil.FilterMode = CAN_FILTERMODE_IDMASK;
-  canfil.FilterFIFOAssignment = CAN_RX_FIFO0;
+  canfil.FilterFIFOAssignment = CAN_RX_FIFO1;
   canfil.FilterIdHigh = 0;
   canfil.FilterIdLow = 0;
   canfil.FilterMaskIdHigh = 0;
@@ -123,11 +134,11 @@ int main(void)
   txHeader.TransmitGlobalTime = DISABLE;
 
   HAL_CAN_ConfigFilter(&hcan, &canfil);
+  // HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
   HAL_CAN_Start(&hcan);
 
-  uint8_t msg[8] = {3, 0, 0, 0, 0, 0, 0, 0};
-  static volatile HAL_StatusTypeDef canTxStatus = HAL_OK;
-  static volatile HAL_StatusTypeDef canRxStatus = HAL_OK;
+  pid_init(&motorA, kp, ki, kd, i_max, out_max);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -138,24 +149,26 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
-    canRxStatus = HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxHeader, (uint8_t *)canRX);
+    canRxStatus = HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX);
+    current_rpm = (canRX[2]<<8)+canRX[3];
+    CAN_Set_Motor_Voltage(pid_calc(&motorA,target,current_rpm),0,0,0,msg);
     // encoder = canRX[0] << 8 | canRX[1];
-    HAL_Delay(10);
+    // HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Initializes the CPU, AHB and APB busses clocks
-   */
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -168,8 +181,9 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   /** Initializes the CPU, AHB and APB busses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -182,10 +196,10 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief CAN Initialization Function
- * @param None
- * @retval None
- */
+  * @brief CAN Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_CAN_Init(void)
 {
 
@@ -215,13 +229,14 @@ static void MX_CAN_Init(void)
   /* USER CODE BEGIN CAN_Init 2 */
 
   /* USER CODE END CAN_Init 2 */
+
 }
 
 /**
- * @brief TIM1 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_TIM1_Init(void)
 {
 
@@ -289,13 +304,14 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 2 */
   HAL_TIM_MspPostInit(&htim1);
+
 }
 
 /**
- * @brief USART2 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_USART2_UART_Init(void)
 {
 
@@ -321,13 +337,14 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
 }
 
 /**
- * @brief GPIO Initialization Function
- * @param None
- * @retval None
- */
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -346,32 +363,60 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
   HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+
 }
 
 /* USER CODE BEGIN 4 */
-
+HAL_StatusTypeDef CAN_RxFifo1MsgPendingCallBack(CAN_HandleTypeDef *hcan){
+  if (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX) != HAL_OK){
+    Error_Handler();
+    canRxStatus = HAL_ERROR;
+  }
+  else{
+    HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
+    canRxStatus = HAL_OK;
+    for(int i=0;i<6;i++){
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    HAL_Delay(200);
+  }
+  }
+}
+void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint8_t target_buffer[]){
+  target_buffer[0] = v1 >> 8;
+  target_buffer[1] = v1;
+  target_buffer[2] = v2 >> 8;
+  target_buffer[3] = v2;
+  target_buffer[4] = v3 >> 8;
+  target_buffer[5] = v3;
+  target_buffer[6] = v4 >> 8;
+  target_buffer[7] = v4;
+  return;
+}
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-
+  for(int i=0;i<4;i++){
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    HAL_Delay(500);
+  }
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

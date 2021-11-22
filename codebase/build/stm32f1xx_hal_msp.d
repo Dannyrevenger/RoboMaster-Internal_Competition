@@ -22,7 +22,8 @@ build/stm32f1xx_hal_msp.o: Src/stm32f1xx_hal_msp.c Inc/main.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
- Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+ Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h private/pid.h \
+ private/dbus.h
 Inc/main.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 Inc/stm32f1xx_hal_conf.h:
@@ -50,3 +51,5 @@ Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
+private/pid.h:
+private/dbus.h:

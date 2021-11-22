@@ -1,4 +1,4 @@
-build/main.o: Src/main.c Inc/main.h \
+build/pid.o: private/pid.c private/pid.h Inc/main.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  Inc/stm32f1xx_hal_conf.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
@@ -24,6 +24,7 @@ build/main.o: Src/main.c Inc/main.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h private/pid.h \
  private/dbus.h
+private/pid.h:
 Inc/main.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 Inc/stm32f1xx_hal_conf.h:

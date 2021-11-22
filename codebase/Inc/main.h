@@ -32,7 +32,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "pid.h"
+#include "dbus.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -63,7 +64,7 @@ void Error_Handler(void);
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
-
+#define LIMIT_MIN_MAX(x,min,max) (x) = (((x)<=(min))?(min):(((x)>=(max))?(max):(x)))
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
