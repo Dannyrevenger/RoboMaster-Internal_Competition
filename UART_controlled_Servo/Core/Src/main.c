@@ -53,6 +53,13 @@ const osThreadAttr_t readUART_Servo_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for Servo01 */
+osThreadId_t Servo01Handle;
+const osThreadAttr_t Servo01_attributes = {
+  .name = "Servo01",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -63,6 +70,7 @@ static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART1_UART_Init(void);
 void StartReadUART_Servo(void *argument);
+void StartServo01(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -70,7 +78,8 @@ void StartReadUART_Servo(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-float current_pos = 250;
+float current_pos1 = 250;
+float current_pos2 = 250;
 /* USER CODE END 0 */
 
 /**
@@ -105,7 +114,9 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )current_pos); //go to initial position
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )current_pos1); //go to initial position
+  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, (uint16_t )current_pos2); //go to initial position
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -130,6 +141,9 @@ int main(void)
   /* Create the thread(s) */
   /* creation of readUART_Servo */
   readUART_ServoHandle = osThreadNew(StartReadUART_Servo, NULL, &readUART_Servo_attributes);
+
+  /* creation of Servo01 */
+  Servo01Handle = osThreadNew(StartServo01, NULL, &Servo01_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -240,6 +254,10 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
@@ -315,54 +333,85 @@ void StartReadUART_Servo(void *argument)
     char msg[50];
     uint8_t arr[9] = {0};
     uint16_t i = 0;
-    float goal_pos = 0;
+    float goal_pos1 = 0, goal_pos2 = 0;
     if (HAL_UART_Receive(&huart1, buffer, 1, 1000) == HAL_OK && buffer[0] == '!') //only read if serial is OK and there is a start char "!"
     {
       while (buffer[0] != '#') //loop till encounter the end char "#"
       {
         HAL_UART_Receive(&huart1, buffer, 1, 1000);
-        // if (buffer[0] == ':') //save all char before ":" in goal_pos
-        // {
-        //   i = 0;
-        //   goal_pos = atoi(arr);
-        //   memset(&arr[0], 0, sizeof(arr)); //clear arr array
-        //   continue;
-        // }
+        if (buffer[0] == ':') //save all char before ":" in goal_pos
+        {
+          i = 0;
+          goal_pos1 = atoi(arr);
+          memset(&arr[0], 0, sizeof(arr)); //clear arr array
+          continue;
+        }
         if (buffer[0] == '#') //add all char before "#" to goal_pos
         {
-          goal_pos += atoi(arr);
+          goal_pos2 = atoi(arr);
           memset(&arr[0], 0, sizeof(arr)); //clear arr array
         }
         arr[i] = buffer[0]; //add buffer char to array
         i++;
       }
-      if(goal_pos>1250){
-        goal_pos = 1250;
+      // keep pwm values between 250 and 1250
+      if(goal_pos1>1250){
+        goal_pos1 = 1250;
       }
-      else if(goal_pos<250){
-        goal_pos = 250;
+      else if(goal_pos1<250){
+        goal_pos1 = 250;
+      }
+
+      if(goal_pos2>1250){
+        goal_pos2 = 1250;
+      }
+      else if(goal_pos2<250){
+        goal_pos2 = 250;
       }
       
-      sprintf(msg, "Set servo to: %f \n\r", goal_pos);
-      HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+      // sprintf(msg, "Set servo to: %f \n\r", goal_pos);
+      // HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
       float servo1Smoothed;
+      float servo2Smoothed;
+      
       while(1){
-        servo1Smoothed = (goal_pos * 0.05) + (current_pos * 0.95);
+        servo1Smoothed = (goal_pos1 * 0.05) + (current_pos1 * 0.95);
+        servo2Smoothed = (goal_pos2 * 0.05) + (current_pos2 * 0.95);
         
         __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )servo1Smoothed);
-        sprintf(msg, "servo smoothed: %f \n\r", servo1Smoothed);
-        HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
-        osDelay(3);
-        if (abs(servo1Smoothed - goal_pos)<10){
+        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, (uint16_t )servo2Smoothed);
+        // sprintf(msg, "servo smoothed: %f \n\r", servo1Smoothed);
+        // HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+        osDelay(10);
+        if (abs(servo1Smoothed - goal_pos1)<10 && abs(servo2Smoothed - goal_pos2)<10){
           break;
         }
-        current_pos = servo1Smoothed;
+        current_pos1 = servo1Smoothed;
+        current_pos2 = servo2Smoothed;
       }
     }
     osDelay(1);
   }
   osThreadTerminate(NULL);
   /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_StartServo01 */
+/**
+* @brief Function implementing the Servo01 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartServo01 */
+void StartServo01(void *argument)
+{
+  /* USER CODE BEGIN StartServo01 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartServo01 */
 }
 
 /**
