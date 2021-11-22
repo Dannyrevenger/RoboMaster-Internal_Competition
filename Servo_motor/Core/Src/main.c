@@ -101,7 +101,7 @@ int main(void)
 
     //SERVO MOTOR
     int x;
-    for(x=250; x<1250; x=x+1)
+    for(x=250; x<1250; x++)
     {
       __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, x);
       HAL_Delay(1);
