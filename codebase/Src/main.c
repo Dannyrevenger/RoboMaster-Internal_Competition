@@ -33,11 +33,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define kp 10
-#define ki 0
-#define kd 10
-#define i_max 3000
-#define out_max 3000
+// #define kp 5
+// #define ki 0.1
+// #define kd 2
+#define i_max 6000
+#define out_max 18000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -58,8 +58,9 @@ static volatile uint8_t canRX[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // CAN Bus Receive 
 static CAN_RxHeaderTypeDef rxHeader;                         // CAN Bus Transmit Header
 static volatile HAL_StatusTypeDef canTxStatus = HAL_OK;
 static volatile HAL_StatusTypeDef canRxStatus = HAL_OK;
-uint16_t target = 60, current_rpm;
-pid_struct_t motorA;
+uint16_t target = 600;
+int16_t current_rpm_A,current_rpm_B,current_rpm_C,current_rpm_D;
+pid_struct_t motorA, motorB, motorC, motorD;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -137,8 +138,10 @@ int main(void)
   // HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
   HAL_CAN_Start(&hcan);
 
-  pid_init(&motorA, kp, ki, kd, i_max, out_max);
-
+  pid_init(&motorA, 5, 0.1, 2, 8000, 16000);
+  pid_init(&motorB, 2, 0.2, 4, 8000, 16000);
+  pid_init(&motorC, 3, 0.5, 4, 8000, 16000);
+  pid_init(&motorD, 5, 0.1, 2, 8000, 16000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -150,10 +153,10 @@ int main(void)
     /* USER CODE BEGIN 3 */
     canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
     canRxStatus = HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX);
-    current_rpm = (canRX[2]<<8)+canRX[3];
-    CAN_Set_Motor_Voltage(pid_calc(&motorA,target,current_rpm),0,0,0,msg);
+    current_rpm_B = 1-(~((canRX[2]<<8)+canRX[3]));
+    CAN_Set_Motor_Voltage(pid_calc(&motorC,target,current_rpm_A),pid_calc(&motorB,target,current_rpm_B),0,0,msg);
     // encoder = canRX[0] << 8 | canRX[1];
-    // HAL_Delay(10);
+    HAL_Delay(5);
   }
   /* USER CODE END 3 */
 }
