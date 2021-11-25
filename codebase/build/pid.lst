@@ -1,0 +1,312 @@
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 1
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"pid.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.pid_init,"ax",%progbits
+  16              		.align	1
+  17              		.global	pid_init
+  18              		.arch armv7-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	pid_init:
+  25              	.LVL0:
+  26              	.LFB65:
+  27              		.file 1 "private/pid.c"
+   1:private/pid.c **** /****************************************************************************
+   2:private/pid.c ****  *  Copyright (C) 2018 RoboMaster.
+   3:private/pid.c ****  *
+   4:private/pid.c ****  *  This program is free software: you can redistribute it and/or modify
+   5:private/pid.c ****  *  it under the terms of the GNU General Public License as published by
+   6:private/pid.c ****  *  the Free Software Foundation, either version 3 of the License, or
+   7:private/pid.c ****  *  (at your option) any later version.
+   8:private/pid.c ****  *
+   9:private/pid.c ****  *  This program is distributed in the hope that it will be useful,
+  10:private/pid.c ****  *  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+  11:private/pid.c ****  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  12:private/pid.c ****  *  GNU General Public License for more details.
+  13:private/pid.c ****  *
+  14:private/pid.c ****  *  You should have received a copy of the GNU General Public License
+  15:private/pid.c ****  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
+  16:private/pid.c ****  ***************************************************************************/
+  17:private/pid.c ****  
+  18:private/pid.c **** #include "pid.h"
+  19:private/pid.c **** 
+  20:private/pid.c **** /**
+  21:private/pid.c ****   * @brief  init pid parameter
+  22:private/pid.c ****   * @param  pid struct
+  23:private/pid.c ****     @param  parameter
+  24:private/pid.c ****   * @retval None
+  25:private/pid.c ****   */
+  26:private/pid.c **** 
+  27:private/pid.c **** 
+  28:private/pid.c **** void pid_init(pid_struct_t *pid,
+  29:private/pid.c ****               float kp,
+  30:private/pid.c ****               float ki,
+  31:private/pid.c ****               float kd,
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s 			page 2
+
+
+  32:private/pid.c ****               float i_max,
+  33:private/pid.c ****               float out_max)
+  34:private/pid.c **** {
+  28              		.loc 1 34 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 8, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  35:private/pid.c ****   pid->kp      = kp;
+  33              		.loc 1 35 3 view .LVU1
+  34              		.loc 1 35 16 is_stmt 0 view .LVU2
+  35 0000 0160     		str	r1, [r0]	@ float
+  36:private/pid.c ****   pid->ki      = ki;
+  36              		.loc 1 36 3 is_stmt 1 view .LVU3
+  37              		.loc 1 36 16 is_stmt 0 view .LVU4
+  38 0002 4260     		str	r2, [r0, #4]	@ float
+  37:private/pid.c ****   pid->kd      = kd;
+  39              		.loc 1 37 3 is_stmt 1 view .LVU5
+  40              		.loc 1 37 16 is_stmt 0 view .LVU6
+  41 0004 8360     		str	r3, [r0, #8]	@ float
+  38:private/pid.c ****   pid->i_max   = i_max;
+  42              		.loc 1 38 3 is_stmt 1 view .LVU7
+  43              		.loc 1 38 16 is_stmt 0 view .LVU8
+  44 0006 009B     		ldr	r3, [sp]	@ float
+  45              	.LVL1:
+  46              		.loc 1 38 16 view .LVU9
+  47 0008 C360     		str	r3, [r0, #12]	@ float
+  39:private/pid.c ****   pid->out_max = out_max;
+  48              		.loc 1 39 3 is_stmt 1 view .LVU10
+  49              		.loc 1 39 16 is_stmt 0 view .LVU11
+  50 000a 019B     		ldr	r3, [sp, #4]	@ float
+  51 000c 0361     		str	r3, [r0, #16]	@ float
+  40:private/pid.c **** }
+  52              		.loc 1 40 1 view .LVU12
+  53 000e 7047     		bx	lr
+  54              		.cfi_endproc
+  55              	.LFE65:
+  57              		.global	__aeabi_fsub
+  58              		.global	__aeabi_fmul
+  59              		.global	__aeabi_fadd
+  60              		.global	__aeabi_fcmple
+  61              		.global	__aeabi_fcmpge
+  62              		.section	.text.pid_calc,"ax",%progbits
+  63              		.align	1
+  64              		.global	pid_calc
+  65              		.syntax unified
+  66              		.thumb
+  67              		.thumb_func
+  68              		.fpu softvfp
+  70              	pid_calc:
+  71              	.LVL2:
+  72              	.LFB66:
+  41:private/pid.c **** 
+  42:private/pid.c **** /**
+  43:private/pid.c ****   * @brief  pid calculation
+  44:private/pid.c ****   * @param  pid struct
+  45:private/pid.c ****     @param  reference value
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s 			page 3
+
+
+  46:private/pid.c ****     @param  feedback value
+  47:private/pid.c ****   * @retval calculation result
+  48:private/pid.c ****   */
+  49:private/pid.c **** float pid_calc(pid_struct_t *pid, float ref, float fdb)
+  50:private/pid.c **** {
+  73              		.loc 1 50 1 is_stmt 1 view -0
+  74              		.cfi_startproc
+  75              		@ args = 0, pretend = 0, frame = 0
+  76              		@ frame_needed = 0, uses_anonymous_args = 0
+  77              		.loc 1 50 1 is_stmt 0 view .LVU14
+  78 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+  79              	.LCFI0:
+  80              		.cfi_def_cfa_offset 32
+  81              		.cfi_offset 3, -32
+  82              		.cfi_offset 4, -28
+  83              		.cfi_offset 5, -24
+  84              		.cfi_offset 6, -20
+  85              		.cfi_offset 7, -16
+  86              		.cfi_offset 8, -12
+  87              		.cfi_offset 9, -8
+  88              		.cfi_offset 14, -4
+  89 0004 0446     		mov	r4, r0
+  90 0006 0846     		mov	r0, r1
+  91              	.LVL3:
+  92              		.loc 1 50 1 view .LVU15
+  93 0008 1146     		mov	r1, r2
+  94              	.LVL4:
+  51:private/pid.c ****   pid->ref = ref;
+  95              		.loc 1 51 3 is_stmt 1 view .LVU16
+  96              		.loc 1 51 12 is_stmt 0 view .LVU17
+  97 000a 6061     		str	r0, [r4, #20]	@ float
+  52:private/pid.c ****   pid->fdb = fdb;
+  98              		.loc 1 52 3 is_stmt 1 view .LVU18
+  99              		.loc 1 52 12 is_stmt 0 view .LVU19
+ 100 000c A261     		str	r2, [r4, #24]	@ float
+  53:private/pid.c ****   pid->err[1] = pid->err[0];
+ 101              		.loc 1 53 3 is_stmt 1 view .LVU20
+ 102              		.loc 1 53 25 is_stmt 0 view .LVU21
+ 103 000e D4F81C80 		ldr	r8, [r4, #28]	@ float
+ 104              		.loc 1 53 15 view .LVU22
+ 105 0012 C4F82080 		str	r8, [r4, #32]	@ float
+  54:private/pid.c ****   pid->err[0] = pid->ref - pid->fdb;
+ 106              		.loc 1 54 3 is_stmt 1 view .LVU23
+ 107              		.loc 1 54 26 is_stmt 0 view .LVU24
+ 108 0016 FFF7FEFF 		bl	__aeabi_fsub
+ 109              	.LVL5:
+ 110              		.loc 1 54 26 view .LVU25
+ 111 001a 0546     		mov	r5, r0
+ 112              		.loc 1 54 15 view .LVU26
+ 113 001c E061     		str	r0, [r4, #28]	@ float
+  55:private/pid.c ****   
+  56:private/pid.c ****   pid->p_out  = pid->kp * pid->err[0];
+ 114              		.loc 1 56 3 is_stmt 1 view .LVU27
+ 115              		.loc 1 56 25 is_stmt 0 view .LVU28
+ 116 001e 2168     		ldr	r1, [r4]	@ float
+ 117 0020 FFF7FEFF 		bl	__aeabi_fmul
+ 118              	.LVL6:
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s 			page 4
+
+
+ 119 0024 0746     		mov	r7, r0
+ 120              		.loc 1 56 15 view .LVU29
+ 121 0026 6062     		str	r0, [r4, #36]	@ float
+  57:private/pid.c ****   pid->i_out += pid->ki * pid->err[0];
+ 122              		.loc 1 57 3 is_stmt 1 view .LVU30
+ 123              		.loc 1 57 25 is_stmt 0 view .LVU31
+ 124 0028 6168     		ldr	r1, [r4, #4]	@ float
+ 125 002a 2846     		mov	r0, r5
+ 126 002c FFF7FEFF 		bl	__aeabi_fmul
+ 127              	.LVL7:
+ 128              		.loc 1 57 14 view .LVU32
+ 129 0030 A16A     		ldr	r1, [r4, #40]	@ float
+ 130 0032 FFF7FEFF 		bl	__aeabi_fadd
+ 131              	.LVL8:
+ 132 0036 0646     		mov	r6, r0
+ 133 0038 A062     		str	r0, [r4, #40]	@ float
+  58:private/pid.c ****   pid->d_out  = pid->kd * (pid->err[0] - pid->err[1]);
+ 134              		.loc 1 58 3 is_stmt 1 view .LVU33
+ 135              		.loc 1 58 20 is_stmt 0 view .LVU34
+ 136 003a D4F80890 		ldr	r9, [r4, #8]	@ float
+ 137              		.loc 1 58 40 view .LVU35
+ 138 003e 4146     		mov	r1, r8
+ 139 0040 2846     		mov	r0, r5
+ 140 0042 FFF7FEFF 		bl	__aeabi_fsub
+ 141              	.LVL9:
+ 142 0046 0146     		mov	r1, r0
+ 143              		.loc 1 58 25 view .LVU36
+ 144 0048 4846     		mov	r0, r9
+ 145 004a FFF7FEFF 		bl	__aeabi_fmul
+ 146              	.LVL10:
+ 147 004e 0546     		mov	r5, r0
+ 148              		.loc 1 58 15 view .LVU37
+ 149 0050 E062     		str	r0, [r4, #44]	@ float
+  59:private/pid.c ****   LIMIT_MIN_MAX(pid->i_out, -pid->i_max, pid->i_max);
+ 150              		.loc 1 59 3 is_stmt 1 view .LVU38
+ 151 0052 D4F80C90 		ldr	r9, [r4, #12]	@ float
+ 152 0056 09F10048 		add	r8, r9, #-2147483648
+ 153 005a 4146     		mov	r1, r8
+ 154 005c 3046     		mov	r0, r6
+ 155 005e FFF7FEFF 		bl	__aeabi_fcmple
+ 156              	.LVL11:
+ 157 0062 28B9     		cbnz	r0, .L3
+ 158              		.loc 1 59 3 is_stmt 0 discriminator 2 view .LVU39
+ 159 0064 4946     		mov	r1, r9
+ 160 0066 3046     		mov	r0, r6
+ 161 0068 FFF7FEFF 		bl	__aeabi_fcmpge
+ 162              	.LVL12:
+ 163 006c E8B1     		cbz	r0, .L11
+ 164              		.loc 1 59 3 view .LVU40
+ 165 006e C846     		mov	r8, r9
+ 166              	.L3:
+ 167              		.loc 1 59 3 discriminator 8 view .LVU41
+ 168 0070 C4F82880 		str	r8, [r4, #40]	@ float
+  60:private/pid.c ****   
+  61:private/pid.c ****   pid->output = pid->p_out + pid->i_out + pid->d_out;
+ 169              		.loc 1 61 3 is_stmt 1 discriminator 8 view .LVU42
+ 170              		.loc 1 61 28 is_stmt 0 discriminator 8 view .LVU43
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s 			page 5
+
+
+ 171 0074 4146     		mov	r1, r8
+ 172 0076 3846     		mov	r0, r7
+ 173 0078 FFF7FEFF 		bl	__aeabi_fadd
+ 174              	.LVL13:
+ 175 007c 0146     		mov	r1, r0
+ 176              		.loc 1 61 41 discriminator 8 view .LVU44
+ 177 007e 2846     		mov	r0, r5
+ 178 0080 FFF7FEFF 		bl	__aeabi_fadd
+ 179              	.LVL14:
+ 180 0084 0546     		mov	r5, r0
+ 181              		.loc 1 61 15 discriminator 8 view .LVU45
+ 182 0086 2063     		str	r0, [r4, #48]	@ float
+  62:private/pid.c ****   LIMIT_MIN_MAX(pid->output, -pid->out_max, pid->out_max);
+ 183              		.loc 1 62 3 is_stmt 1 discriminator 8 view .LVU46
+ 184 0088 2769     		ldr	r7, [r4, #16]	@ float
+ 185 008a 07F10046 		add	r6, r7, #-2147483648
+ 186 008e 3146     		mov	r1, r6
+ 187 0090 FFF7FEFF 		bl	__aeabi_fcmple
+ 188              	.LVL15:
+ 189 0094 28B9     		cbnz	r0, .L5
+ 190              		.loc 1 62 3 is_stmt 0 discriminator 2 view .LVU47
+ 191 0096 3946     		mov	r1, r7
+ 192 0098 2846     		mov	r0, r5
+ 193 009a FFF7FEFF 		bl	__aeabi_fcmpge
+ 194              	.LVL16:
+ 195 009e 30B1     		cbz	r0, .L12
+ 196              		.loc 1 62 3 view .LVU48
+ 197 00a0 3E46     		mov	r6, r7
+ 198              	.L5:
+ 199              		.loc 1 62 3 discriminator 8 view .LVU49
+ 200 00a2 2663     		str	r6, [r4, #48]	@ float
+  63:private/pid.c ****   return pid->output;
+ 201              		.loc 1 63 3 is_stmt 1 discriminator 8 view .LVU50
+  64:private/pid.c **** }
+ 202              		.loc 1 64 1 is_stmt 0 discriminator 8 view .LVU51
+ 203 00a4 3046     		mov	r0, r6
+ 204 00a6 BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 205              	.LVL17:
+ 206              	.L11:
+  59:private/pid.c ****   
+ 207              		.loc 1 59 3 view .LVU52
+ 208 00aa B046     		mov	r8, r6
+ 209 00ac E0E7     		b	.L3
+ 210              	.L12:
+  62:private/pid.c ****   return pid->output;
+ 211              		.loc 1 62 3 view .LVU53
+ 212 00ae 2E46     		mov	r6, r5
+ 213 00b0 F7E7     		b	.L5
+ 214              		.cfi_endproc
+ 215              	.LFE66:
+ 217              		.text
+ 218              	.Letext0:
+ 219              		.file 2 "private/pid.h"
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 pid.c
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s:16     .text.pid_init:00000000 $t
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s:24     .text.pid_init:00000000 pid_init
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s:63     .text.pid_calc:00000000 $t
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccj7oqhq.s:70     .text.pid_calc:00000000 pid_calc
+
+UNDEFINED SYMBOLS
+__aeabi_fsub
+__aeabi_fmul
+__aeabi_fadd
+__aeabi_fcmple
+__aeabi_fcmpge
