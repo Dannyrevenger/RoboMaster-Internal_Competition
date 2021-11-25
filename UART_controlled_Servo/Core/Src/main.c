@@ -78,8 +78,11 @@ void StartServo01(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+float current_pos0 = 750;
 float current_pos1 = 750;
 float current_pos2 = 750;
+float current_pos3 = 750;
+
 /* USER CODE END 0 */
 
 /**
@@ -115,8 +118,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )current_pos1); //go to initial position
-  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, (uint16_t )current_pos2); //go to initial position
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )current_pos0); //go to initial position
+  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, (uint16_t )current_pos1); //go to initial position
+  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_3, (uint16_t )current_pos2); //go to initial position
+  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_4, (uint16_t )current_pos3); //go to initial position
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -258,6 +265,14 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
@@ -333,62 +348,110 @@ void StartReadUART_Servo(void *argument)
     char msg[50];
     uint8_t arr[9] = {0};
     uint16_t i = 0;
-    float goal_pos1 = 0, goal_pos2 = 0;
+    uint8_t joint = 0;
+    uint16_t goal_pos0 = 0, goal_pos1 = 0, goal_pos2 = 0, goal_pos3 = 0, goal_pos = 0;
     if (HAL_UART_Receive(&huart1, buffer, 1, 1000) == HAL_OK && buffer[0] == '!') //only read if serial is OK and there is a start char "!"
     {
       while (buffer[0] != '#') //loop till encounter the end char "#"
       {
         HAL_UART_Receive(&huart1, buffer, 1, 1000);
-        if (buffer[0] == ':') //save all char before ":" in goal_pos
-        {
-          i = 0;
-          goal_pos1 = atoi(arr);
-          memset(&arr[0], 0, sizeof(arr)); //clear arr array
-          continue;
-        }
+        // if (buffer[0] == ':') //save all char before ":" in goal_pos
+        // {
+        //   if (joint == 0){
+        //     joint++;
+        //     i = 0;
+        //     goal_pos0 = atoi(arr);
+        //     memset(&arr[0], 0, sizeof(arr)); //clear arr array
+        //     continue;
+        //   }
+        // }
         if (buffer[0] == '#') //add all char before "#" to goal_pos
         {
-          goal_pos2 = atoi(arr);
+          goal_pos = atoi(arr);
           memset(&arr[0], 0, sizeof(arr)); //clear arr array
         }
         arr[i] = buffer[0]; //add buffer char to array
         i++;
       }
-      // keep pwm values between 250 and 1250
-      if(goal_pos1>1250){
-        goal_pos1 = 1250;
-      }
-      else if(goal_pos1<250){
-        goal_pos1 = 250;
-      }
-
-      if(goal_pos2>1250){
-        goal_pos2 = 1250;
-      }
-      else if(goal_pos2<250){
-        goal_pos2 = 250;
-      }
       
+      // keep pwm values between 250 and 1250
+      // if(goal_pos0>1250){
+      //   goal_pos0 = 1250;
+      // }
+      // else if(goal_pos0<250){
+      //   goal_pos0 = 250;
+      // }
+
+      // if(goal_pos1>1250){
+      //   goal_pos1 = 1250;
+      // }
+      // else if(goal_pos1<250){
+      //   goal_pos1 = 250;
+      // }
+      // if(goal_pos2>1250){
+      //   goal_pos2 = 1250;
+      // }
+      // else if(goal_pos2<250){
+      //   goal_pos2 = 250;
+      // }
+      // if(goal_pos3>1250){
+      //   goal_pos3 = 1250;
+      // }
+      // else if(goal_pos3<250){
+      //   goal_pos3 = 250;
+      // }
+
+      if (goal_pos == 0){
+        goal_pos0 = 750;
+        goal_pos1 = 750;
+        goal_pos2 = 750;
+        goal_pos3 = 650;
+      }
+      if (goal_pos == 1){
+        goal_pos0 = 750;
+        goal_pos1 = 750;
+        goal_pos2 = 750;
+        goal_pos3 = 950;
+      }
+      if (goal_pos == 2){
+        goal_pos0 = 250;
+        goal_pos1 = 750;
+        goal_pos2 = 750;
+        goal_pos3 = 950;
+      }
+      if (goal_pos == 3){
+        goal_pos0 = 750;
+        goal_pos1 = 550;
+        goal_pos2 = 750;
+        goal_pos3 = 950;
+      }
       // sprintf(msg, "Set servo to: %f \n\r", goal_pos);
       // HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
-      float servo1Smoothed;
-      float servo2Smoothed;
+      // float servo0Smoothed;
+      // float servo1Smoothed;
+      // float servo2Smoothed;
+      // float servo3Smoothed;
       
-      while(1){
-        servo1Smoothed = (goal_pos1 * 0.05) + (current_pos1 * 0.95);
-        servo2Smoothed = (goal_pos2 * 0.05) + (current_pos2 * 0.95);
-        
-        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )servo1Smoothed);
-        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, (uint16_t )servo2Smoothed);
+      //while(1){
+        // servo0Smoothed = (goal_pos0 * 0.05) + (current_pos0 * 0.95);
+        // servo1Smoothed = (goal_pos1 * 0.05) + (current_pos1 * 0.95);
+        // servo2Smoothed = (goal_pos2 * 0.05) + (current_pos2 * 0.95);
+        // servo3Smoothed = (goal_pos3 * 0.05) + (current_pos3 * 0.95);
+        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1, (uint16_t )goal_pos0);
+        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, (uint16_t )goal_pos1);
+        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_3, (uint16_t )goal_pos2);
+        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_4, (uint16_t )goal_pos3);
         // sprintf(msg, "servo smoothed: %f \n\r", servo1Smoothed);
         // HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
-        osDelay(10);
-        if (abs(servo1Smoothed - goal_pos1)<10 && abs(servo2Smoothed - goal_pos2)<10){
-          break;
-        }
-        current_pos1 = servo1Smoothed;
-        current_pos2 = servo2Smoothed;
-      }
+        osDelay(30);
+        // if (abs(servo1Smoothed - goal_pos1)<10 && abs(servo2Smoothed - goal_pos2)<10){
+        //   break;
+        // }
+        // current_pos0 = servo0Smoothed;
+        // current_pos1 = servo1Smoothed;
+        // current_pos2 = servo2Smoothed;
+        // current_pos3 = servo3Smoothed;
+      //}
     }
     osDelay(1);
   }
