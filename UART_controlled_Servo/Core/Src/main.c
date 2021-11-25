@@ -78,8 +78,8 @@ void StartServo01(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-float current_pos1 = 250;
-float current_pos2 = 250;
+float current_pos1 = 750;
+float current_pos2 = 750;
 /* USER CODE END 0 */
 
 /**
