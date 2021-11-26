@@ -1,9 +1,10 @@
 --cpu Cortex-M3
 "led\startup_stm32f103xb.o"
+"led\dbus.o"
+"led\m3508.o"
 "led\main.o"
 "led\stm32f1xx_it.o"
 "led\stm32f1xx_hal_msp.o"
-"led\dbus.o"
 "led\stm32f1xx_hal_gpio_ex.o"
 "led\stm32f1xx_hal_can.o"
 "led\stm32f1xx_hal_tim.o"

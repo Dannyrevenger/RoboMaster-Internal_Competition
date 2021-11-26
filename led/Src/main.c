@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "dbus.h"
+#include "M3508.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,7 +34,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define MAX_CURRENT 16384
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -49,6 +50,47 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 extern RC rc_reciever;
 extern uint8_t rx_buffer[18];
+
+CAN_TxHeaderTypeDef CAN1_TX;
+CAN_RxHeaderTypeDef CAN1_RX;
+
+uint16_t motor_data;
+uint8_t TX_datas[8];
+HAL_StatusTypeDef can1_tx_status= HAL_ERROR;
+uint32_t mailbox;
+uint8_t RX_datas[8];
+int16_t set_current = 0;
+
+CONTROLLER_MODE cur_mode;
+
+extern pid_t m1_pid;
+extern pid_t m2_pid;
+extern pid_t m3_pid;
+extern pid_t m4_pid;
+
+   const uint32_t mode = SPEED_PID;
+
+ const uint32_t maxout = 450;
+ const uint32_t intergral_limit = 5;
+    
+    float 	m1_kp;
+    float 	m1_ki; 
+    float 	m1_kd;
+		
+		float 	m2_kp;
+    float 	m2_ki; 
+    float 	m2_kd;
+		
+		float 	m3_kp;
+    float 	m3_ki; 
+    float 	m3_kd;
+		
+	  float 	m4_kp;
+    float 	m4_ki; 
+    float 	m4_kd;
+		
+extern float m1_target,m2_target,m3_target,m4_target;
+float m1_speed,m2_speed,m3_speed,m4_speed;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,7 +139,52 @@ int main(void)
   MX_CAN_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+	 
+	 my_can_filter_init(&hcan);
+
    dbus_init();
+	 my_can_filter_init( &hcan);
+	 HAL_CAN_Start(&hcan);
+	 
+	 PID_struct_init(
+    & m1_pid,
+     mode,
+     maxout,
+     intergral_limit,
+     	m1_kp, 
+     	m1_ki, 
+     	m1_kd);
+			
+			 PID_struct_init(
+    & m1_pid,
+     mode,
+     maxout,
+     intergral_limit,
+     	m4_kp, 
+     	m4_ki, 
+     	m4_kd);
+			
+			 PID_struct_init(
+    & m1_pid,
+     mode,
+     maxout,
+     intergral_limit,
+     	m2_kp, 
+     	m2_ki, 
+     	m2_kd);
+			
+			 PID_struct_init(
+    & m1_pid,
+     mode,
+     maxout,
+     intergral_limit,
+     	m3_kp, 
+     	m3_ki, 
+     	m3_kd);
+	
+   
+	 
+   
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -109,6 +196,24 @@ int main(void)
 	  else
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,GPIO_PIN_RESET);
 		  update_dbus( rx_buffer);
+		
+		if(rc_reciever.s1 == CHASSIS_CONTROL){
+     
+			can1_tx_status = HAL_CAN_GetRxMessage(&hcan,CAN_RX_FIFO0 ,&CAN1_RX,RX_datas);
+		  cal_motor_speed();
+			m1_speed = m1_pid.speed_out;
+			m2_speed = m2_pid.speed_out;
+			m3_speed = m3_pid.speed_out;
+			m4_speed = m4_pid.speed_out;
+		  CAN_cmd_chassis(m1_speed,m2_speed,m3_speed,m3_speed);
+			
+		}else if(rc_reciever.s1 == ARM_CONTROL){
+		
+		//josef work on the pwm control for the arm
+		
+		}
+		
+		
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -169,11 +274,11 @@ static void MX_CAN_Init(void)
 
   /* USER CODE END CAN_Init 1 */
   hcan.Instance = CAN1;
-  hcan.Init.Prescaler = 16;
+  hcan.Init.Prescaler = 3;
   hcan.Init.Mode = CAN_MODE_NORMAL;
   hcan.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  hcan.Init.TimeSeg1 = CAN_BS1_1TQ;
-  hcan.Init.TimeSeg2 = CAN_BS2_1TQ;
+  hcan.Init.TimeSeg1 = CAN_BS1_5TQ;
+  hcan.Init.TimeSeg2 = CAN_BS2_6TQ;
   hcan.Init.TimeTriggeredMode = DISABLE;
   hcan.Init.AutoBusOff = DISABLE;
   hcan.Init.AutoWakeUp = DISABLE;
