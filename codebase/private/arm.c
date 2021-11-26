@@ -12,7 +12,7 @@ void Init_Robotic_Arm(arm_struct_t* arm, float x, float y, float z, float v0, fl
     }
     return;
 }
-void Set_Robotic_Arm(arm_struct_t* arm, int vx, int vy, int vz)
+void Move_Robotic_Arm(arm_struct_t* arm, int vx, int vy, int vz)
 {
     float x,y,z,A,B;
     x=(arm->pos[0])+(arm->v0)*vx;
@@ -28,4 +28,14 @@ void Set_Robotic_Arm(arm_struct_t* arm, int vx, int vy, int vz)
     }
     arm->res[3]=(arm->res[1]-arm->cal[1])+(arm->res[2]-arm->cal[2])+arm->cal[3];
     return;
+}
+void Set_Robotic_Arm(arm_struct_t* arm, int a1, int a2, int a3, int a4){
+    arm->res[0]=a1+cal[0];
+    // LIMIT_MIN_MAX(arm->res[0],arm->start[0],arm->end[0]);
+    arm->res[1]=a2+cal[1];
+    // LIMIT_MIN_MAX(arm->res[1],arm->start[1],arm->end[1]);
+    arm->res[2]=a3+cal[2];
+    // LIMIT_MIN_MAX(arm->res[2],arm->start[2],arm->end[2]);
+    arm->res[3]=a1+cal[3];
+    // LIMIT_MIN_MAX(arm->res[3],arm->start[3],arm->end[3]);
 }
