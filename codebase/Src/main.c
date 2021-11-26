@@ -378,10 +378,10 @@ HAL_StatusTypeDef CAN_RxFifo1MsgPendingCallBack(CAN_HandleTypeDef *hcan){
   else{
     HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
     canRxStatus = HAL_OK;
-    for(int i=0;i<6;i++){
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    HAL_Delay(200);
-  }
+    // for(int i=0;i<6;i++){
+    // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    // HAL_Delay(200);
+    // }
   }
 }
 void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint8_t target_buffer[]){
