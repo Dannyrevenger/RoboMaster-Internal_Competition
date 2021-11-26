@@ -153,7 +153,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
     canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
     canRxStatus = HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX);
-    current_rpm_B = 1-(~((canRX[2]<<8)+canRX[3]));
+    current_rpm_B = -(1+~((canRX[2]<<8)+canRX[3]));
     CAN_Set_Motor_Voltage(pid_calc(&motorC,target,current_rpm_A),pid_calc(&motorB,target,current_rpm_B),0,0,msg);
     // encoder = canRX[0] << 8 | canRX[1];
     HAL_Delay(5);
