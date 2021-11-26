@@ -5,7 +5,7 @@ void Init_Robotic_Arm(arm_struct_t* arm, float x, float y, float z, float v0, fl
     arm->v0=v0;
     arm->l1=l1; arm->l2=l2;
     arm->l12=l1*l1; arm->l22=l2*l2;
-    for(int i=0;i<3;i++){
+    for(int i=0;i<4;i++){
         arm->start[i]=start[i];
         arm->end[i]=end[i];
         arm->cal[i]=cal[i];
@@ -26,5 +26,6 @@ void Set_Robotic_Arm(arm_struct_t* arm, int vx, int vy, int vz)
         arm->res[i]=(int)(arm->angle[i]+0.5)+arm->cal[i];
         LIMIT_MIN_MAX(arm->res[i],arm->start[i],arm->end[i]);
     }
+    arm->res[3]=(arm->res[1]-arm->cal[1])+(arm->res[2]-arm->cal[2])+arm->cal[3];
     return;
 }
