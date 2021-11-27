@@ -138,10 +138,19 @@ int main(void)
 
       //SERVO MOTOR
       
-      for(current_pos2; current_pos2 < goal2; current_pos2++)
-      {
+      if (current_pos2 < goal2){
+        for(current_pos2; current_pos2 < goal2; current_pos2++)
+        {
         __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, current_pos2);
         HAL_Delay(1);
+        }
+      }
+      else if (current_pos2 > goal2){
+        for(current_pos2; current_pos2 > goal2; current_pos2--)
+        {
+        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, current_pos2);
+        HAL_Delay(1);
+        }
       }
 
       // for(x=1250; x>250; x--)
