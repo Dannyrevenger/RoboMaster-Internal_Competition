@@ -36,7 +36,7 @@ typedef struct _pid_struct_t
   float i_out;
   float d_out;
   float output;                  
-}pid_struct_t;
+} pid_struct_t;
 
 void pid_init(pid_struct_t *pid,
               float kp,
