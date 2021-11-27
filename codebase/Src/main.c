@@ -23,7 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,17 +49,25 @@ CAN_HandleTypeDef hcan;
 
 TIM_HandleTypeDef htim1;
 
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
-uint8_t msg[8] = {0, 0, 0, 0, 0, 0, 0, 0};                   // CAN Bus Send Buffer
+uint8_t msg[8] = {4, 0, 4, 0, 4, 0, 4, 0};                   // CAN Bus Send Buffer
 static volatile uint8_t canRX[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // CAN Bus Receive Buffer
+static CAN_TxHeaderTypeDef txHeader;                                // CAN Bus Receive Header
 static CAN_RxHeaderTypeDef rxHeader;                         // CAN Bus Transmit Header
+uint8_t dbus_rx_buffer[18]={0}; // receiver data buffer
+RC_Ctl_t RC_CtrlData; // dbus channel typeder
 static volatile HAL_StatusTypeDef canTxStatus = HAL_OK;
 static volatile HAL_StatusTypeDef canRxStatus = HAL_OK;
+uint32_t canMailbox;
 uint16_t target = 600;
-int16_t current_rpm_A,current_rpm_B,current_rpm_C,current_rpm_D;
+static volatile int16_t target_A=0, target_B, target_C, target_D;
+static volatile int16_t current_rpm_A,current_rpm_B,current_rpm_C,current_rpm_D;
 pid_struct_t motorA, motorB, motorC, motorD;
+arm_struct_t arm;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,10 +75,12 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-// HAL_StatusTypeDef CAN_RxFifo1MsgPendingCallBack(CAN_HandleTypeDef *hcan);
 void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint8_t target_buffer[]);
+void Integrate_Contorl();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -109,12 +118,12 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM1_Init();
   MX_USART2_UART_Init();
+  MX_DMA_Init();
   MX_CAN_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  CAN_TxHeaderTypeDef txHeader;                                // CAN Bus Receive Header
   static volatile uint16_t encoder = 0;
   CAN_FilterTypeDef canfil; // CAN Bus Filter
-  uint32_t canMailbox;
 
   canfil.FilterBank = 0;
   canfil.FilterMode = CAN_FILTERMODE_IDMASK;
@@ -135,13 +144,15 @@ int main(void)
   txHeader.TransmitGlobalTime = DISABLE;
 
   HAL_CAN_ConfigFilter(&hcan, &canfil);
-  // HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
   HAL_CAN_Start(&hcan);
-
-  pid_init(&motorA, 5, 0.1, 2, 8000, 16000);
-  pid_init(&motorB, 2, 0.2, 4, 8000, 16000);
-  pid_init(&motorC, 3, 0.5, 4, 8000, 16000);
-  pid_init(&motorD, 5, 0.1, 2, 8000, 16000);
+  // HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
+  // HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxHeader, (uint8_t *)canRX);
+  pid_init(&motorA, 8, 0.6, 3, 8000, 16000);
+  pid_init(&motorB, 5, 0.1, 2, 8000, 16000);
+  pid_init(&motorC, 2, 0.2, 4, 8000, 16000);
+  pid_init(&motorD, 3, 0.5, 4, 8000, 16000);
+  arm_init(&arm, 120, 120, 120, 120);
+  HAL_UART_Receive_DMA(&huart1, dbus_rx_buffer, 18);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -151,12 +162,36 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
+    // canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
+    // HAL_Delay(100);
     canRxStatus = HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX);
-    current_rpm_B = -(1+~((canRX[2]<<8)+canRX[3]));
-    CAN_Set_Motor_Voltage(pid_calc(&motorC,target,current_rpm_A),pid_calc(&motorB,target,current_rpm_B),0,0,msg);
+    // current_rpm_A = -(1+~((canRX[2]<<8)+canRX[3]));
+    switch(rxHeader.StdId){
+      case 0x201:{
+        current_rpm_A = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+      case 0x202:{
+        current_rpm_B = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+      case 0x203:{
+        current_rpm_C = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+      case 0x204:{
+        current_rpm_D = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+    }
+    // CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
+    //                       pid_calc(&motorB,target_B,current_rpm_B),
+    //                       pid_calc(&motorC,target_C,current_rpm_C),
+    //                       pid_calc(&motorD,target_D,current_rpm_D),
+    //                       msg);
+   
     // encoder = canRX[0] << 8 | canRX[1];
-    HAL_Delay(5);
+    HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
@@ -311,6 +346,39 @@ static void MX_TIM1_Init(void)
 }
 
 /**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 100000;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_EVEN;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -326,10 +394,10 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 9600;
+  huart2.Init.BaudRate = 100000;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Parity = UART_PARITY_EVEN;
   huart2.Init.Mode = UART_MODE_TX_RX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
@@ -340,6 +408,22 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
 }
 
@@ -370,20 +454,109 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-HAL_StatusTypeDef CAN_RxFifo1MsgPendingCallBack(CAN_HandleTypeDef *hcan){
-  if (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX) != HAL_OK){
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart)
+{
+			if(dbus_rx_buffer == NULL)
+			{
+			  return;
+			}
+			RC_CtrlData.rc.ch0 = ((int16_t)dbus_rx_buffer[0] | ((int16_t)dbus_rx_buffer[1] << 8)) & 0x07FF;
+			RC_CtrlData.rc.ch1 = (((int16_t)dbus_rx_buffer[1] >> 3) | ((int16_t)dbus_rx_buffer[2] << 5))& 0x07FF;
+			RC_CtrlData.rc.ch2 = (((int16_t)dbus_rx_buffer[2] >> 6) | ((int16_t)dbus_rx_buffer[3] << 2) |((int16_t)dbus_rx_buffer[4] << 10)) & 0x07FF;
+			RC_CtrlData.rc.ch3 = (((int16_t)dbus_rx_buffer[4] >> 1) | ((int16_t)dbus_rx_buffer[5]<<7)) &0x07FF;
+ 		  RC_CtrlData.rc.s1 = ((dbus_rx_buffer[5] >> 4) & 0x000C) >> 2;
+   		RC_CtrlData.rc.s2 = ((dbus_rx_buffer[5] >> 4) & 0x0003);
+			// RC_CtrlData.mouse.x = ((int16_t)dbus_rx_buffer[6]) | ((int16_t)dbus_rx_buffer[7] << 8);
+			// RC_CtrlData.mouse.y = ((int16_t)dbus_rx_buffer[8]) | ((int16_t)dbus_rx_buffer[9] << 8);
+			// RC_CtrlData.mouse.z = ((int16_t)dbus_rx_buffer[10]) | ((int16_t)dbus_rx_buffer[11] << 8);
+			// RC_CtrlData.mouse.press_l = dbus_rx_buffer[12];
+			// RC_CtrlData.mouse.press_r = dbus_rx_buffer[13];
+			// RC_CtrlData.key.v = ((int16_t)dbus_rx_buffer[14]);// | ((int16_t)pData[15] << 8);
+			//HAL_UART_Receive_IT(&huart3, dbus_rx_buffer, 18);
+			//HAL_UART_Receive_DMA(&huart3, dbus_rx_buffer, 18);
+      Integrate_Contorl();
+}
+void HAL_CAN_RxFIFO1MsgPendingCallback(CAN_HandleTypeDef *hcan){
+  for(int i=0;i<6;i++){
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    HAL_Delay(200);
+  }
+  if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX) != HAL_OK){
     Error_Handler();
+    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
     canRxStatus = HAL_ERROR;
   }
   else{
-    HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
+    // HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
+    switch(rxHeader.StdId){
+      case 0x201:{
+        current_rpm_A = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+      case 0x202:{
+        current_rpm_B = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+      case 0x203:{
+        current_rpm_C = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+      case 0x204:{
+        current_rpm_D = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+    }
+    CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
+                          pid_calc(&motorB,target_B,current_rpm_B),
+                          pid_calc(&motorC,target_C,current_rpm_C),
+                          pid_calc(&motorD,target_D,current_rpm_D),
+                          msg);
+    canTxStatus = HAL_CAN_AddTxMessage(hcan, &txHeader, msg, &canMailbox);
+    HAL_Delay(5);
     canRxStatus = HAL_OK;
-    // for(int i=0;i<6;i++){
-    // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    // HAL_Delay(200);
-    // }
   }
 }
+/* 
+void HAL_CAN_RxFIFO1FullCallback(CAN_HandleTypeDef *hcan){
+  for(int i=0;i<6;i++){
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    HAL_Delay(200);
+  }
+  if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX) != HAL_OK){
+    Error_Handler();
+    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
+    canRxStatus = HAL_ERROR;
+  }
+  else{
+    switch(rxHeader.StdId){
+      case 0x201:{
+        current_rpm_A = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+      case 0x202:{
+        current_rpm_B = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+      case 0x203:{
+        current_rpm_C = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+      case 0x204:{
+        current_rpm_D = -(1+~((canRX[2]<<8)+canRX[3]));
+        break;
+      }
+    }
+    CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
+                          pid_calc(&motorB,target_B,current_rpm_B),
+                          pid_calc(&motorC,target_C,current_rpm_C),
+                          pid_calc(&motorD,target_D,current_rpm_D),
+                          msg);
+    canTxStatus = HAL_CAN_AddTxMessage(hcan, &txHeader, msg, &canMailbox);
+    HAL_Delay(5);
+    canRxStatus = HAL_OK;
+    HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
+  }
+} */
 void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint8_t target_buffer[]){
   target_buffer[0] = v1 >> 8;
   target_buffer[1] = v1;
@@ -395,6 +568,48 @@ void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, u
   target_buffer[7] = v4;
   return;
 }
+void Integrate_Contorl(){
+  switch(RC_CtrlData.rc.s2){
+    case 1:{
+      int vv,vp,vr;
+      vv=(RC_CtrlData.rc.ch3-1024);
+      vp=(RC_CtrlData.rc.ch2-1024);
+      vr=(RC_CtrlData.rc.ch0-1024);
+      target_A=vv+vp;
+      target_B=vv-vp;
+      target_C=vv-vp;
+      target_D=vv+vp;
+      CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
+                          pid_calc(&motorB,target_B,current_rpm_B),
+                          pid_calc(&motorC,target_C,current_rpm_C),
+                          pid_calc(&motorD,target_D,current_rpm_D),
+                          msg);
+      canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
+      break;
+    }
+    case 3:{
+      int vf,vr,vz;
+      vf=((RC_CtrlData.rc.ch3-1024)>0)?1:(((RC_CtrlData.rc.ch3-1024)<0)?-1:0);
+      vr=((RC_CtrlData.rc.ch2-1024)>0)?1:(((RC_CtrlData.rc.ch2-1024)<0)?-1:0);
+      vz=((RC_CtrlData.rc.ch0-1024)>0)?1:(((RC_CtrlData.rc.ch0-1024)<0)?-1:0);
+      move_arm(&arm,vf,vr,vz);
+      __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, arm.angle[0]);
+	    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, arm.angle[1]);
+	    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, arm.angle[2]);
+	    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, arm.angle[3]);
+      HAL_Delay(5);
+      break;
+    }
+  }
+  switch(RC_CtrlData.rc.s1){
+    case 0:{
+      break;
+    }
+    case 1:{
+      break;
+    }
+  }
+}
 /* USER CODE END 4 */
 
 /**
@@ -405,10 +620,6 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-  for(int i=0;i<4;i++){
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    HAL_Delay(500);
-  }
   /* USER CODE END Error_Handler_Debug */
 }
 
