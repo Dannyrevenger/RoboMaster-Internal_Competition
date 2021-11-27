@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -47,13 +47,20 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint16_t current_pos1 = 400;
+uint16_t current_pos2 = 500;
+uint16_t current_pos3 = 600;
+uint16_t current_pos4 = 950;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void servo_start(void);
+void servo_grap(void);
+void servo_right(void);
+void servo_middle(void);
+void servo_left(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -92,11 +99,17 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  uint16_t current_pos2 = 750;
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-  __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, current_pos2); //START POSITION
 
-  char buffer[8];
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1); // START POSITION
+  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2); // START POSITION
+  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3); // START POSITION
+  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4); // START POSITION
+
+  char buffer[1];
   char msg[30];
   /* USER CODE END 2 */
 
@@ -111,10 +124,10 @@ int main(void)
     // START UART
     uint8_t arr[9] = {0};
     uint8_t i = 0, myInt = 0;
-    uint16_t goal2;
-    if (HAL_UART_Receive(&huart1, buffer, 1, 1000) == HAL_OK && buffer[0] == '!') //only read if serial is OK and there is a start char "!"
+    uint16_t goal;
+    if (HAL_UART_Receive(&huart1, buffer, 1, 1000) == HAL_OK && buffer[0] == '!') // only read if serial is OK and there is a start char "!"
     {
-      while (buffer[0] != '#') //loop till encounter the end char "#"
+      while (buffer[0] != '#') // loop till encounter the end char "#"
       {
         HAL_UART_Receive(&huart1, buffer, 1, 1000);
         // if (buffer[0] == ':') //save all char before ":" in myInt
@@ -124,46 +137,79 @@ int main(void)
         //   memset(&arr[0], 0, sizeof(arr)); //clear arr array
         //   continue;
         // }
-        if (buffer[0] == '#') //add all char before "#" to myInt
+        if (buffer[0] == '#') // add all char before "#" to myInt
         {
-          goal2 = atoi(arr);
-          memset(&arr[0], 0, sizeof(arr)); //clear arr array
+          goal = atoi(arr);
+          memset(&arr[0], 0, sizeof(arr)); // clear arr array
         }
-        arr[i] = buffer[0]; //add buffer char to array
+        arr[i] = buffer[0]; // add buffer char to array
         i++;
       }
-      sprintf(msg, "The goal is: %d \n\r", goal2);
+      sprintf(msg, "The goal is: %d \n\r", goal);
       HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
 
+      // SERVO MOTOR test
+      //  if (current_pos2 < goal2){
+      //    for(current_pos2; current_pos2 < goal2; current_pos2++)
+      //    {
+      //    __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, current_pos2);
+      //    HAL_Delay(1);
+      //    }
+      //  }
+      //  else if (current_pos2 > goal2){
+      //    for(current_pos2; current_pos2 > goal2; current_pos2--)
+      //    {
+      //    __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, current_pos2);
+      //    HAL_Delay(1);
+      //    }
+      //  }
+      // END SERVO MOTOR TEST
 
-      //SERVO MOTOR
-      
-      if (current_pos2 < goal2){
-        for(current_pos2; current_pos2 < goal2; current_pos2++)
-        {
-        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, current_pos2);
-        HAL_Delay(1);
-        }
-      }
-      else if (current_pos2 > goal2){
-        for(current_pos2; current_pos2 > goal2; current_pos2--)
-        {
-        __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, current_pos2);
-        HAL_Delay(1);
-        }
+      if (goal == 5)
+      {
+        sprintf(msg, "Go to Start\r\n");
+        HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+        servo_start();
       }
 
-      // for(x=1250; x>250; x--)
-      // {
-      //   __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, x);
-      //   HAL_Delay(1);
-      // }
-      //END SERVO MOTOR
+      else if (goal == 4)
+      {
+        sprintf(msg, "Grapp the cube\r\n");
+        HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+        servo_grap();
+      }
+
+      else if (goal == 0)
+      {
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        HAL_Delay(500);
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        sprintf(msg, "right	\r\n");
+        HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+        servo_grap();
+        servo_right();
+        servo_start();
+      }
+
+      else if (goal == 1)
+      {
+        sprintf(msg, "middle\r\n");
+        HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+        servo_grap();
+        servo_middle();
+        servo_start();
+      }
+
+      else if (goal == 2)
+      {
+        sprintf(msg, "left\r\n");
+        HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+        servo_grap();
+        servo_left();
+        servo_start();
+      }
     }
     // END UART
-
-    
-
   }
   /* USER CODE END 3 */
 }
@@ -204,7 +250,461 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void servo_start(void)
+{
+  uint16_t joint1 = 400;
+  uint16_t joint2 = 600;
+  uint16_t joint3 = 600;
+  uint16_t joint4 = 950;
 
+  // JOINT2
+  if (current_pos2 < joint2)
+  {
+    for (current_pos2; current_pos2 < joint2; current_pos2++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos2 > joint2)
+  {
+    for (current_pos2; current_pos2 > joint2; current_pos2--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+
+  // JOINT3
+  if (current_pos3 < joint3)
+  {
+    for (current_pos3; current_pos3 < joint3; current_pos3++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos3 > joint3)
+  {
+    for (current_pos3; current_pos3 > joint3; current_pos3--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+  // JOINT1
+  if (current_pos1 < joint1)
+  {
+    for (current_pos1; current_pos1 < joint1; current_pos1++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos1 > joint1)
+  {
+    for (current_pos1; current_pos1 > joint1; current_pos1--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+  // JOINT4
+  if (current_pos4 < joint4)
+  {
+    for (current_pos4; current_pos4 < joint4; current_pos4++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos4 > joint4)
+  {
+    for (current_pos4; current_pos4 > joint4; current_pos4--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+}
+
+void servo_grap(void)
+{
+  uint16_t joint1 = 400;
+  uint16_t joint2 = 680;
+  uint16_t joint3 = 780;
+  uint16_t joint4 = 650;
+
+  // JOINT1
+  if (current_pos1 < joint1)
+  {
+    for (current_pos1; current_pos1 < joint1; current_pos1++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos1 > joint1)
+  {
+    for (current_pos1; current_pos1 > joint1; current_pos1--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+
+  // JOINT3
+  if (current_pos3 < joint3)
+  {
+    for (current_pos3; current_pos3 < joint3; current_pos3++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos3 > joint3)
+  {
+    for (current_pos3; current_pos3 > joint3; current_pos3--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+  // JOINT2
+  if (current_pos2 < joint2)
+  {
+    for (current_pos2; current_pos2 < joint2; current_pos2++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos2 > joint2)
+  {
+    for (current_pos2; current_pos2 > joint2; current_pos2--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+  // JOINT4
+  if (current_pos4 < joint4)
+  {
+    for (current_pos4; current_pos4 < joint4; current_pos4++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos4 > joint4)
+  {
+    for (current_pos4; current_pos4 > joint4; current_pos4--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+}
+
+void servo_right(void)
+{
+  uint16_t joint1 = 650;
+  uint16_t joint2 = 650;
+  uint16_t joint3 = 600;
+  uint16_t joint4 = 950;
+
+  // JOINT2
+  if (current_pos2 < joint2)
+  {
+    for (current_pos2; current_pos2 < joint2; current_pos2++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos2 > joint2)
+  {
+    for (current_pos2; current_pos2 > joint2; current_pos2--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+
+  
+  // JOINT3
+  if (current_pos3 < joint3)
+  {
+    for (current_pos3; current_pos3 < joint3; current_pos3++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos3 > joint3)
+  {
+    for (current_pos3; current_pos3 > joint3; current_pos3--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+
+  // JOINT1
+  joint2 = 800;
+  if (current_pos1 < joint1)
+  {
+    for (current_pos1; current_pos1 < joint1; current_pos1++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos1 > joint1)
+  {
+    for (current_pos1; current_pos1 > joint1; current_pos1--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+
+// JOINT2
+  if (current_pos2 < joint2)
+  {
+    for (current_pos2; current_pos2 < joint2; current_pos2++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos2 > joint2)
+  {
+    for (current_pos2; current_pos2 > joint2; current_pos2--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+
+  // JOINT4
+  if (current_pos4 < joint4)
+  {
+    for (current_pos4; current_pos4 < joint4; current_pos4++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos4 > joint4)
+  {
+    for (current_pos4; current_pos4 > joint4; current_pos4--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+}
+
+void servo_middle(void)
+{
+  uint16_t joint1 = 850;
+  uint16_t joint2 = 650;
+  uint16_t joint3 = 600;
+  uint16_t joint4 = 950;
+
+  // JOINT2
+  if (current_pos2 < joint2)
+  {
+    for (current_pos2; current_pos2 < joint2; current_pos2++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos2 > joint2)
+  {
+    for (current_pos2; current_pos2 > joint2; current_pos2--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+
+  
+  // JOINT3
+  if (current_pos3 < joint3)
+  {
+    for (current_pos3; current_pos3 < joint3; current_pos3++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos3 > joint3)
+  {
+    for (current_pos3; current_pos3 > joint3; current_pos3--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+
+  // JOINT1
+  joint2 = 800;
+  if (current_pos1 < joint1)
+  {
+    for (current_pos1; current_pos1 < joint1; current_pos1++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos1 > joint1)
+  {
+    for (current_pos1; current_pos1 > joint1; current_pos1--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+
+// JOINT2
+  if (current_pos2 < joint2)
+  {
+    for (current_pos2; current_pos2 < joint2; current_pos2++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos2 > joint2)
+  {
+    for (current_pos2; current_pos2 > joint2; current_pos2--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+
+  // JOINT4
+  if (current_pos4 < joint4)
+  {
+    for (current_pos4; current_pos4 < joint4; current_pos4++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos4 > joint4)
+  {
+    for (current_pos4; current_pos4 > joint4; current_pos4--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+}
+
+void servo_left(void)
+{
+  uint16_t joint1 = 1050;
+  uint16_t joint2 = 650;
+  uint16_t joint3 = 600;
+  uint16_t joint4 = 950;
+
+  // JOINT2
+  if (current_pos2 < joint2)
+  {
+    for (current_pos2; current_pos2 < joint2; current_pos2++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos2 > joint2)
+  {
+    for (current_pos2; current_pos2 > joint2; current_pos2--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+
+  
+  // JOINT3
+  if (current_pos3 < joint3)
+  {
+    for (current_pos3; current_pos3 < joint3; current_pos3++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos3 > joint3)
+  {
+    for (current_pos3; current_pos3 > joint3; current_pos3--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+      HAL_Delay(10);
+    }
+  }
+
+  // JOINT1
+  joint2 = 800;
+  if (current_pos1 < joint1)
+  {
+    for (current_pos1; current_pos1 < joint1; current_pos1++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos1 > joint1)
+  {
+    for (current_pos1; current_pos1 > joint1; current_pos1--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+      HAL_Delay(10);
+    }
+  }
+
+// JOINT2
+  if (current_pos2 < joint2)
+  {
+    for (current_pos2; current_pos2 < joint2; current_pos2++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos2 > joint2)
+  {
+    for (current_pos2; current_pos2 > joint2; current_pos2--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+      HAL_Delay(10);
+    }
+  }
+
+  // JOINT4
+  if (current_pos4 < joint4)
+  {
+    for (current_pos4; current_pos4 < joint4; current_pos4++)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+  else if (current_pos4 > joint4)
+  {
+    for (current_pos4; current_pos4 > joint4; current_pos4--)
+    {
+      __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+      HAL_Delay(10);
+    }
+  }
+}
 /* USER CODE END 4 */
 
 /**
