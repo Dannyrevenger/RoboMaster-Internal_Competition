@@ -153,7 +153,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
     canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
     canRxStatus = HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX);
-    current_rpm_B = 1-(~((canRX[2]<<8)+canRX[3]));
+    current_rpm_B = -(1+~((canRX[2]<<8)+canRX[3]));
     CAN_Set_Motor_Voltage(pid_calc(&motorC,target,current_rpm_A),pid_calc(&motorB,target,current_rpm_B),0,0,msg);
     // encoder = canRX[0] << 8 | canRX[1];
     HAL_Delay(5);
@@ -378,10 +378,10 @@ HAL_StatusTypeDef CAN_RxFifo1MsgPendingCallBack(CAN_HandleTypeDef *hcan){
   else{
     HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
     canRxStatus = HAL_OK;
-    for(int i=0;i<6;i++){
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    HAL_Delay(200);
-  }
+    // for(int i=0;i<6;i++){
+    // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    // HAL_Delay(200);
+    // }
   }
 }
 void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint8_t target_buffer[]){

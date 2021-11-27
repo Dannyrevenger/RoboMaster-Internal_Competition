@@ -56,7 +56,8 @@ Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c \
 Src/system_stm32f1xx.c \
 private/pid.c \
-private/dbus.c
+private/dbus.c \
+private/arm.c
 
 # ASM sources
 ASM_SOURCES =  \
