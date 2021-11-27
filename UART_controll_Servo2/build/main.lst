@@ -1,0 +1,3557 @@
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 1
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.servo_start,"ax",%progbits
+  16              		.align	1
+  17              		.global	servo_start
+  18              		.arch armv7-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	servo_start:
+  25              	.LFB70:
+  26              		.file 1 "Core/Src/main.c"
+   1:Core/Src/main.c **** /* USER CODE BEGIN Header */
+   2:Core/Src/main.c **** /**
+   3:Core/Src/main.c ****  ******************************************************************************
+   4:Core/Src/main.c ****  * @file           : main.c
+   5:Core/Src/main.c ****  * @brief          : Main program body
+   6:Core/Src/main.c ****  ******************************************************************************
+   7:Core/Src/main.c ****  * @attention
+   8:Core/Src/main.c ****  *
+   9:Core/Src/main.c ****  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+  10:Core/Src/main.c ****  * All rights reserved.</center></h2>
+  11:Core/Src/main.c ****  *
+  12:Core/Src/main.c ****  * This software component is licensed by ST under BSD 3-Clause license,
+  13:Core/Src/main.c ****  * the "License"; You may not use this file except in compliance with the
+  14:Core/Src/main.c ****  * License. You may obtain a copy of the License at:
+  15:Core/Src/main.c ****  *                        opensource.org/licenses/BSD-3-Clause
+  16:Core/Src/main.c ****  *
+  17:Core/Src/main.c ****  ******************************************************************************
+  18:Core/Src/main.c ****  */
+  19:Core/Src/main.c **** /* USER CODE END Header */
+  20:Core/Src/main.c **** /* Includes ------------------------------------------------------------------*/
+  21:Core/Src/main.c **** #include "main.h"
+  22:Core/Src/main.c **** #include "tim.h"
+  23:Core/Src/main.c **** #include "usart.h"
+  24:Core/Src/main.c **** #include "gpio.h"
+  25:Core/Src/main.c **** 
+  26:Core/Src/main.c **** /* Private includes ----------------------------------------------------------*/
+  27:Core/Src/main.c **** /* USER CODE BEGIN Includes */
+  28:Core/Src/main.c **** #include <stdio.h>
+  29:Core/Src/main.c **** #include <string.h>
+  30:Core/Src/main.c **** #include <stdlib.h>
+  31:Core/Src/main.c **** /* USER CODE END Includes */
+  32:Core/Src/main.c **** 
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 2
+
+
+  33:Core/Src/main.c **** /* Private typedef -----------------------------------------------------------*/
+  34:Core/Src/main.c **** /* USER CODE BEGIN PTD */
+  35:Core/Src/main.c **** 
+  36:Core/Src/main.c **** /* USER CODE END PTD */
+  37:Core/Src/main.c **** 
+  38:Core/Src/main.c **** /* Private define ------------------------------------------------------------*/
+  39:Core/Src/main.c **** /* USER CODE BEGIN PD */
+  40:Core/Src/main.c **** /* USER CODE END PD */
+  41:Core/Src/main.c **** 
+  42:Core/Src/main.c **** /* Private macro -------------------------------------------------------------*/
+  43:Core/Src/main.c **** /* USER CODE BEGIN PM */
+  44:Core/Src/main.c **** 
+  45:Core/Src/main.c **** /* USER CODE END PM */
+  46:Core/Src/main.c **** 
+  47:Core/Src/main.c **** /* Private variables ---------------------------------------------------------*/
+  48:Core/Src/main.c **** 
+  49:Core/Src/main.c **** /* USER CODE BEGIN PV */
+  50:Core/Src/main.c **** uint16_t current_pos1 = 400;
+  51:Core/Src/main.c **** uint16_t current_pos2 = 500;
+  52:Core/Src/main.c **** uint16_t current_pos3 = 600;
+  53:Core/Src/main.c **** uint16_t current_pos4 = 950;
+  54:Core/Src/main.c **** /* USER CODE END PV */
+  55:Core/Src/main.c **** 
+  56:Core/Src/main.c **** /* Private function prototypes -----------------------------------------------*/
+  57:Core/Src/main.c **** void SystemClock_Config(void);
+  58:Core/Src/main.c **** /* USER CODE BEGIN PFP */
+  59:Core/Src/main.c **** void servo_start(void);
+  60:Core/Src/main.c **** void servo_grap(void);
+  61:Core/Src/main.c **** void servo_right(void);
+  62:Core/Src/main.c **** void servo_middle(void);
+  63:Core/Src/main.c **** void servo_left(void);
+  64:Core/Src/main.c **** /* USER CODE END PFP */
+  65:Core/Src/main.c **** 
+  66:Core/Src/main.c **** /* Private user code ---------------------------------------------------------*/
+  67:Core/Src/main.c **** /* USER CODE BEGIN 0 */
+  68:Core/Src/main.c **** 
+  69:Core/Src/main.c **** /* USER CODE END 0 */
+  70:Core/Src/main.c **** 
+  71:Core/Src/main.c **** /**
+  72:Core/Src/main.c ****   * @brief  The application entry point.
+  73:Core/Src/main.c ****   * @retval int
+  74:Core/Src/main.c ****   */
+  75:Core/Src/main.c **** int main(void)
+  76:Core/Src/main.c **** {
+  77:Core/Src/main.c ****   /* USER CODE BEGIN 1 */
+  78:Core/Src/main.c **** 
+  79:Core/Src/main.c ****   /* USER CODE END 1 */
+  80:Core/Src/main.c **** 
+  81:Core/Src/main.c ****   /* MCU Configuration--------------------------------------------------------*/
+  82:Core/Src/main.c **** 
+  83:Core/Src/main.c ****   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  84:Core/Src/main.c ****   HAL_Init();
+  85:Core/Src/main.c **** 
+  86:Core/Src/main.c ****   /* USER CODE BEGIN Init */
+  87:Core/Src/main.c **** 
+  88:Core/Src/main.c ****   /* USER CODE END Init */
+  89:Core/Src/main.c **** 
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 3
+
+
+  90:Core/Src/main.c ****   /* Configure the system clock */
+  91:Core/Src/main.c ****   SystemClock_Config();
+  92:Core/Src/main.c **** 
+  93:Core/Src/main.c ****   /* USER CODE BEGIN SysInit */
+  94:Core/Src/main.c **** 
+  95:Core/Src/main.c ****   /* USER CODE END SysInit */
+  96:Core/Src/main.c **** 
+  97:Core/Src/main.c ****   /* Initialize all configured peripherals */
+  98:Core/Src/main.c ****   MX_GPIO_Init();
+  99:Core/Src/main.c ****   MX_USART1_UART_Init();
+ 100:Core/Src/main.c ****   MX_TIM2_Init();
+ 101:Core/Src/main.c ****   /* USER CODE BEGIN 2 */
+ 102:Core/Src/main.c **** 
+ 103:Core/Src/main.c ****   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+ 104:Core/Src/main.c ****   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+ 105:Core/Src/main.c ****   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+ 106:Core/Src/main.c ****   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+ 107:Core/Src/main.c ****   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1); // START POSITION
+ 108:Core/Src/main.c ****   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2); // START POSITION
+ 109:Core/Src/main.c ****   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3); // START POSITION
+ 110:Core/Src/main.c ****   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4); // START POSITION
+ 111:Core/Src/main.c **** 
+ 112:Core/Src/main.c ****   char buffer[1];
+ 113:Core/Src/main.c ****   char msg[30];
+ 114:Core/Src/main.c ****   /* USER CODE END 2 */
+ 115:Core/Src/main.c **** 
+ 116:Core/Src/main.c ****   /* Infinite loop */
+ 117:Core/Src/main.c ****   /* USER CODE BEGIN WHILE */
+ 118:Core/Src/main.c ****   while (1)
+ 119:Core/Src/main.c ****   {
+ 120:Core/Src/main.c ****     /* USER CODE END WHILE */
+ 121:Core/Src/main.c **** 
+ 122:Core/Src/main.c ****     /* USER CODE BEGIN 3 */
+ 123:Core/Src/main.c **** 
+ 124:Core/Src/main.c ****     // START UART
+ 125:Core/Src/main.c ****     uint8_t arr[9] = {0};
+ 126:Core/Src/main.c ****     uint8_t i = 0, myInt = 0;
+ 127:Core/Src/main.c ****     uint16_t goal;
+ 128:Core/Src/main.c ****     if (HAL_UART_Receive(&huart1, buffer, 1, 1000) == HAL_OK && buffer[0] == '!') // only read if s
+ 129:Core/Src/main.c ****     {
+ 130:Core/Src/main.c ****       while (buffer[0] != '#') // loop till encounter the end char "#"
+ 131:Core/Src/main.c ****       {
+ 132:Core/Src/main.c ****         HAL_UART_Receive(&huart1, buffer, 1, 1000);
+ 133:Core/Src/main.c ****         // if (buffer[0] == ':') //save all char before ":" in myInt
+ 134:Core/Src/main.c ****         // {
+ 135:Core/Src/main.c ****         //   i = 0;
+ 136:Core/Src/main.c ****         //   myInt = atoi(arr);
+ 137:Core/Src/main.c ****         //   memset(&arr[0], 0, sizeof(arr)); //clear arr array
+ 138:Core/Src/main.c ****         //   continue;
+ 139:Core/Src/main.c ****         // }
+ 140:Core/Src/main.c ****         if (buffer[0] == '#') // add all char before "#" to myInt
+ 141:Core/Src/main.c ****         {
+ 142:Core/Src/main.c ****           goal = atoi(arr);
+ 143:Core/Src/main.c ****           memset(&arr[0], 0, sizeof(arr)); // clear arr array
+ 144:Core/Src/main.c ****         }
+ 145:Core/Src/main.c ****         arr[i] = buffer[0]; // add buffer char to array
+ 146:Core/Src/main.c ****         i++;
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 4
+
+
+ 147:Core/Src/main.c ****       }
+ 148:Core/Src/main.c ****       sprintf(msg, "The goal is: %d \n\r", goal);
+ 149:Core/Src/main.c ****       HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 150:Core/Src/main.c **** 
+ 151:Core/Src/main.c ****       // SERVO MOTOR test
+ 152:Core/Src/main.c ****       //  if (current_pos2 < goal2){
+ 153:Core/Src/main.c ****       //    for(current_pos2; current_pos2 < goal2; current_pos2++)
+ 154:Core/Src/main.c ****       //    {
+ 155:Core/Src/main.c ****       //    __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, current_pos2);
+ 156:Core/Src/main.c ****       //    HAL_Delay(1);
+ 157:Core/Src/main.c ****       //    }
+ 158:Core/Src/main.c ****       //  }
+ 159:Core/Src/main.c ****       //  else if (current_pos2 > goal2){
+ 160:Core/Src/main.c ****       //    for(current_pos2; current_pos2 > goal2; current_pos2--)
+ 161:Core/Src/main.c ****       //    {
+ 162:Core/Src/main.c ****       //    __HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_2, current_pos2);
+ 163:Core/Src/main.c ****       //    HAL_Delay(1);
+ 164:Core/Src/main.c ****       //    }
+ 165:Core/Src/main.c ****       //  }
+ 166:Core/Src/main.c ****       // END SERVO MOTOR TEST
+ 167:Core/Src/main.c **** 
+ 168:Core/Src/main.c ****       if (goal == 5)
+ 169:Core/Src/main.c ****       {
+ 170:Core/Src/main.c ****         sprintf(msg, "Go to Start\r\n");
+ 171:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 172:Core/Src/main.c ****         servo_start();
+ 173:Core/Src/main.c ****       }
+ 174:Core/Src/main.c **** 
+ 175:Core/Src/main.c ****       else if (goal == 4)
+ 176:Core/Src/main.c ****       {
+ 177:Core/Src/main.c ****         sprintf(msg, "Grapp the cube\r\n");
+ 178:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 179:Core/Src/main.c ****         servo_grap();
+ 180:Core/Src/main.c ****       }
+ 181:Core/Src/main.c **** 
+ 182:Core/Src/main.c ****       else if (goal == 0)
+ 183:Core/Src/main.c ****       {
+ 184:Core/Src/main.c ****         HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+ 185:Core/Src/main.c ****         HAL_Delay(500);
+ 186:Core/Src/main.c ****         HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+ 187:Core/Src/main.c ****         sprintf(msg, "right	\r\n");
+ 188:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 189:Core/Src/main.c ****         servo_grap();
+ 190:Core/Src/main.c ****         servo_right();
+ 191:Core/Src/main.c ****         servo_start();
+ 192:Core/Src/main.c ****       }
+ 193:Core/Src/main.c **** 
+ 194:Core/Src/main.c ****       else if (goal == 1)
+ 195:Core/Src/main.c ****       {
+ 196:Core/Src/main.c ****         sprintf(msg, "middle\r\n");
+ 197:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 198:Core/Src/main.c ****         servo_grap();
+ 199:Core/Src/main.c ****         servo_middle();
+ 200:Core/Src/main.c ****         servo_start();
+ 201:Core/Src/main.c ****       }
+ 202:Core/Src/main.c **** 
+ 203:Core/Src/main.c ****       else if (goal == 2)
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 5
+
+
+ 204:Core/Src/main.c ****       {
+ 205:Core/Src/main.c ****         sprintf(msg, "left\r\n");
+ 206:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 207:Core/Src/main.c ****         servo_grap();
+ 208:Core/Src/main.c ****         servo_left();
+ 209:Core/Src/main.c ****         servo_start();
+ 210:Core/Src/main.c ****       }
+ 211:Core/Src/main.c ****     }
+ 212:Core/Src/main.c ****     // END UART
+ 213:Core/Src/main.c ****   }
+ 214:Core/Src/main.c ****   /* USER CODE END 3 */
+ 215:Core/Src/main.c **** }
+ 216:Core/Src/main.c **** 
+ 217:Core/Src/main.c **** /**
+ 218:Core/Src/main.c ****   * @brief System Clock Configuration
+ 219:Core/Src/main.c ****   * @retval None
+ 220:Core/Src/main.c ****   */
+ 221:Core/Src/main.c **** void SystemClock_Config(void)
+ 222:Core/Src/main.c **** {
+ 223:Core/Src/main.c ****   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+ 224:Core/Src/main.c ****   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+ 225:Core/Src/main.c **** 
+ 226:Core/Src/main.c ****   /** Initializes the RCC Oscillators according to the specified parameters
+ 227:Core/Src/main.c ****   * in the RCC_OscInitTypeDef structure.
+ 228:Core/Src/main.c ****   */
+ 229:Core/Src/main.c ****   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+ 230:Core/Src/main.c ****   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+ 231:Core/Src/main.c ****   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+ 232:Core/Src/main.c ****   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+ 233:Core/Src/main.c ****   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+ 234:Core/Src/main.c ****   {
+ 235:Core/Src/main.c ****     Error_Handler();
+ 236:Core/Src/main.c ****   }
+ 237:Core/Src/main.c ****   /** Initializes the CPU, AHB and APB buses clocks
+ 238:Core/Src/main.c ****   */
+ 239:Core/Src/main.c ****   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+ 240:Core/Src/main.c ****                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+ 241:Core/Src/main.c ****   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+ 242:Core/Src/main.c ****   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+ 243:Core/Src/main.c ****   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+ 244:Core/Src/main.c ****   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+ 245:Core/Src/main.c **** 
+ 246:Core/Src/main.c ****   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+ 247:Core/Src/main.c ****   {
+ 248:Core/Src/main.c ****     Error_Handler();
+ 249:Core/Src/main.c ****   }
+ 250:Core/Src/main.c **** }
+ 251:Core/Src/main.c **** 
+ 252:Core/Src/main.c **** /* USER CODE BEGIN 4 */
+ 253:Core/Src/main.c **** void servo_start(void)
+ 254:Core/Src/main.c **** {
+  27              		.loc 1 254 1 view -0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 08B5     		push	{r3, lr}
+  32              	.LCFI0:
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 6
+
+
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+ 255:Core/Src/main.c ****   uint16_t joint1 = 400;
+  36              		.loc 1 255 3 view .LVU1
+  37              	.LVL0:
+ 256:Core/Src/main.c ****   uint16_t joint2 = 600;
+  38              		.loc 1 256 3 view .LVU2
+ 257:Core/Src/main.c ****   uint16_t joint3 = 600;
+  39              		.loc 1 257 3 view .LVU3
+ 258:Core/Src/main.c ****   uint16_t joint4 = 950;
+  40              		.loc 1 258 3 view .LVU4
+ 259:Core/Src/main.c **** 
+ 260:Core/Src/main.c ****   // JOINT2
+ 261:Core/Src/main.c ****   if (current_pos2 < joint2)
+  41              		.loc 1 261 3 view .LVU5
+  42              		.loc 1 261 20 is_stmt 0 view .LVU6
+  43 0002 524B     		ldr	r3, .L31
+  44 0004 1B88     		ldrh	r3, [r3]
+  45              		.loc 1 261 6 view .LVU7
+  46 0006 B3F5167F 		cmp	r3, #600
+  47 000a 1DD3     		bcc	.L2
+ 262:Core/Src/main.c ****   {
+ 263:Core/Src/main.c ****     for (current_pos2; current_pos2 < joint2; current_pos2++)
+ 264:Core/Src/main.c ****     {
+ 265:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 266:Core/Src/main.c ****       HAL_Delay(10);
+ 267:Core/Src/main.c ****     }
+ 268:Core/Src/main.c ****   }
+ 269:Core/Src/main.c ****   else if (current_pos2 > joint2)
+  48              		.loc 1 269 8 is_stmt 1 view .LVU8
+  49              		.loc 1 269 11 is_stmt 0 view .LVU9
+  50 000c B3F5167F 		cmp	r3, #600
+  51 0010 2AD8     		bhi	.L6
+  52              	.L5:
+ 270:Core/Src/main.c ****   {
+ 271:Core/Src/main.c ****     for (current_pos2; current_pos2 > joint2; current_pos2--)
+ 272:Core/Src/main.c ****     {
+ 273:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 274:Core/Src/main.c ****       HAL_Delay(10);
+ 275:Core/Src/main.c ****     }
+ 276:Core/Src/main.c ****   }
+ 277:Core/Src/main.c **** 
+ 278:Core/Src/main.c ****   // JOINT3
+ 279:Core/Src/main.c ****   if (current_pos3 < joint3)
+  53              		.loc 1 279 3 is_stmt 1 view .LVU10
+  54              		.loc 1 279 20 is_stmt 0 view .LVU11
+  55 0012 4F4B     		ldr	r3, .L31+4
+  56 0014 1B88     		ldrh	r3, [r3]
+  57              		.loc 1 279 6 view .LVU12
+  58 0016 B3F5167F 		cmp	r3, #600
+  59 001a 35D3     		bcc	.L8
+ 280:Core/Src/main.c ****   {
+ 281:Core/Src/main.c ****     for (current_pos3; current_pos3 < joint3; current_pos3++)
+ 282:Core/Src/main.c ****     {
+ 283:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 284:Core/Src/main.c ****       HAL_Delay(10);
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 7
+
+
+ 285:Core/Src/main.c ****     }
+ 286:Core/Src/main.c ****   }
+ 287:Core/Src/main.c ****   else if (current_pos3 > joint3)
+  60              		.loc 1 287 8 is_stmt 1 view .LVU13
+  61              		.loc 1 287 11 is_stmt 0 view .LVU14
+  62 001c B3F5167F 		cmp	r3, #600
+  63 0020 42D8     		bhi	.L12
+  64              	.L11:
+ 288:Core/Src/main.c ****   {
+ 289:Core/Src/main.c ****     for (current_pos3; current_pos3 > joint3; current_pos3--)
+ 290:Core/Src/main.c ****     {
+ 291:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 292:Core/Src/main.c ****       HAL_Delay(10);
+ 293:Core/Src/main.c ****     }
+ 294:Core/Src/main.c ****   }
+ 295:Core/Src/main.c ****   // JOINT1
+ 296:Core/Src/main.c ****   if (current_pos1 < joint1)
+  65              		.loc 1 296 3 is_stmt 1 view .LVU15
+  66              		.loc 1 296 20 is_stmt 0 view .LVU16
+  67 0022 4C4B     		ldr	r3, .L31+8
+  68 0024 1B88     		ldrh	r3, [r3]
+  69              		.loc 1 296 6 view .LVU17
+  70 0026 B3F5C87F 		cmp	r3, #400
+  71 002a 4DD3     		bcc	.L14
+ 297:Core/Src/main.c ****   {
+ 298:Core/Src/main.c ****     for (current_pos1; current_pos1 < joint1; current_pos1++)
+ 299:Core/Src/main.c ****     {
+ 300:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 301:Core/Src/main.c ****       HAL_Delay(10);
+ 302:Core/Src/main.c ****     }
+ 303:Core/Src/main.c ****   }
+ 304:Core/Src/main.c ****   else if (current_pos1 > joint1)
+  72              		.loc 1 304 8 is_stmt 1 view .LVU18
+  73              		.loc 1 304 11 is_stmt 0 view .LVU19
+  74 002c B3F5C87F 		cmp	r3, #400
+  75 0030 64D8     		bhi	.L18
+  76              	.L17:
+ 305:Core/Src/main.c ****   {
+ 306:Core/Src/main.c ****     for (current_pos1; current_pos1 > joint1; current_pos1--)
+ 307:Core/Src/main.c ****     {
+ 308:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 309:Core/Src/main.c ****       HAL_Delay(10);
+ 310:Core/Src/main.c ****     }
+ 311:Core/Src/main.c ****   }
+ 312:Core/Src/main.c ****   // JOINT4
+ 313:Core/Src/main.c ****   if (current_pos4 < joint4)
+  77              		.loc 1 313 3 is_stmt 1 view .LVU20
+  78              		.loc 1 313 20 is_stmt 0 view .LVU21
+  79 0032 494B     		ldr	r3, .L31+12
+  80 0034 1B88     		ldrh	r3, [r3]
+  81              		.loc 1 313 6 view .LVU22
+  82 0036 40F2B532 		movw	r2, #949
+  83 003a 9342     		cmp	r3, r2
+  84 003c 6ED9     		bls	.L20
+ 314:Core/Src/main.c ****   {
+ 315:Core/Src/main.c ****     for (current_pos4; current_pos4 < joint4; current_pos4++)
+ 316:Core/Src/main.c ****     {
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 8
+
+
+ 317:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 318:Core/Src/main.c ****       HAL_Delay(10);
+ 319:Core/Src/main.c ****     }
+ 320:Core/Src/main.c ****   }
+ 321:Core/Src/main.c ****   else if (current_pos4 > joint4)
+  85              		.loc 1 321 8 is_stmt 1 view .LVU23
+  86              		.loc 1 321 11 is_stmt 0 view .LVU24
+  87 003e 40F2B632 		movw	r2, #950
+  88 0042 9342     		cmp	r3, r2
+  89 0044 7BD8     		bhi	.L24
+  90 0046 6FE0     		b	.L1
+  91              	.L2:
+ 263:Core/Src/main.c ****     {
+  92              		.loc 1 263 37 discriminator 1 view .LVU25
+  93 0048 404B     		ldr	r3, .L31
+  94 004a 1B88     		ldrh	r3, [r3]
+ 263:Core/Src/main.c ****     {
+  95              		.loc 1 263 5 discriminator 1 view .LVU26
+  96 004c B3F5167F 		cmp	r3, #600
+  97 0050 DFD2     		bcs	.L5
+ 265:Core/Src/main.c ****       HAL_Delay(10);
+  98              		.loc 1 265 7 is_stmt 1 discriminator 2 view .LVU27
+  99 0052 424A     		ldr	r2, .L31+16
+ 100 0054 1268     		ldr	r2, [r2]
+ 101 0056 9363     		str	r3, [r2, #56]
+ 266:Core/Src/main.c ****     }
+ 102              		.loc 1 266 7 discriminator 2 view .LVU28
+ 103 0058 0A20     		movs	r0, #10
+ 104 005a FFF7FEFF 		bl	HAL_Delay
+ 105              	.LVL1:
+ 263:Core/Src/main.c ****     {
+ 106              		.loc 1 263 59 is_stmt 0 discriminator 2 view .LVU29
+ 107 005e 3B4A     		ldr	r2, .L31
+ 108 0060 1388     		ldrh	r3, [r2]
+ 109 0062 0133     		adds	r3, r3, #1
+ 110 0064 1380     		strh	r3, [r2]	@ movhi
+ 111 0066 EFE7     		b	.L2
+ 112              	.L6:
+ 271:Core/Src/main.c ****     {
+ 113              		.loc 1 271 37 discriminator 1 view .LVU30
+ 114 0068 384B     		ldr	r3, .L31
+ 115 006a 1B88     		ldrh	r3, [r3]
+ 271:Core/Src/main.c ****     {
+ 116              		.loc 1 271 5 discriminator 1 view .LVU31
+ 117 006c B3F5167F 		cmp	r3, #600
+ 118 0070 CFD9     		bls	.L5
+ 273:Core/Src/main.c ****       HAL_Delay(10);
+ 119              		.loc 1 273 7 is_stmt 1 discriminator 2 view .LVU32
+ 120 0072 3A4A     		ldr	r2, .L31+16
+ 121 0074 1268     		ldr	r2, [r2]
+ 122 0076 9363     		str	r3, [r2, #56]
+ 274:Core/Src/main.c ****     }
+ 123              		.loc 1 274 7 discriminator 2 view .LVU33
+ 124 0078 0A20     		movs	r0, #10
+ 125 007a FFF7FEFF 		bl	HAL_Delay
+ 126              	.LVL2:
+ 271:Core/Src/main.c ****     {
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 9
+
+
+ 127              		.loc 1 271 59 is_stmt 0 discriminator 2 view .LVU34
+ 128 007e 334A     		ldr	r2, .L31
+ 129 0080 1388     		ldrh	r3, [r2]
+ 130 0082 013B     		subs	r3, r3, #1
+ 131 0084 1380     		strh	r3, [r2]	@ movhi
+ 132 0086 EFE7     		b	.L6
+ 133              	.L8:
+ 281:Core/Src/main.c ****     {
+ 134              		.loc 1 281 37 discriminator 1 view .LVU35
+ 135 0088 314B     		ldr	r3, .L31+4
+ 136 008a 1B88     		ldrh	r3, [r3]
+ 281:Core/Src/main.c ****     {
+ 137              		.loc 1 281 5 discriminator 1 view .LVU36
+ 138 008c B3F5167F 		cmp	r3, #600
+ 139 0090 C7D2     		bcs	.L11
+ 283:Core/Src/main.c ****       HAL_Delay(10);
+ 140              		.loc 1 283 7 is_stmt 1 discriminator 2 view .LVU37
+ 141 0092 324A     		ldr	r2, .L31+16
+ 142 0094 1268     		ldr	r2, [r2]
+ 143 0096 D363     		str	r3, [r2, #60]
+ 284:Core/Src/main.c ****     }
+ 144              		.loc 1 284 7 discriminator 2 view .LVU38
+ 145 0098 0A20     		movs	r0, #10
+ 146 009a FFF7FEFF 		bl	HAL_Delay
+ 147              	.LVL3:
+ 281:Core/Src/main.c ****     {
+ 148              		.loc 1 281 59 is_stmt 0 discriminator 2 view .LVU39
+ 149 009e 2C4A     		ldr	r2, .L31+4
+ 150 00a0 1388     		ldrh	r3, [r2]
+ 151 00a2 0133     		adds	r3, r3, #1
+ 152 00a4 1380     		strh	r3, [r2]	@ movhi
+ 153 00a6 EFE7     		b	.L8
+ 154              	.L12:
+ 289:Core/Src/main.c ****     {
+ 155              		.loc 1 289 37 discriminator 1 view .LVU40
+ 156 00a8 294B     		ldr	r3, .L31+4
+ 157 00aa 1B88     		ldrh	r3, [r3]
+ 289:Core/Src/main.c ****     {
+ 158              		.loc 1 289 5 discriminator 1 view .LVU41
+ 159 00ac B3F5167F 		cmp	r3, #600
+ 160 00b0 B7D9     		bls	.L11
+ 291:Core/Src/main.c ****       HAL_Delay(10);
+ 161              		.loc 1 291 7 is_stmt 1 discriminator 2 view .LVU42
+ 162 00b2 2A4A     		ldr	r2, .L31+16
+ 163 00b4 1268     		ldr	r2, [r2]
+ 164 00b6 D363     		str	r3, [r2, #60]
+ 292:Core/Src/main.c ****     }
+ 165              		.loc 1 292 7 discriminator 2 view .LVU43
+ 166 00b8 0A20     		movs	r0, #10
+ 167 00ba FFF7FEFF 		bl	HAL_Delay
+ 168              	.LVL4:
+ 289:Core/Src/main.c ****     {
+ 169              		.loc 1 289 59 is_stmt 0 discriminator 2 view .LVU44
+ 170 00be 244A     		ldr	r2, .L31+4
+ 171 00c0 1388     		ldrh	r3, [r2]
+ 172 00c2 013B     		subs	r3, r3, #1
+ 173 00c4 1380     		strh	r3, [r2]	@ movhi
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 10
+
+
+ 174 00c6 EFE7     		b	.L12
+ 175              	.L14:
+ 298:Core/Src/main.c ****     {
+ 176              		.loc 1 298 37 discriminator 1 view .LVU45
+ 177 00c8 224B     		ldr	r3, .L31+8
+ 178 00ca 1B88     		ldrh	r3, [r3]
+ 298:Core/Src/main.c ****     {
+ 179              		.loc 1 298 5 discriminator 1 view .LVU46
+ 180 00cc B3F5C87F 		cmp	r3, #400
+ 181 00d0 AFD2     		bcs	.L17
+ 300:Core/Src/main.c ****       HAL_Delay(10);
+ 182              		.loc 1 300 7 is_stmt 1 discriminator 2 view .LVU47
+ 183 00d2 224A     		ldr	r2, .L31+16
+ 184 00d4 1268     		ldr	r2, [r2]
+ 185 00d6 5363     		str	r3, [r2, #52]
+ 301:Core/Src/main.c ****     }
+ 186              		.loc 1 301 7 discriminator 2 view .LVU48
+ 187 00d8 0A20     		movs	r0, #10
+ 188 00da FFF7FEFF 		bl	HAL_Delay
+ 189              	.LVL5:
+ 298:Core/Src/main.c ****     {
+ 190              		.loc 1 298 59 is_stmt 0 discriminator 2 view .LVU49
+ 191 00de 1D4A     		ldr	r2, .L31+8
+ 192 00e0 1388     		ldrh	r3, [r2]
+ 193 00e2 0133     		adds	r3, r3, #1
+ 194 00e4 1380     		strh	r3, [r2]	@ movhi
+ 195 00e6 EFE7     		b	.L14
+ 196              	.L19:
+ 308:Core/Src/main.c ****       HAL_Delay(10);
+ 197              		.loc 1 308 7 is_stmt 1 discriminator 2 view .LVU50
+ 198 00e8 1C4A     		ldr	r2, .L31+16
+ 199 00ea 1268     		ldr	r2, [r2]
+ 200 00ec 5363     		str	r3, [r2, #52]
+ 309:Core/Src/main.c ****     }
+ 201              		.loc 1 309 7 discriminator 2 view .LVU51
+ 202 00ee 0A20     		movs	r0, #10
+ 203 00f0 FFF7FEFF 		bl	HAL_Delay
+ 204              	.LVL6:
+ 306:Core/Src/main.c ****     {
+ 205              		.loc 1 306 59 is_stmt 0 discriminator 2 view .LVU52
+ 206 00f4 174A     		ldr	r2, .L31+8
+ 207 00f6 1388     		ldrh	r3, [r2]
+ 208 00f8 013B     		subs	r3, r3, #1
+ 209 00fa 1380     		strh	r3, [r2]	@ movhi
+ 210              	.L18:
+ 306:Core/Src/main.c ****     {
+ 211              		.loc 1 306 37 discriminator 1 view .LVU53
+ 212 00fc 154B     		ldr	r3, .L31+8
+ 213 00fe 1B88     		ldrh	r3, [r3]
+ 306:Core/Src/main.c ****     {
+ 214              		.loc 1 306 5 discriminator 1 view .LVU54
+ 215 0100 B3F5C87F 		cmp	r3, #400
+ 216 0104 F0D8     		bhi	.L19
+ 217 0106 94E7     		b	.L17
+ 218              	.L22:
+ 317:Core/Src/main.c ****       HAL_Delay(10);
+ 219              		.loc 1 317 7 is_stmt 1 discriminator 2 view .LVU55
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 11
+
+
+ 220 0108 144A     		ldr	r2, .L31+16
+ 221 010a 1268     		ldr	r2, [r2]
+ 222 010c 1364     		str	r3, [r2, #64]
+ 318:Core/Src/main.c ****     }
+ 223              		.loc 1 318 7 discriminator 2 view .LVU56
+ 224 010e 0A20     		movs	r0, #10
+ 225 0110 FFF7FEFF 		bl	HAL_Delay
+ 226              	.LVL7:
+ 315:Core/Src/main.c ****     {
+ 227              		.loc 1 315 59 is_stmt 0 discriminator 2 view .LVU57
+ 228 0114 104A     		ldr	r2, .L31+12
+ 229 0116 1388     		ldrh	r3, [r2]
+ 230 0118 0133     		adds	r3, r3, #1
+ 231 011a 1380     		strh	r3, [r2]	@ movhi
+ 232              	.L20:
+ 315:Core/Src/main.c ****     {
+ 233              		.loc 1 315 37 discriminator 1 view .LVU58
+ 234 011c 0E4B     		ldr	r3, .L31+12
+ 235 011e 1B88     		ldrh	r3, [r3]
+ 315:Core/Src/main.c ****     {
+ 236              		.loc 1 315 5 discriminator 1 view .LVU59
+ 237 0120 40F2B532 		movw	r2, #949
+ 238 0124 9342     		cmp	r3, r2
+ 239 0126 EFD9     		bls	.L22
+ 240              	.L1:
+ 322:Core/Src/main.c ****   {
+ 323:Core/Src/main.c ****     for (current_pos4; current_pos4 > joint4; current_pos4--)
+ 324:Core/Src/main.c ****     {
+ 325:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 326:Core/Src/main.c ****       HAL_Delay(10);
+ 327:Core/Src/main.c ****     }
+ 328:Core/Src/main.c ****   }
+ 329:Core/Src/main.c **** }
+ 241              		.loc 1 329 1 view .LVU60
+ 242 0128 08BD     		pop	{r3, pc}
+ 243              	.L25:
+ 325:Core/Src/main.c ****       HAL_Delay(10);
+ 244              		.loc 1 325 7 is_stmt 1 discriminator 2 view .LVU61
+ 245 012a 0C4A     		ldr	r2, .L31+16
+ 246 012c 1268     		ldr	r2, [r2]
+ 247 012e 1364     		str	r3, [r2, #64]
+ 326:Core/Src/main.c ****     }
+ 248              		.loc 1 326 7 discriminator 2 view .LVU62
+ 249 0130 0A20     		movs	r0, #10
+ 250 0132 FFF7FEFF 		bl	HAL_Delay
+ 251              	.LVL8:
+ 323:Core/Src/main.c ****     {
+ 252              		.loc 1 323 59 is_stmt 0 discriminator 2 view .LVU63
+ 253 0136 084A     		ldr	r2, .L31+12
+ 254 0138 1388     		ldrh	r3, [r2]
+ 255 013a 013B     		subs	r3, r3, #1
+ 256 013c 1380     		strh	r3, [r2]	@ movhi
+ 257              	.L24:
+ 323:Core/Src/main.c ****     {
+ 258              		.loc 1 323 37 discriminator 1 view .LVU64
+ 259 013e 064B     		ldr	r3, .L31+12
+ 260 0140 1B88     		ldrh	r3, [r3]
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 12
+
+
+ 323:Core/Src/main.c ****     {
+ 261              		.loc 1 323 5 discriminator 1 view .LVU65
+ 262 0142 40F2B632 		movw	r2, #950
+ 263 0146 9342     		cmp	r3, r2
+ 264 0148 EFD8     		bhi	.L25
+ 265 014a EDE7     		b	.L1
+ 266              	.L32:
+ 267              		.align	2
+ 268              	.L31:
+ 269 014c 00000000 		.word	.LANCHOR0
+ 270 0150 00000000 		.word	.LANCHOR1
+ 271 0154 00000000 		.word	.LANCHOR2
+ 272 0158 00000000 		.word	.LANCHOR3
+ 273 015c 00000000 		.word	htim2
+ 274              		.cfi_endproc
+ 275              	.LFE70:
+ 277              		.section	.text.servo_grap,"ax",%progbits
+ 278              		.align	1
+ 279              		.global	servo_grap
+ 280              		.syntax unified
+ 281              		.thumb
+ 282              		.thumb_func
+ 283              		.fpu softvfp
+ 285              	servo_grap:
+ 286              	.LFB71:
+ 330:Core/Src/main.c **** 
+ 331:Core/Src/main.c **** void servo_grap(void)
+ 332:Core/Src/main.c **** {
+ 287              		.loc 1 332 1 is_stmt 1 view -0
+ 288              		.cfi_startproc
+ 289              		@ args = 0, pretend = 0, frame = 0
+ 290              		@ frame_needed = 0, uses_anonymous_args = 0
+ 291 0000 08B5     		push	{r3, lr}
+ 292              	.LCFI1:
+ 293              		.cfi_def_cfa_offset 8
+ 294              		.cfi_offset 3, -8
+ 295              		.cfi_offset 14, -4
+ 333:Core/Src/main.c ****   uint16_t joint1 = 400;
+ 296              		.loc 1 333 3 view .LVU67
+ 297              	.LVL9:
+ 334:Core/Src/main.c ****   uint16_t joint2 = 680;
+ 298              		.loc 1 334 3 view .LVU68
+ 335:Core/Src/main.c ****   uint16_t joint3 = 780;
+ 299              		.loc 1 335 3 view .LVU69
+ 336:Core/Src/main.c ****   uint16_t joint4 = 650;
+ 300              		.loc 1 336 3 view .LVU70
+ 337:Core/Src/main.c **** 
+ 338:Core/Src/main.c ****   // JOINT1
+ 339:Core/Src/main.c ****   if (current_pos1 < joint1)
+ 301              		.loc 1 339 3 view .LVU71
+ 302              		.loc 1 339 20 is_stmt 0 view .LVU72
+ 303 0002 524B     		ldr	r3, .L63
+ 304 0004 1B88     		ldrh	r3, [r3]
+ 305              		.loc 1 339 6 view .LVU73
+ 306 0006 B3F5C87F 		cmp	r3, #400
+ 307 000a 1DD3     		bcc	.L34
+ 340:Core/Src/main.c ****   {
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 13
+
+
+ 341:Core/Src/main.c ****     for (current_pos1; current_pos1 < joint1; current_pos1++)
+ 342:Core/Src/main.c ****     {
+ 343:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 344:Core/Src/main.c ****       HAL_Delay(10);
+ 345:Core/Src/main.c ****     }
+ 346:Core/Src/main.c ****   }
+ 347:Core/Src/main.c ****   else if (current_pos1 > joint1)
+ 308              		.loc 1 347 8 is_stmt 1 view .LVU74
+ 309              		.loc 1 347 11 is_stmt 0 view .LVU75
+ 310 000c B3F5C87F 		cmp	r3, #400
+ 311 0010 2AD8     		bhi	.L38
+ 312              	.L37:
+ 348:Core/Src/main.c ****   {
+ 349:Core/Src/main.c ****     for (current_pos1; current_pos1 > joint1; current_pos1--)
+ 350:Core/Src/main.c ****     {
+ 351:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 352:Core/Src/main.c ****       HAL_Delay(10);
+ 353:Core/Src/main.c ****     }
+ 354:Core/Src/main.c ****   }
+ 355:Core/Src/main.c **** 
+ 356:Core/Src/main.c ****   // JOINT3
+ 357:Core/Src/main.c ****   if (current_pos3 < joint3)
+ 313              		.loc 1 357 3 is_stmt 1 view .LVU76
+ 314              		.loc 1 357 20 is_stmt 0 view .LVU77
+ 315 0012 4F4B     		ldr	r3, .L63+4
+ 316 0014 1B88     		ldrh	r3, [r3]
+ 317              		.loc 1 357 6 view .LVU78
+ 318 0016 B3F5437F 		cmp	r3, #780
+ 319 001a 35D3     		bcc	.L40
+ 358:Core/Src/main.c ****   {
+ 359:Core/Src/main.c ****     for (current_pos3; current_pos3 < joint3; current_pos3++)
+ 360:Core/Src/main.c ****     {
+ 361:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 362:Core/Src/main.c ****       HAL_Delay(10);
+ 363:Core/Src/main.c ****     }
+ 364:Core/Src/main.c ****   }
+ 365:Core/Src/main.c ****   else if (current_pos3 > joint3)
+ 320              		.loc 1 365 8 is_stmt 1 view .LVU79
+ 321              		.loc 1 365 11 is_stmt 0 view .LVU80
+ 322 001c B3F5437F 		cmp	r3, #780
+ 323 0020 42D8     		bhi	.L44
+ 324              	.L43:
+ 366:Core/Src/main.c ****   {
+ 367:Core/Src/main.c ****     for (current_pos3; current_pos3 > joint3; current_pos3--)
+ 368:Core/Src/main.c ****     {
+ 369:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 370:Core/Src/main.c ****       HAL_Delay(10);
+ 371:Core/Src/main.c ****     }
+ 372:Core/Src/main.c ****   }
+ 373:Core/Src/main.c ****   // JOINT2
+ 374:Core/Src/main.c ****   if (current_pos2 < joint2)
+ 325              		.loc 1 374 3 is_stmt 1 view .LVU81
+ 326              		.loc 1 374 20 is_stmt 0 view .LVU82
+ 327 0022 4C4B     		ldr	r3, .L63+8
+ 328 0024 1B88     		ldrh	r3, [r3]
+ 329              		.loc 1 374 6 view .LVU83
+ 330 0026 B3F52A7F 		cmp	r3, #680
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 14
+
+
+ 331 002a 4DD3     		bcc	.L46
+ 375:Core/Src/main.c ****   {
+ 376:Core/Src/main.c ****     for (current_pos2; current_pos2 < joint2; current_pos2++)
+ 377:Core/Src/main.c ****     {
+ 378:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 379:Core/Src/main.c ****       HAL_Delay(10);
+ 380:Core/Src/main.c ****     }
+ 381:Core/Src/main.c ****   }
+ 382:Core/Src/main.c ****   else if (current_pos2 > joint2)
+ 332              		.loc 1 382 8 is_stmt 1 view .LVU84
+ 333              		.loc 1 382 11 is_stmt 0 view .LVU85
+ 334 002c B3F52A7F 		cmp	r3, #680
+ 335 0030 64D8     		bhi	.L50
+ 336              	.L49:
+ 383:Core/Src/main.c ****   {
+ 384:Core/Src/main.c ****     for (current_pos2; current_pos2 > joint2; current_pos2--)
+ 385:Core/Src/main.c ****     {
+ 386:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 387:Core/Src/main.c ****       HAL_Delay(10);
+ 388:Core/Src/main.c ****     }
+ 389:Core/Src/main.c ****   }
+ 390:Core/Src/main.c ****   // JOINT4
+ 391:Core/Src/main.c ****   if (current_pos4 < joint4)
+ 337              		.loc 1 391 3 is_stmt 1 view .LVU86
+ 338              		.loc 1 391 20 is_stmt 0 view .LVU87
+ 339 0032 494B     		ldr	r3, .L63+12
+ 340 0034 1B88     		ldrh	r3, [r3]
+ 341              		.loc 1 391 6 view .LVU88
+ 342 0036 40F28922 		movw	r2, #649
+ 343 003a 9342     		cmp	r3, r2
+ 344 003c 6ED9     		bls	.L52
+ 392:Core/Src/main.c ****   {
+ 393:Core/Src/main.c ****     for (current_pos4; current_pos4 < joint4; current_pos4++)
+ 394:Core/Src/main.c ****     {
+ 395:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 396:Core/Src/main.c ****       HAL_Delay(10);
+ 397:Core/Src/main.c ****     }
+ 398:Core/Src/main.c ****   }
+ 399:Core/Src/main.c ****   else if (current_pos4 > joint4)
+ 345              		.loc 1 399 8 is_stmt 1 view .LVU89
+ 346              		.loc 1 399 11 is_stmt 0 view .LVU90
+ 347 003e 40F28A22 		movw	r2, #650
+ 348 0042 9342     		cmp	r3, r2
+ 349 0044 7BD8     		bhi	.L56
+ 350 0046 6FE0     		b	.L33
+ 351              	.L34:
+ 341:Core/Src/main.c ****     {
+ 352              		.loc 1 341 37 discriminator 1 view .LVU91
+ 353 0048 404B     		ldr	r3, .L63
+ 354 004a 1B88     		ldrh	r3, [r3]
+ 341:Core/Src/main.c ****     {
+ 355              		.loc 1 341 5 discriminator 1 view .LVU92
+ 356 004c B3F5C87F 		cmp	r3, #400
+ 357 0050 DFD2     		bcs	.L37
+ 343:Core/Src/main.c ****       HAL_Delay(10);
+ 358              		.loc 1 343 7 is_stmt 1 discriminator 2 view .LVU93
+ 359 0052 424A     		ldr	r2, .L63+16
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 15
+
+
+ 360 0054 1268     		ldr	r2, [r2]
+ 361 0056 5363     		str	r3, [r2, #52]
+ 344:Core/Src/main.c ****     }
+ 362              		.loc 1 344 7 discriminator 2 view .LVU94
+ 363 0058 0A20     		movs	r0, #10
+ 364 005a FFF7FEFF 		bl	HAL_Delay
+ 365              	.LVL10:
+ 341:Core/Src/main.c ****     {
+ 366              		.loc 1 341 59 is_stmt 0 discriminator 2 view .LVU95
+ 367 005e 3B4A     		ldr	r2, .L63
+ 368 0060 1388     		ldrh	r3, [r2]
+ 369 0062 0133     		adds	r3, r3, #1
+ 370 0064 1380     		strh	r3, [r2]	@ movhi
+ 371 0066 EFE7     		b	.L34
+ 372              	.L38:
+ 349:Core/Src/main.c ****     {
+ 373              		.loc 1 349 37 discriminator 1 view .LVU96
+ 374 0068 384B     		ldr	r3, .L63
+ 375 006a 1B88     		ldrh	r3, [r3]
+ 349:Core/Src/main.c ****     {
+ 376              		.loc 1 349 5 discriminator 1 view .LVU97
+ 377 006c B3F5C87F 		cmp	r3, #400
+ 378 0070 CFD9     		bls	.L37
+ 351:Core/Src/main.c ****       HAL_Delay(10);
+ 379              		.loc 1 351 7 is_stmt 1 discriminator 2 view .LVU98
+ 380 0072 3A4A     		ldr	r2, .L63+16
+ 381 0074 1268     		ldr	r2, [r2]
+ 382 0076 5363     		str	r3, [r2, #52]
+ 352:Core/Src/main.c ****     }
+ 383              		.loc 1 352 7 discriminator 2 view .LVU99
+ 384 0078 0A20     		movs	r0, #10
+ 385 007a FFF7FEFF 		bl	HAL_Delay
+ 386              	.LVL11:
+ 349:Core/Src/main.c ****     {
+ 387              		.loc 1 349 59 is_stmt 0 discriminator 2 view .LVU100
+ 388 007e 334A     		ldr	r2, .L63
+ 389 0080 1388     		ldrh	r3, [r2]
+ 390 0082 013B     		subs	r3, r3, #1
+ 391 0084 1380     		strh	r3, [r2]	@ movhi
+ 392 0086 EFE7     		b	.L38
+ 393              	.L40:
+ 359:Core/Src/main.c ****     {
+ 394              		.loc 1 359 37 discriminator 1 view .LVU101
+ 395 0088 314B     		ldr	r3, .L63+4
+ 396 008a 1B88     		ldrh	r3, [r3]
+ 359:Core/Src/main.c ****     {
+ 397              		.loc 1 359 5 discriminator 1 view .LVU102
+ 398 008c B3F5437F 		cmp	r3, #780
+ 399 0090 C7D2     		bcs	.L43
+ 361:Core/Src/main.c ****       HAL_Delay(10);
+ 400              		.loc 1 361 7 is_stmt 1 discriminator 2 view .LVU103
+ 401 0092 324A     		ldr	r2, .L63+16
+ 402 0094 1268     		ldr	r2, [r2]
+ 403 0096 D363     		str	r3, [r2, #60]
+ 362:Core/Src/main.c ****     }
+ 404              		.loc 1 362 7 discriminator 2 view .LVU104
+ 405 0098 0A20     		movs	r0, #10
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 16
+
+
+ 406 009a FFF7FEFF 		bl	HAL_Delay
+ 407              	.LVL12:
+ 359:Core/Src/main.c ****     {
+ 408              		.loc 1 359 59 is_stmt 0 discriminator 2 view .LVU105
+ 409 009e 2C4A     		ldr	r2, .L63+4
+ 410 00a0 1388     		ldrh	r3, [r2]
+ 411 00a2 0133     		adds	r3, r3, #1
+ 412 00a4 1380     		strh	r3, [r2]	@ movhi
+ 413 00a6 EFE7     		b	.L40
+ 414              	.L44:
+ 367:Core/Src/main.c ****     {
+ 415              		.loc 1 367 37 discriminator 1 view .LVU106
+ 416 00a8 294B     		ldr	r3, .L63+4
+ 417 00aa 1B88     		ldrh	r3, [r3]
+ 367:Core/Src/main.c ****     {
+ 418              		.loc 1 367 5 discriminator 1 view .LVU107
+ 419 00ac B3F5437F 		cmp	r3, #780
+ 420 00b0 B7D9     		bls	.L43
+ 369:Core/Src/main.c ****       HAL_Delay(10);
+ 421              		.loc 1 369 7 is_stmt 1 discriminator 2 view .LVU108
+ 422 00b2 2A4A     		ldr	r2, .L63+16
+ 423 00b4 1268     		ldr	r2, [r2]
+ 424 00b6 D363     		str	r3, [r2, #60]
+ 370:Core/Src/main.c ****     }
+ 425              		.loc 1 370 7 discriminator 2 view .LVU109
+ 426 00b8 0A20     		movs	r0, #10
+ 427 00ba FFF7FEFF 		bl	HAL_Delay
+ 428              	.LVL13:
+ 367:Core/Src/main.c ****     {
+ 429              		.loc 1 367 59 is_stmt 0 discriminator 2 view .LVU110
+ 430 00be 244A     		ldr	r2, .L63+4
+ 431 00c0 1388     		ldrh	r3, [r2]
+ 432 00c2 013B     		subs	r3, r3, #1
+ 433 00c4 1380     		strh	r3, [r2]	@ movhi
+ 434 00c6 EFE7     		b	.L44
+ 435              	.L46:
+ 376:Core/Src/main.c ****     {
+ 436              		.loc 1 376 37 discriminator 1 view .LVU111
+ 437 00c8 224B     		ldr	r3, .L63+8
+ 438 00ca 1B88     		ldrh	r3, [r3]
+ 376:Core/Src/main.c ****     {
+ 439              		.loc 1 376 5 discriminator 1 view .LVU112
+ 440 00cc B3F52A7F 		cmp	r3, #680
+ 441 00d0 AFD2     		bcs	.L49
+ 378:Core/Src/main.c ****       HAL_Delay(10);
+ 442              		.loc 1 378 7 is_stmt 1 discriminator 2 view .LVU113
+ 443 00d2 224A     		ldr	r2, .L63+16
+ 444 00d4 1268     		ldr	r2, [r2]
+ 445 00d6 9363     		str	r3, [r2, #56]
+ 379:Core/Src/main.c ****     }
+ 446              		.loc 1 379 7 discriminator 2 view .LVU114
+ 447 00d8 0A20     		movs	r0, #10
+ 448 00da FFF7FEFF 		bl	HAL_Delay
+ 449              	.LVL14:
+ 376:Core/Src/main.c ****     {
+ 450              		.loc 1 376 59 is_stmt 0 discriminator 2 view .LVU115
+ 451 00de 1D4A     		ldr	r2, .L63+8
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 17
+
+
+ 452 00e0 1388     		ldrh	r3, [r2]
+ 453 00e2 0133     		adds	r3, r3, #1
+ 454 00e4 1380     		strh	r3, [r2]	@ movhi
+ 455 00e6 EFE7     		b	.L46
+ 456              	.L51:
+ 386:Core/Src/main.c ****       HAL_Delay(10);
+ 457              		.loc 1 386 7 is_stmt 1 discriminator 2 view .LVU116
+ 458 00e8 1C4A     		ldr	r2, .L63+16
+ 459 00ea 1268     		ldr	r2, [r2]
+ 460 00ec 9363     		str	r3, [r2, #56]
+ 387:Core/Src/main.c ****     }
+ 461              		.loc 1 387 7 discriminator 2 view .LVU117
+ 462 00ee 0A20     		movs	r0, #10
+ 463 00f0 FFF7FEFF 		bl	HAL_Delay
+ 464              	.LVL15:
+ 384:Core/Src/main.c ****     {
+ 465              		.loc 1 384 59 is_stmt 0 discriminator 2 view .LVU118
+ 466 00f4 174A     		ldr	r2, .L63+8
+ 467 00f6 1388     		ldrh	r3, [r2]
+ 468 00f8 013B     		subs	r3, r3, #1
+ 469 00fa 1380     		strh	r3, [r2]	@ movhi
+ 470              	.L50:
+ 384:Core/Src/main.c ****     {
+ 471              		.loc 1 384 37 discriminator 1 view .LVU119
+ 472 00fc 154B     		ldr	r3, .L63+8
+ 473 00fe 1B88     		ldrh	r3, [r3]
+ 384:Core/Src/main.c ****     {
+ 474              		.loc 1 384 5 discriminator 1 view .LVU120
+ 475 0100 B3F52A7F 		cmp	r3, #680
+ 476 0104 F0D8     		bhi	.L51
+ 477 0106 94E7     		b	.L49
+ 478              	.L54:
+ 395:Core/Src/main.c ****       HAL_Delay(10);
+ 479              		.loc 1 395 7 is_stmt 1 discriminator 2 view .LVU121
+ 480 0108 144A     		ldr	r2, .L63+16
+ 481 010a 1268     		ldr	r2, [r2]
+ 482 010c 1364     		str	r3, [r2, #64]
+ 396:Core/Src/main.c ****     }
+ 483              		.loc 1 396 7 discriminator 2 view .LVU122
+ 484 010e 0A20     		movs	r0, #10
+ 485 0110 FFF7FEFF 		bl	HAL_Delay
+ 486              	.LVL16:
+ 393:Core/Src/main.c ****     {
+ 487              		.loc 1 393 59 is_stmt 0 discriminator 2 view .LVU123
+ 488 0114 104A     		ldr	r2, .L63+12
+ 489 0116 1388     		ldrh	r3, [r2]
+ 490 0118 0133     		adds	r3, r3, #1
+ 491 011a 1380     		strh	r3, [r2]	@ movhi
+ 492              	.L52:
+ 393:Core/Src/main.c ****     {
+ 493              		.loc 1 393 37 discriminator 1 view .LVU124
+ 494 011c 0E4B     		ldr	r3, .L63+12
+ 495 011e 1B88     		ldrh	r3, [r3]
+ 393:Core/Src/main.c ****     {
+ 496              		.loc 1 393 5 discriminator 1 view .LVU125
+ 497 0120 40F28922 		movw	r2, #649
+ 498 0124 9342     		cmp	r3, r2
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 18
+
+
+ 499 0126 EFD9     		bls	.L54
+ 500              	.L33:
+ 400:Core/Src/main.c ****   {
+ 401:Core/Src/main.c ****     for (current_pos4; current_pos4 > joint4; current_pos4--)
+ 402:Core/Src/main.c ****     {
+ 403:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 404:Core/Src/main.c ****       HAL_Delay(10);
+ 405:Core/Src/main.c ****     }
+ 406:Core/Src/main.c ****   }
+ 407:Core/Src/main.c **** }
+ 501              		.loc 1 407 1 view .LVU126
+ 502 0128 08BD     		pop	{r3, pc}
+ 503              	.L57:
+ 403:Core/Src/main.c ****       HAL_Delay(10);
+ 504              		.loc 1 403 7 is_stmt 1 discriminator 2 view .LVU127
+ 505 012a 0C4A     		ldr	r2, .L63+16
+ 506 012c 1268     		ldr	r2, [r2]
+ 507 012e 1364     		str	r3, [r2, #64]
+ 404:Core/Src/main.c ****     }
+ 508              		.loc 1 404 7 discriminator 2 view .LVU128
+ 509 0130 0A20     		movs	r0, #10
+ 510 0132 FFF7FEFF 		bl	HAL_Delay
+ 511              	.LVL17:
+ 401:Core/Src/main.c ****     {
+ 512              		.loc 1 401 59 is_stmt 0 discriminator 2 view .LVU129
+ 513 0136 084A     		ldr	r2, .L63+12
+ 514 0138 1388     		ldrh	r3, [r2]
+ 515 013a 013B     		subs	r3, r3, #1
+ 516 013c 1380     		strh	r3, [r2]	@ movhi
+ 517              	.L56:
+ 401:Core/Src/main.c ****     {
+ 518              		.loc 1 401 37 discriminator 1 view .LVU130
+ 519 013e 064B     		ldr	r3, .L63+12
+ 520 0140 1B88     		ldrh	r3, [r3]
+ 401:Core/Src/main.c ****     {
+ 521              		.loc 1 401 5 discriminator 1 view .LVU131
+ 522 0142 40F28A22 		movw	r2, #650
+ 523 0146 9342     		cmp	r3, r2
+ 524 0148 EFD8     		bhi	.L57
+ 525 014a EDE7     		b	.L33
+ 526              	.L64:
+ 527              		.align	2
+ 528              	.L63:
+ 529 014c 00000000 		.word	.LANCHOR2
+ 530 0150 00000000 		.word	.LANCHOR1
+ 531 0154 00000000 		.word	.LANCHOR0
+ 532 0158 00000000 		.word	.LANCHOR3
+ 533 015c 00000000 		.word	htim2
+ 534              		.cfi_endproc
+ 535              	.LFE71:
+ 537              		.section	.text.servo_right,"ax",%progbits
+ 538              		.align	1
+ 539              		.global	servo_right
+ 540              		.syntax unified
+ 541              		.thumb
+ 542              		.thumb_func
+ 543              		.fpu softvfp
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 19
+
+
+ 545              	servo_right:
+ 546              	.LFB72:
+ 408:Core/Src/main.c **** 
+ 409:Core/Src/main.c **** void servo_right(void)
+ 410:Core/Src/main.c **** {
+ 547              		.loc 1 410 1 is_stmt 1 view -0
+ 548              		.cfi_startproc
+ 549              		@ args = 0, pretend = 0, frame = 0
+ 550              		@ frame_needed = 0, uses_anonymous_args = 0
+ 551 0000 08B5     		push	{r3, lr}
+ 552              	.LCFI2:
+ 553              		.cfi_def_cfa_offset 8
+ 554              		.cfi_offset 3, -8
+ 555              		.cfi_offset 14, -4
+ 411:Core/Src/main.c ****   uint16_t joint1 = 650;
+ 556              		.loc 1 411 3 view .LVU133
+ 557              	.LVL18:
+ 412:Core/Src/main.c ****   uint16_t joint2 = 650;
+ 558              		.loc 1 412 3 view .LVU134
+ 413:Core/Src/main.c ****   uint16_t joint3 = 600;
+ 559              		.loc 1 413 3 view .LVU135
+ 414:Core/Src/main.c ****   uint16_t joint4 = 950;
+ 560              		.loc 1 414 3 view .LVU136
+ 415:Core/Src/main.c **** 
+ 416:Core/Src/main.c ****   // JOINT2
+ 417:Core/Src/main.c ****   if (current_pos2 < joint2)
+ 561              		.loc 1 417 3 view .LVU137
+ 562              		.loc 1 417 20 is_stmt 0 view .LVU138
+ 563 0002 6B4B     		ldr	r3, .L102
+ 564 0004 1B88     		ldrh	r3, [r3]
+ 565              		.loc 1 417 6 view .LVU139
+ 566 0006 40F28922 		movw	r2, #649
+ 567 000a 9342     		cmp	r3, r2
+ 568 000c 1FD9     		bls	.L66
+ 418:Core/Src/main.c ****   {
+ 419:Core/Src/main.c ****     for (current_pos2; current_pos2 < joint2; current_pos2++)
+ 420:Core/Src/main.c ****     {
+ 421:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 422:Core/Src/main.c ****       HAL_Delay(10);
+ 423:Core/Src/main.c ****     }
+ 424:Core/Src/main.c ****   }
+ 425:Core/Src/main.c ****   else if (current_pos2 > joint2)
+ 569              		.loc 1 425 8 is_stmt 1 view .LVU140
+ 570              		.loc 1 425 11 is_stmt 0 view .LVU141
+ 571 000e 40F28A22 		movw	r2, #650
+ 572 0012 9342     		cmp	r3, r2
+ 573 0014 2CD8     		bhi	.L70
+ 574              	.L69:
+ 426:Core/Src/main.c ****   {
+ 427:Core/Src/main.c ****     for (current_pos2; current_pos2 > joint2; current_pos2--)
+ 428:Core/Src/main.c ****     {
+ 429:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 430:Core/Src/main.c ****       HAL_Delay(10);
+ 431:Core/Src/main.c ****     }
+ 432:Core/Src/main.c ****   }
+ 433:Core/Src/main.c **** 
+ 434:Core/Src/main.c ****   
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 20
+
+
+ 435:Core/Src/main.c ****   // JOINT3
+ 436:Core/Src/main.c ****   if (current_pos3 < joint3)
+ 575              		.loc 1 436 3 is_stmt 1 view .LVU142
+ 576              		.loc 1 436 20 is_stmt 0 view .LVU143
+ 577 0016 674B     		ldr	r3, .L102+4
+ 578 0018 1B88     		ldrh	r3, [r3]
+ 579              		.loc 1 436 6 view .LVU144
+ 580 001a B3F5167F 		cmp	r3, #600
+ 581 001e 38D3     		bcc	.L72
+ 437:Core/Src/main.c ****   {
+ 438:Core/Src/main.c ****     for (current_pos3; current_pos3 < joint3; current_pos3++)
+ 439:Core/Src/main.c ****     {
+ 440:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 441:Core/Src/main.c ****       HAL_Delay(10);
+ 442:Core/Src/main.c ****     }
+ 443:Core/Src/main.c ****   }
+ 444:Core/Src/main.c ****   else if (current_pos3 > joint3)
+ 582              		.loc 1 444 8 is_stmt 1 view .LVU145
+ 583              		.loc 1 444 11 is_stmt 0 view .LVU146
+ 584 0020 B3F5167F 		cmp	r3, #600
+ 585 0024 45D8     		bhi	.L76
+ 586              	.L75:
+ 445:Core/Src/main.c ****   {
+ 446:Core/Src/main.c ****     for (current_pos3; current_pos3 > joint3; current_pos3--)
+ 447:Core/Src/main.c ****     {
+ 448:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 449:Core/Src/main.c ****       HAL_Delay(10);
+ 450:Core/Src/main.c ****     }
+ 451:Core/Src/main.c ****   }
+ 452:Core/Src/main.c **** 
+ 453:Core/Src/main.c ****   // JOINT1
+ 454:Core/Src/main.c ****   joint2 = 800;
+ 587              		.loc 1 454 3 is_stmt 1 view .LVU147
+ 588              	.LVL19:
+ 455:Core/Src/main.c ****   if (current_pos1 < joint1)
+ 589              		.loc 1 455 3 view .LVU148
+ 590              		.loc 1 455 20 is_stmt 0 view .LVU149
+ 591 0026 644B     		ldr	r3, .L102+8
+ 592 0028 1B88     		ldrh	r3, [r3]
+ 593              		.loc 1 455 6 view .LVU150
+ 594 002a 40F28922 		movw	r2, #649
+ 595 002e 9342     		cmp	r3, r2
+ 596 0030 4FD9     		bls	.L78
+ 456:Core/Src/main.c ****   {
+ 457:Core/Src/main.c ****     for (current_pos1; current_pos1 < joint1; current_pos1++)
+ 458:Core/Src/main.c ****     {
+ 459:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 460:Core/Src/main.c ****       HAL_Delay(10);
+ 461:Core/Src/main.c ****     }
+ 462:Core/Src/main.c ****   }
+ 463:Core/Src/main.c ****   else if (current_pos1 > joint1)
+ 597              		.loc 1 463 8 is_stmt 1 view .LVU151
+ 598              		.loc 1 463 11 is_stmt 0 view .LVU152
+ 599 0032 40F28A22 		movw	r2, #650
+ 600 0036 9342     		cmp	r3, r2
+ 601 0038 66D8     		bhi	.L82
+ 602              	.L81:
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 21
+
+
+ 464:Core/Src/main.c ****   {
+ 465:Core/Src/main.c ****     for (current_pos1; current_pos1 > joint1; current_pos1--)
+ 466:Core/Src/main.c ****     {
+ 467:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 468:Core/Src/main.c ****       HAL_Delay(10);
+ 469:Core/Src/main.c ****     }
+ 470:Core/Src/main.c ****   }
+ 471:Core/Src/main.c **** 
+ 472:Core/Src/main.c **** // JOINT2
+ 473:Core/Src/main.c ****   if (current_pos2 < joint2)
+ 603              		.loc 1 473 3 is_stmt 1 view .LVU153
+ 604              		.loc 1 473 20 is_stmt 0 view .LVU154
+ 605 003a 5D4B     		ldr	r3, .L102
+ 606 003c 1B88     		ldrh	r3, [r3]
+ 607              		.loc 1 473 6 view .LVU155
+ 608 003e B3F5487F 		cmp	r3, #800
+ 609 0042 72D3     		bcc	.L84
+ 474:Core/Src/main.c ****   {
+ 475:Core/Src/main.c ****     for (current_pos2; current_pos2 < joint2; current_pos2++)
+ 476:Core/Src/main.c ****     {
+ 477:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 478:Core/Src/main.c ****       HAL_Delay(10);
+ 479:Core/Src/main.c ****     }
+ 480:Core/Src/main.c ****   }
+ 481:Core/Src/main.c ****   else if (current_pos2 > joint2)
+ 610              		.loc 1 481 8 is_stmt 1 view .LVU156
+ 611              		.loc 1 481 11 is_stmt 0 view .LVU157
+ 612 0044 B3F5487F 		cmp	r3, #800
+ 613 0048 00F28980 		bhi	.L88
+ 614 004c 72E0     		b	.L87
+ 615              	.LVL20:
+ 616              	.L66:
+ 419:Core/Src/main.c ****     {
+ 617              		.loc 1 419 37 discriminator 1 view .LVU158
+ 618 004e 584B     		ldr	r3, .L102
+ 619 0050 1B88     		ldrh	r3, [r3]
+ 419:Core/Src/main.c ****     {
+ 620              		.loc 1 419 5 discriminator 1 view .LVU159
+ 621 0052 40F28922 		movw	r2, #649
+ 622 0056 9342     		cmp	r3, r2
+ 623 0058 DDD8     		bhi	.L69
+ 421:Core/Src/main.c ****       HAL_Delay(10);
+ 624              		.loc 1 421 7 is_stmt 1 discriminator 2 view .LVU160
+ 625 005a 584A     		ldr	r2, .L102+12
+ 626 005c 1268     		ldr	r2, [r2]
+ 627 005e 9363     		str	r3, [r2, #56]
+ 422:Core/Src/main.c ****     }
+ 628              		.loc 1 422 7 discriminator 2 view .LVU161
+ 629 0060 0A20     		movs	r0, #10
+ 630 0062 FFF7FEFF 		bl	HAL_Delay
+ 631              	.LVL21:
+ 419:Core/Src/main.c ****     {
+ 632              		.loc 1 419 59 is_stmt 0 discriminator 2 view .LVU162
+ 633 0066 524A     		ldr	r2, .L102
+ 634 0068 1388     		ldrh	r3, [r2]
+ 635 006a 0133     		adds	r3, r3, #1
+ 636 006c 1380     		strh	r3, [r2]	@ movhi
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 22
+
+
+ 637 006e EEE7     		b	.L66
+ 638              	.L70:
+ 427:Core/Src/main.c ****     {
+ 639              		.loc 1 427 37 discriminator 1 view .LVU163
+ 640 0070 4F4B     		ldr	r3, .L102
+ 641 0072 1B88     		ldrh	r3, [r3]
+ 427:Core/Src/main.c ****     {
+ 642              		.loc 1 427 5 discriminator 1 view .LVU164
+ 643 0074 40F28A22 		movw	r2, #650
+ 644 0078 9342     		cmp	r3, r2
+ 645 007a CCD9     		bls	.L69
+ 429:Core/Src/main.c ****       HAL_Delay(10);
+ 646              		.loc 1 429 7 is_stmt 1 discriminator 2 view .LVU165
+ 647 007c 4F4A     		ldr	r2, .L102+12
+ 648 007e 1268     		ldr	r2, [r2]
+ 649 0080 9363     		str	r3, [r2, #56]
+ 430:Core/Src/main.c ****     }
+ 650              		.loc 1 430 7 discriminator 2 view .LVU166
+ 651 0082 0A20     		movs	r0, #10
+ 652 0084 FFF7FEFF 		bl	HAL_Delay
+ 653              	.LVL22:
+ 427:Core/Src/main.c ****     {
+ 654              		.loc 1 427 59 is_stmt 0 discriminator 2 view .LVU167
+ 655 0088 494A     		ldr	r2, .L102
+ 656 008a 1388     		ldrh	r3, [r2]
+ 657 008c 013B     		subs	r3, r3, #1
+ 658 008e 1380     		strh	r3, [r2]	@ movhi
+ 659 0090 EEE7     		b	.L70
+ 660              	.L72:
+ 438:Core/Src/main.c ****     {
+ 661              		.loc 1 438 37 discriminator 1 view .LVU168
+ 662 0092 484B     		ldr	r3, .L102+4
+ 663 0094 1B88     		ldrh	r3, [r3]
+ 438:Core/Src/main.c ****     {
+ 664              		.loc 1 438 5 discriminator 1 view .LVU169
+ 665 0096 B3F5167F 		cmp	r3, #600
+ 666 009a C4D2     		bcs	.L75
+ 440:Core/Src/main.c ****       HAL_Delay(10);
+ 667              		.loc 1 440 7 is_stmt 1 discriminator 2 view .LVU170
+ 668 009c 474A     		ldr	r2, .L102+12
+ 669 009e 1268     		ldr	r2, [r2]
+ 670 00a0 D363     		str	r3, [r2, #60]
+ 441:Core/Src/main.c ****     }
+ 671              		.loc 1 441 7 discriminator 2 view .LVU171
+ 672 00a2 0A20     		movs	r0, #10
+ 673 00a4 FFF7FEFF 		bl	HAL_Delay
+ 674              	.LVL23:
+ 438:Core/Src/main.c ****     {
+ 675              		.loc 1 438 59 is_stmt 0 discriminator 2 view .LVU172
+ 676 00a8 424A     		ldr	r2, .L102+4
+ 677 00aa 1388     		ldrh	r3, [r2]
+ 678 00ac 0133     		adds	r3, r3, #1
+ 679 00ae 1380     		strh	r3, [r2]	@ movhi
+ 680 00b0 EFE7     		b	.L72
+ 681              	.L76:
+ 446:Core/Src/main.c ****     {
+ 682              		.loc 1 446 37 discriminator 1 view .LVU173
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 23
+
+
+ 683 00b2 404B     		ldr	r3, .L102+4
+ 684 00b4 1B88     		ldrh	r3, [r3]
+ 446:Core/Src/main.c ****     {
+ 685              		.loc 1 446 5 discriminator 1 view .LVU174
+ 686 00b6 B3F5167F 		cmp	r3, #600
+ 687 00ba B4D9     		bls	.L75
+ 448:Core/Src/main.c ****       HAL_Delay(10);
+ 688              		.loc 1 448 7 is_stmt 1 discriminator 2 view .LVU175
+ 689 00bc 3F4A     		ldr	r2, .L102+12
+ 690 00be 1268     		ldr	r2, [r2]
+ 691 00c0 D363     		str	r3, [r2, #60]
+ 449:Core/Src/main.c ****     }
+ 692              		.loc 1 449 7 discriminator 2 view .LVU176
+ 693 00c2 0A20     		movs	r0, #10
+ 694 00c4 FFF7FEFF 		bl	HAL_Delay
+ 695              	.LVL24:
+ 446:Core/Src/main.c ****     {
+ 696              		.loc 1 446 59 is_stmt 0 discriminator 2 view .LVU177
+ 697 00c8 3A4A     		ldr	r2, .L102+4
+ 698 00ca 1388     		ldrh	r3, [r2]
+ 699 00cc 013B     		subs	r3, r3, #1
+ 700 00ce 1380     		strh	r3, [r2]	@ movhi
+ 701 00d0 EFE7     		b	.L76
+ 702              	.LVL25:
+ 703              	.L78:
+ 457:Core/Src/main.c ****     {
+ 704              		.loc 1 457 37 discriminator 1 view .LVU178
+ 705 00d2 394B     		ldr	r3, .L102+8
+ 706 00d4 1B88     		ldrh	r3, [r3]
+ 457:Core/Src/main.c ****     {
+ 707              		.loc 1 457 5 discriminator 1 view .LVU179
+ 708 00d6 40F28922 		movw	r2, #649
+ 709 00da 9342     		cmp	r3, r2
+ 710 00dc ADD8     		bhi	.L81
+ 459:Core/Src/main.c ****       HAL_Delay(10);
+ 711              		.loc 1 459 7 is_stmt 1 discriminator 2 view .LVU180
+ 712 00de 374A     		ldr	r2, .L102+12
+ 713 00e0 1268     		ldr	r2, [r2]
+ 714 00e2 5363     		str	r3, [r2, #52]
+ 460:Core/Src/main.c ****     }
+ 715              		.loc 1 460 7 discriminator 2 view .LVU181
+ 716 00e4 0A20     		movs	r0, #10
+ 717 00e6 FFF7FEFF 		bl	HAL_Delay
+ 718              	.LVL26:
+ 457:Core/Src/main.c ****     {
+ 719              		.loc 1 457 59 is_stmt 0 discriminator 2 view .LVU182
+ 720 00ea 334A     		ldr	r2, .L102+8
+ 721 00ec 1388     		ldrh	r3, [r2]
+ 722 00ee 0133     		adds	r3, r3, #1
+ 723 00f0 1380     		strh	r3, [r2]	@ movhi
+ 724 00f2 EEE7     		b	.L78
+ 725              	.L83:
+ 467:Core/Src/main.c ****       HAL_Delay(10);
+ 726              		.loc 1 467 7 is_stmt 1 discriminator 2 view .LVU183
+ 727 00f4 314A     		ldr	r2, .L102+12
+ 728 00f6 1268     		ldr	r2, [r2]
+ 729 00f8 5363     		str	r3, [r2, #52]
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 24
+
+
+ 468:Core/Src/main.c ****     }
+ 730              		.loc 1 468 7 discriminator 2 view .LVU184
+ 731 00fa 0A20     		movs	r0, #10
+ 732 00fc FFF7FEFF 		bl	HAL_Delay
+ 733              	.LVL27:
+ 465:Core/Src/main.c ****     {
+ 734              		.loc 1 465 59 is_stmt 0 discriminator 2 view .LVU185
+ 735 0100 2D4A     		ldr	r2, .L102+8
+ 736 0102 1388     		ldrh	r3, [r2]
+ 737 0104 013B     		subs	r3, r3, #1
+ 738 0106 1380     		strh	r3, [r2]	@ movhi
+ 739              	.L82:
+ 465:Core/Src/main.c ****     {
+ 740              		.loc 1 465 37 discriminator 1 view .LVU186
+ 741 0108 2B4B     		ldr	r3, .L102+8
+ 742 010a 1B88     		ldrh	r3, [r3]
+ 465:Core/Src/main.c ****     {
+ 743              		.loc 1 465 5 discriminator 1 view .LVU187
+ 744 010c 40F28A22 		movw	r2, #650
+ 745 0110 9342     		cmp	r3, r2
+ 746 0112 EFD8     		bhi	.L83
+ 747 0114 91E7     		b	.L81
+ 748              	.L86:
+ 477:Core/Src/main.c ****       HAL_Delay(10);
+ 749              		.loc 1 477 7 is_stmt 1 discriminator 2 view .LVU188
+ 750 0116 294A     		ldr	r2, .L102+12
+ 751 0118 1268     		ldr	r2, [r2]
+ 752 011a 9363     		str	r3, [r2, #56]
+ 478:Core/Src/main.c ****     }
+ 753              		.loc 1 478 7 discriminator 2 view .LVU189
+ 754 011c 0A20     		movs	r0, #10
+ 755 011e FFF7FEFF 		bl	HAL_Delay
+ 756              	.LVL28:
+ 475:Core/Src/main.c ****     {
+ 757              		.loc 1 475 59 is_stmt 0 discriminator 2 view .LVU190
+ 758 0122 234A     		ldr	r2, .L102
+ 759 0124 1388     		ldrh	r3, [r2]
+ 760 0126 0133     		adds	r3, r3, #1
+ 761 0128 1380     		strh	r3, [r2]	@ movhi
+ 762              	.L84:
+ 475:Core/Src/main.c ****     {
+ 763              		.loc 1 475 37 discriminator 1 view .LVU191
+ 764 012a 214B     		ldr	r3, .L102
+ 765 012c 1B88     		ldrh	r3, [r3]
+ 475:Core/Src/main.c ****     {
+ 766              		.loc 1 475 5 discriminator 1 view .LVU192
+ 767 012e B3F5487F 		cmp	r3, #800
+ 768 0132 F0D3     		bcc	.L86
+ 769              	.L87:
+ 482:Core/Src/main.c ****   {
+ 483:Core/Src/main.c ****     for (current_pos2; current_pos2 > joint2; current_pos2--)
+ 484:Core/Src/main.c ****     {
+ 485:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 486:Core/Src/main.c ****       HAL_Delay(10);
+ 487:Core/Src/main.c ****     }
+ 488:Core/Src/main.c ****   }
+ 489:Core/Src/main.c **** 
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 25
+
+
+ 490:Core/Src/main.c ****   // JOINT4
+ 491:Core/Src/main.c ****   if (current_pos4 < joint4)
+ 770              		.loc 1 491 3 is_stmt 1 view .LVU193
+ 771              		.loc 1 491 20 is_stmt 0 view .LVU194
+ 772 0134 224B     		ldr	r3, .L102+16
+ 773 0136 1B88     		ldrh	r3, [r3]
+ 774              		.loc 1 491 6 view .LVU195
+ 775 0138 40F2B532 		movw	r2, #949
+ 776 013c 9342     		cmp	r3, r2
+ 777 013e 14D9     		bls	.L90
+ 492:Core/Src/main.c ****   {
+ 493:Core/Src/main.c ****     for (current_pos4; current_pos4 < joint4; current_pos4++)
+ 494:Core/Src/main.c ****     {
+ 495:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 496:Core/Src/main.c ****       HAL_Delay(10);
+ 497:Core/Src/main.c ****     }
+ 498:Core/Src/main.c ****   }
+ 499:Core/Src/main.c ****   else if (current_pos4 > joint4)
+ 778              		.loc 1 499 8 is_stmt 1 view .LVU196
+ 779              		.loc 1 499 11 is_stmt 0 view .LVU197
+ 780 0140 40F2B632 		movw	r2, #950
+ 781 0144 9342     		cmp	r3, r2
+ 782 0146 21D8     		bhi	.L94
+ 783              	.L65:
+ 500:Core/Src/main.c ****   {
+ 501:Core/Src/main.c ****     for (current_pos4; current_pos4 > joint4; current_pos4--)
+ 502:Core/Src/main.c ****     {
+ 503:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 504:Core/Src/main.c ****       HAL_Delay(10);
+ 505:Core/Src/main.c ****     }
+ 506:Core/Src/main.c ****   }
+ 507:Core/Src/main.c **** }
+ 784              		.loc 1 507 1 view .LVU198
+ 785 0148 08BD     		pop	{r3, pc}
+ 786              	.L89:
+ 485:Core/Src/main.c ****       HAL_Delay(10);
+ 787              		.loc 1 485 7 is_stmt 1 discriminator 2 view .LVU199
+ 788 014a 1C4A     		ldr	r2, .L102+12
+ 789 014c 1268     		ldr	r2, [r2]
+ 790 014e 9363     		str	r3, [r2, #56]
+ 486:Core/Src/main.c ****     }
+ 791              		.loc 1 486 7 discriminator 2 view .LVU200
+ 792 0150 0A20     		movs	r0, #10
+ 793 0152 FFF7FEFF 		bl	HAL_Delay
+ 794              	.LVL29:
+ 483:Core/Src/main.c ****     {
+ 795              		.loc 1 483 59 is_stmt 0 discriminator 2 view .LVU201
+ 796 0156 164A     		ldr	r2, .L102
+ 797 0158 1388     		ldrh	r3, [r2]
+ 798 015a 013B     		subs	r3, r3, #1
+ 799 015c 1380     		strh	r3, [r2]	@ movhi
+ 800              	.L88:
+ 483:Core/Src/main.c ****     {
+ 801              		.loc 1 483 37 discriminator 1 view .LVU202
+ 802 015e 144B     		ldr	r3, .L102
+ 803 0160 1B88     		ldrh	r3, [r3]
+ 483:Core/Src/main.c ****     {
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 26
+
+
+ 804              		.loc 1 483 5 discriminator 1 view .LVU203
+ 805 0162 B3F5487F 		cmp	r3, #800
+ 806 0166 F0D8     		bhi	.L89
+ 807 0168 E4E7     		b	.L87
+ 808              	.L90:
+ 493:Core/Src/main.c ****     {
+ 809              		.loc 1 493 37 discriminator 1 view .LVU204
+ 810 016a 154B     		ldr	r3, .L102+16
+ 811 016c 1B88     		ldrh	r3, [r3]
+ 493:Core/Src/main.c ****     {
+ 812              		.loc 1 493 5 discriminator 1 view .LVU205
+ 813 016e 40F2B532 		movw	r2, #949
+ 814 0172 9342     		cmp	r3, r2
+ 815 0174 E8D8     		bhi	.L65
+ 495:Core/Src/main.c ****       HAL_Delay(10);
+ 816              		.loc 1 495 7 is_stmt 1 discriminator 2 view .LVU206
+ 817 0176 114A     		ldr	r2, .L102+12
+ 818 0178 1268     		ldr	r2, [r2]
+ 819 017a 1364     		str	r3, [r2, #64]
+ 496:Core/Src/main.c ****     }
+ 820              		.loc 1 496 7 discriminator 2 view .LVU207
+ 821 017c 0A20     		movs	r0, #10
+ 822 017e FFF7FEFF 		bl	HAL_Delay
+ 823              	.LVL30:
+ 493:Core/Src/main.c ****     {
+ 824              		.loc 1 493 59 is_stmt 0 discriminator 2 view .LVU208
+ 825 0182 0F4A     		ldr	r2, .L102+16
+ 826 0184 1388     		ldrh	r3, [r2]
+ 827 0186 0133     		adds	r3, r3, #1
+ 828 0188 1380     		strh	r3, [r2]	@ movhi
+ 829 018a EEE7     		b	.L90
+ 830              	.L94:
+ 501:Core/Src/main.c ****     {
+ 831              		.loc 1 501 37 discriminator 1 view .LVU209
+ 832 018c 0C4B     		ldr	r3, .L102+16
+ 833 018e 1B88     		ldrh	r3, [r3]
+ 501:Core/Src/main.c ****     {
+ 834              		.loc 1 501 5 discriminator 1 view .LVU210
+ 835 0190 40F2B632 		movw	r2, #950
+ 836 0194 9342     		cmp	r3, r2
+ 837 0196 D7D9     		bls	.L65
+ 503:Core/Src/main.c ****       HAL_Delay(10);
+ 838              		.loc 1 503 7 is_stmt 1 discriminator 2 view .LVU211
+ 839 0198 084A     		ldr	r2, .L102+12
+ 840 019a 1268     		ldr	r2, [r2]
+ 841 019c 1364     		str	r3, [r2, #64]
+ 504:Core/Src/main.c ****     }
+ 842              		.loc 1 504 7 discriminator 2 view .LVU212
+ 843 019e 0A20     		movs	r0, #10
+ 844 01a0 FFF7FEFF 		bl	HAL_Delay
+ 845              	.LVL31:
+ 501:Core/Src/main.c ****     {
+ 846              		.loc 1 501 59 is_stmt 0 discriminator 2 view .LVU213
+ 847 01a4 064A     		ldr	r2, .L102+16
+ 848 01a6 1388     		ldrh	r3, [r2]
+ 849 01a8 013B     		subs	r3, r3, #1
+ 850 01aa 1380     		strh	r3, [r2]	@ movhi
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 27
+
+
+ 851 01ac EEE7     		b	.L94
+ 852              	.L103:
+ 853 01ae 00BF     		.align	2
+ 854              	.L102:
+ 855 01b0 00000000 		.word	.LANCHOR0
+ 856 01b4 00000000 		.word	.LANCHOR1
+ 857 01b8 00000000 		.word	.LANCHOR2
+ 858 01bc 00000000 		.word	htim2
+ 859 01c0 00000000 		.word	.LANCHOR3
+ 860              		.cfi_endproc
+ 861              	.LFE72:
+ 863              		.section	.text.servo_middle,"ax",%progbits
+ 864              		.align	1
+ 865              		.global	servo_middle
+ 866              		.syntax unified
+ 867              		.thumb
+ 868              		.thumb_func
+ 869              		.fpu softvfp
+ 871              	servo_middle:
+ 872              	.LFB73:
+ 508:Core/Src/main.c **** 
+ 509:Core/Src/main.c **** void servo_middle(void)
+ 510:Core/Src/main.c **** {
+ 873              		.loc 1 510 1 is_stmt 1 view -0
+ 874              		.cfi_startproc
+ 875              		@ args = 0, pretend = 0, frame = 0
+ 876              		@ frame_needed = 0, uses_anonymous_args = 0
+ 877 0000 08B5     		push	{r3, lr}
+ 878              	.LCFI3:
+ 879              		.cfi_def_cfa_offset 8
+ 880              		.cfi_offset 3, -8
+ 881              		.cfi_offset 14, -4
+ 511:Core/Src/main.c ****   uint16_t joint1 = 850;
+ 882              		.loc 1 511 3 view .LVU215
+ 883              	.LVL32:
+ 512:Core/Src/main.c ****   uint16_t joint2 = 650;
+ 884              		.loc 1 512 3 view .LVU216
+ 513:Core/Src/main.c ****   uint16_t joint3 = 600;
+ 885              		.loc 1 513 3 view .LVU217
+ 514:Core/Src/main.c ****   uint16_t joint4 = 950;
+ 886              		.loc 1 514 3 view .LVU218
+ 515:Core/Src/main.c **** 
+ 516:Core/Src/main.c ****   // JOINT2
+ 517:Core/Src/main.c ****   if (current_pos2 < joint2)
+ 887              		.loc 1 517 3 view .LVU219
+ 888              		.loc 1 517 20 is_stmt 0 view .LVU220
+ 889 0002 6B4B     		ldr	r3, .L141
+ 890 0004 1B88     		ldrh	r3, [r3]
+ 891              		.loc 1 517 6 view .LVU221
+ 892 0006 40F28922 		movw	r2, #649
+ 893 000a 9342     		cmp	r3, r2
+ 894 000c 1FD9     		bls	.L105
+ 518:Core/Src/main.c ****   {
+ 519:Core/Src/main.c ****     for (current_pos2; current_pos2 < joint2; current_pos2++)
+ 520:Core/Src/main.c ****     {
+ 521:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 522:Core/Src/main.c ****       HAL_Delay(10);
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 28
+
+
+ 523:Core/Src/main.c ****     }
+ 524:Core/Src/main.c ****   }
+ 525:Core/Src/main.c ****   else if (current_pos2 > joint2)
+ 895              		.loc 1 525 8 is_stmt 1 view .LVU222
+ 896              		.loc 1 525 11 is_stmt 0 view .LVU223
+ 897 000e 40F28A22 		movw	r2, #650
+ 898 0012 9342     		cmp	r3, r2
+ 899 0014 2CD8     		bhi	.L109
+ 900              	.L108:
+ 526:Core/Src/main.c ****   {
+ 527:Core/Src/main.c ****     for (current_pos2; current_pos2 > joint2; current_pos2--)
+ 528:Core/Src/main.c ****     {
+ 529:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 530:Core/Src/main.c ****       HAL_Delay(10);
+ 531:Core/Src/main.c ****     }
+ 532:Core/Src/main.c ****   }
+ 533:Core/Src/main.c **** 
+ 534:Core/Src/main.c ****   
+ 535:Core/Src/main.c ****   // JOINT3
+ 536:Core/Src/main.c ****   if (current_pos3 < joint3)
+ 901              		.loc 1 536 3 is_stmt 1 view .LVU224
+ 902              		.loc 1 536 20 is_stmt 0 view .LVU225
+ 903 0016 674B     		ldr	r3, .L141+4
+ 904 0018 1B88     		ldrh	r3, [r3]
+ 905              		.loc 1 536 6 view .LVU226
+ 906 001a B3F5167F 		cmp	r3, #600
+ 907 001e 38D3     		bcc	.L111
+ 537:Core/Src/main.c ****   {
+ 538:Core/Src/main.c ****     for (current_pos3; current_pos3 < joint3; current_pos3++)
+ 539:Core/Src/main.c ****     {
+ 540:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 541:Core/Src/main.c ****       HAL_Delay(10);
+ 542:Core/Src/main.c ****     }
+ 543:Core/Src/main.c ****   }
+ 544:Core/Src/main.c ****   else if (current_pos3 > joint3)
+ 908              		.loc 1 544 8 is_stmt 1 view .LVU227
+ 909              		.loc 1 544 11 is_stmt 0 view .LVU228
+ 910 0020 B3F5167F 		cmp	r3, #600
+ 911 0024 45D8     		bhi	.L115
+ 912              	.L114:
+ 545:Core/Src/main.c ****   {
+ 546:Core/Src/main.c ****     for (current_pos3; current_pos3 > joint3; current_pos3--)
+ 547:Core/Src/main.c ****     {
+ 548:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 549:Core/Src/main.c ****       HAL_Delay(10);
+ 550:Core/Src/main.c ****     }
+ 551:Core/Src/main.c ****   }
+ 552:Core/Src/main.c **** 
+ 553:Core/Src/main.c ****   // JOINT1
+ 554:Core/Src/main.c ****   joint2 = 800;
+ 913              		.loc 1 554 3 is_stmt 1 view .LVU229
+ 914              	.LVL33:
+ 555:Core/Src/main.c ****   if (current_pos1 < joint1)
+ 915              		.loc 1 555 3 view .LVU230
+ 916              		.loc 1 555 20 is_stmt 0 view .LVU231
+ 917 0026 644B     		ldr	r3, .L141+8
+ 918 0028 1B88     		ldrh	r3, [r3]
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 29
+
+
+ 919              		.loc 1 555 6 view .LVU232
+ 920 002a 40F25132 		movw	r2, #849
+ 921 002e 9342     		cmp	r3, r2
+ 922 0030 4FD9     		bls	.L117
+ 556:Core/Src/main.c ****   {
+ 557:Core/Src/main.c ****     for (current_pos1; current_pos1 < joint1; current_pos1++)
+ 558:Core/Src/main.c ****     {
+ 559:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 560:Core/Src/main.c ****       HAL_Delay(10);
+ 561:Core/Src/main.c ****     }
+ 562:Core/Src/main.c ****   }
+ 563:Core/Src/main.c ****   else if (current_pos1 > joint1)
+ 923              		.loc 1 563 8 is_stmt 1 view .LVU233
+ 924              		.loc 1 563 11 is_stmt 0 view .LVU234
+ 925 0032 40F25232 		movw	r2, #850
+ 926 0036 9342     		cmp	r3, r2
+ 927 0038 66D8     		bhi	.L121
+ 928              	.L120:
+ 564:Core/Src/main.c ****   {
+ 565:Core/Src/main.c ****     for (current_pos1; current_pos1 > joint1; current_pos1--)
+ 566:Core/Src/main.c ****     {
+ 567:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 568:Core/Src/main.c ****       HAL_Delay(10);
+ 569:Core/Src/main.c ****     }
+ 570:Core/Src/main.c ****   }
+ 571:Core/Src/main.c **** 
+ 572:Core/Src/main.c **** // JOINT2
+ 573:Core/Src/main.c ****   if (current_pos2 < joint2)
+ 929              		.loc 1 573 3 is_stmt 1 view .LVU235
+ 930              		.loc 1 573 20 is_stmt 0 view .LVU236
+ 931 003a 5D4B     		ldr	r3, .L141
+ 932 003c 1B88     		ldrh	r3, [r3]
+ 933              		.loc 1 573 6 view .LVU237
+ 934 003e B3F5487F 		cmp	r3, #800
+ 935 0042 72D3     		bcc	.L123
+ 574:Core/Src/main.c ****   {
+ 575:Core/Src/main.c ****     for (current_pos2; current_pos2 < joint2; current_pos2++)
+ 576:Core/Src/main.c ****     {
+ 577:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 578:Core/Src/main.c ****       HAL_Delay(10);
+ 579:Core/Src/main.c ****     }
+ 580:Core/Src/main.c ****   }
+ 581:Core/Src/main.c ****   else if (current_pos2 > joint2)
+ 936              		.loc 1 581 8 is_stmt 1 view .LVU238
+ 937              		.loc 1 581 11 is_stmt 0 view .LVU239
+ 938 0044 B3F5487F 		cmp	r3, #800
+ 939 0048 00F28980 		bhi	.L127
+ 940 004c 72E0     		b	.L126
+ 941              	.LVL34:
+ 942              	.L105:
+ 519:Core/Src/main.c ****     {
+ 943              		.loc 1 519 37 discriminator 1 view .LVU240
+ 944 004e 584B     		ldr	r3, .L141
+ 945 0050 1B88     		ldrh	r3, [r3]
+ 519:Core/Src/main.c ****     {
+ 946              		.loc 1 519 5 discriminator 1 view .LVU241
+ 947 0052 40F28922 		movw	r2, #649
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 30
+
+
+ 948 0056 9342     		cmp	r3, r2
+ 949 0058 DDD8     		bhi	.L108
+ 521:Core/Src/main.c ****       HAL_Delay(10);
+ 950              		.loc 1 521 7 is_stmt 1 discriminator 2 view .LVU242
+ 951 005a 584A     		ldr	r2, .L141+12
+ 952 005c 1268     		ldr	r2, [r2]
+ 953 005e 9363     		str	r3, [r2, #56]
+ 522:Core/Src/main.c ****     }
+ 954              		.loc 1 522 7 discriminator 2 view .LVU243
+ 955 0060 0A20     		movs	r0, #10
+ 956 0062 FFF7FEFF 		bl	HAL_Delay
+ 957              	.LVL35:
+ 519:Core/Src/main.c ****     {
+ 958              		.loc 1 519 59 is_stmt 0 discriminator 2 view .LVU244
+ 959 0066 524A     		ldr	r2, .L141
+ 960 0068 1388     		ldrh	r3, [r2]
+ 961 006a 0133     		adds	r3, r3, #1
+ 962 006c 1380     		strh	r3, [r2]	@ movhi
+ 963 006e EEE7     		b	.L105
+ 964              	.L109:
+ 527:Core/Src/main.c ****     {
+ 965              		.loc 1 527 37 discriminator 1 view .LVU245
+ 966 0070 4F4B     		ldr	r3, .L141
+ 967 0072 1B88     		ldrh	r3, [r3]
+ 527:Core/Src/main.c ****     {
+ 968              		.loc 1 527 5 discriminator 1 view .LVU246
+ 969 0074 40F28A22 		movw	r2, #650
+ 970 0078 9342     		cmp	r3, r2
+ 971 007a CCD9     		bls	.L108
+ 529:Core/Src/main.c ****       HAL_Delay(10);
+ 972              		.loc 1 529 7 is_stmt 1 discriminator 2 view .LVU247
+ 973 007c 4F4A     		ldr	r2, .L141+12
+ 974 007e 1268     		ldr	r2, [r2]
+ 975 0080 9363     		str	r3, [r2, #56]
+ 530:Core/Src/main.c ****     }
+ 976              		.loc 1 530 7 discriminator 2 view .LVU248
+ 977 0082 0A20     		movs	r0, #10
+ 978 0084 FFF7FEFF 		bl	HAL_Delay
+ 979              	.LVL36:
+ 527:Core/Src/main.c ****     {
+ 980              		.loc 1 527 59 is_stmt 0 discriminator 2 view .LVU249
+ 981 0088 494A     		ldr	r2, .L141
+ 982 008a 1388     		ldrh	r3, [r2]
+ 983 008c 013B     		subs	r3, r3, #1
+ 984 008e 1380     		strh	r3, [r2]	@ movhi
+ 985 0090 EEE7     		b	.L109
+ 986              	.L111:
+ 538:Core/Src/main.c ****     {
+ 987              		.loc 1 538 37 discriminator 1 view .LVU250
+ 988 0092 484B     		ldr	r3, .L141+4
+ 989 0094 1B88     		ldrh	r3, [r3]
+ 538:Core/Src/main.c ****     {
+ 990              		.loc 1 538 5 discriminator 1 view .LVU251
+ 991 0096 B3F5167F 		cmp	r3, #600
+ 992 009a C4D2     		bcs	.L114
+ 540:Core/Src/main.c ****       HAL_Delay(10);
+ 993              		.loc 1 540 7 is_stmt 1 discriminator 2 view .LVU252
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 31
+
+
+ 994 009c 474A     		ldr	r2, .L141+12
+ 995 009e 1268     		ldr	r2, [r2]
+ 996 00a0 D363     		str	r3, [r2, #60]
+ 541:Core/Src/main.c ****     }
+ 997              		.loc 1 541 7 discriminator 2 view .LVU253
+ 998 00a2 0A20     		movs	r0, #10
+ 999 00a4 FFF7FEFF 		bl	HAL_Delay
+ 1000              	.LVL37:
+ 538:Core/Src/main.c ****     {
+ 1001              		.loc 1 538 59 is_stmt 0 discriminator 2 view .LVU254
+ 1002 00a8 424A     		ldr	r2, .L141+4
+ 1003 00aa 1388     		ldrh	r3, [r2]
+ 1004 00ac 0133     		adds	r3, r3, #1
+ 1005 00ae 1380     		strh	r3, [r2]	@ movhi
+ 1006 00b0 EFE7     		b	.L111
+ 1007              	.L115:
+ 546:Core/Src/main.c ****     {
+ 1008              		.loc 1 546 37 discriminator 1 view .LVU255
+ 1009 00b2 404B     		ldr	r3, .L141+4
+ 1010 00b4 1B88     		ldrh	r3, [r3]
+ 546:Core/Src/main.c ****     {
+ 1011              		.loc 1 546 5 discriminator 1 view .LVU256
+ 1012 00b6 B3F5167F 		cmp	r3, #600
+ 1013 00ba B4D9     		bls	.L114
+ 548:Core/Src/main.c ****       HAL_Delay(10);
+ 1014              		.loc 1 548 7 is_stmt 1 discriminator 2 view .LVU257
+ 1015 00bc 3F4A     		ldr	r2, .L141+12
+ 1016 00be 1268     		ldr	r2, [r2]
+ 1017 00c0 D363     		str	r3, [r2, #60]
+ 549:Core/Src/main.c ****     }
+ 1018              		.loc 1 549 7 discriminator 2 view .LVU258
+ 1019 00c2 0A20     		movs	r0, #10
+ 1020 00c4 FFF7FEFF 		bl	HAL_Delay
+ 1021              	.LVL38:
+ 546:Core/Src/main.c ****     {
+ 1022              		.loc 1 546 59 is_stmt 0 discriminator 2 view .LVU259
+ 1023 00c8 3A4A     		ldr	r2, .L141+4
+ 1024 00ca 1388     		ldrh	r3, [r2]
+ 1025 00cc 013B     		subs	r3, r3, #1
+ 1026 00ce 1380     		strh	r3, [r2]	@ movhi
+ 1027 00d0 EFE7     		b	.L115
+ 1028              	.LVL39:
+ 1029              	.L117:
+ 557:Core/Src/main.c ****     {
+ 1030              		.loc 1 557 37 discriminator 1 view .LVU260
+ 1031 00d2 394B     		ldr	r3, .L141+8
+ 1032 00d4 1B88     		ldrh	r3, [r3]
+ 557:Core/Src/main.c ****     {
+ 1033              		.loc 1 557 5 discriminator 1 view .LVU261
+ 1034 00d6 40F25132 		movw	r2, #849
+ 1035 00da 9342     		cmp	r3, r2
+ 1036 00dc ADD8     		bhi	.L120
+ 559:Core/Src/main.c ****       HAL_Delay(10);
+ 1037              		.loc 1 559 7 is_stmt 1 discriminator 2 view .LVU262
+ 1038 00de 374A     		ldr	r2, .L141+12
+ 1039 00e0 1268     		ldr	r2, [r2]
+ 1040 00e2 5363     		str	r3, [r2, #52]
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 32
+
+
+ 560:Core/Src/main.c ****     }
+ 1041              		.loc 1 560 7 discriminator 2 view .LVU263
+ 1042 00e4 0A20     		movs	r0, #10
+ 1043 00e6 FFF7FEFF 		bl	HAL_Delay
+ 1044              	.LVL40:
+ 557:Core/Src/main.c ****     {
+ 1045              		.loc 1 557 59 is_stmt 0 discriminator 2 view .LVU264
+ 1046 00ea 334A     		ldr	r2, .L141+8
+ 1047 00ec 1388     		ldrh	r3, [r2]
+ 1048 00ee 0133     		adds	r3, r3, #1
+ 1049 00f0 1380     		strh	r3, [r2]	@ movhi
+ 1050 00f2 EEE7     		b	.L117
+ 1051              	.L122:
+ 567:Core/Src/main.c ****       HAL_Delay(10);
+ 1052              		.loc 1 567 7 is_stmt 1 discriminator 2 view .LVU265
+ 1053 00f4 314A     		ldr	r2, .L141+12
+ 1054 00f6 1268     		ldr	r2, [r2]
+ 1055 00f8 5363     		str	r3, [r2, #52]
+ 568:Core/Src/main.c ****     }
+ 1056              		.loc 1 568 7 discriminator 2 view .LVU266
+ 1057 00fa 0A20     		movs	r0, #10
+ 1058 00fc FFF7FEFF 		bl	HAL_Delay
+ 1059              	.LVL41:
+ 565:Core/Src/main.c ****     {
+ 1060              		.loc 1 565 59 is_stmt 0 discriminator 2 view .LVU267
+ 1061 0100 2D4A     		ldr	r2, .L141+8
+ 1062 0102 1388     		ldrh	r3, [r2]
+ 1063 0104 013B     		subs	r3, r3, #1
+ 1064 0106 1380     		strh	r3, [r2]	@ movhi
+ 1065              	.L121:
+ 565:Core/Src/main.c ****     {
+ 1066              		.loc 1 565 37 discriminator 1 view .LVU268
+ 1067 0108 2B4B     		ldr	r3, .L141+8
+ 1068 010a 1B88     		ldrh	r3, [r3]
+ 565:Core/Src/main.c ****     {
+ 1069              		.loc 1 565 5 discriminator 1 view .LVU269
+ 1070 010c 40F25232 		movw	r2, #850
+ 1071 0110 9342     		cmp	r3, r2
+ 1072 0112 EFD8     		bhi	.L122
+ 1073 0114 91E7     		b	.L120
+ 1074              	.L125:
+ 577:Core/Src/main.c ****       HAL_Delay(10);
+ 1075              		.loc 1 577 7 is_stmt 1 discriminator 2 view .LVU270
+ 1076 0116 294A     		ldr	r2, .L141+12
+ 1077 0118 1268     		ldr	r2, [r2]
+ 1078 011a 9363     		str	r3, [r2, #56]
+ 578:Core/Src/main.c ****     }
+ 1079              		.loc 1 578 7 discriminator 2 view .LVU271
+ 1080 011c 0A20     		movs	r0, #10
+ 1081 011e FFF7FEFF 		bl	HAL_Delay
+ 1082              	.LVL42:
+ 575:Core/Src/main.c ****     {
+ 1083              		.loc 1 575 59 is_stmt 0 discriminator 2 view .LVU272
+ 1084 0122 234A     		ldr	r2, .L141
+ 1085 0124 1388     		ldrh	r3, [r2]
+ 1086 0126 0133     		adds	r3, r3, #1
+ 1087 0128 1380     		strh	r3, [r2]	@ movhi
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 33
+
+
+ 1088              	.L123:
+ 575:Core/Src/main.c ****     {
+ 1089              		.loc 1 575 37 discriminator 1 view .LVU273
+ 1090 012a 214B     		ldr	r3, .L141
+ 1091 012c 1B88     		ldrh	r3, [r3]
+ 575:Core/Src/main.c ****     {
+ 1092              		.loc 1 575 5 discriminator 1 view .LVU274
+ 1093 012e B3F5487F 		cmp	r3, #800
+ 1094 0132 F0D3     		bcc	.L125
+ 1095              	.L126:
+ 582:Core/Src/main.c ****   {
+ 583:Core/Src/main.c ****     for (current_pos2; current_pos2 > joint2; current_pos2--)
+ 584:Core/Src/main.c ****     {
+ 585:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 586:Core/Src/main.c ****       HAL_Delay(10);
+ 587:Core/Src/main.c ****     }
+ 588:Core/Src/main.c ****   }
+ 589:Core/Src/main.c **** 
+ 590:Core/Src/main.c ****   // JOINT4
+ 591:Core/Src/main.c ****   if (current_pos4 < joint4)
+ 1096              		.loc 1 591 3 is_stmt 1 view .LVU275
+ 1097              		.loc 1 591 20 is_stmt 0 view .LVU276
+ 1098 0134 224B     		ldr	r3, .L141+16
+ 1099 0136 1B88     		ldrh	r3, [r3]
+ 1100              		.loc 1 591 6 view .LVU277
+ 1101 0138 40F2B532 		movw	r2, #949
+ 1102 013c 9342     		cmp	r3, r2
+ 1103 013e 14D9     		bls	.L129
+ 592:Core/Src/main.c ****   {
+ 593:Core/Src/main.c ****     for (current_pos4; current_pos4 < joint4; current_pos4++)
+ 594:Core/Src/main.c ****     {
+ 595:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 596:Core/Src/main.c ****       HAL_Delay(10);
+ 597:Core/Src/main.c ****     }
+ 598:Core/Src/main.c ****   }
+ 599:Core/Src/main.c ****   else if (current_pos4 > joint4)
+ 1104              		.loc 1 599 8 is_stmt 1 view .LVU278
+ 1105              		.loc 1 599 11 is_stmt 0 view .LVU279
+ 1106 0140 40F2B632 		movw	r2, #950
+ 1107 0144 9342     		cmp	r3, r2
+ 1108 0146 21D8     		bhi	.L133
+ 1109              	.L104:
+ 600:Core/Src/main.c ****   {
+ 601:Core/Src/main.c ****     for (current_pos4; current_pos4 > joint4; current_pos4--)
+ 602:Core/Src/main.c ****     {
+ 603:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 604:Core/Src/main.c ****       HAL_Delay(10);
+ 605:Core/Src/main.c ****     }
+ 606:Core/Src/main.c ****   }
+ 607:Core/Src/main.c **** }
+ 1110              		.loc 1 607 1 view .LVU280
+ 1111 0148 08BD     		pop	{r3, pc}
+ 1112              	.L128:
+ 585:Core/Src/main.c ****       HAL_Delay(10);
+ 1113              		.loc 1 585 7 is_stmt 1 discriminator 2 view .LVU281
+ 1114 014a 1C4A     		ldr	r2, .L141+12
+ 1115 014c 1268     		ldr	r2, [r2]
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 34
+
+
+ 1116 014e 9363     		str	r3, [r2, #56]
+ 586:Core/Src/main.c ****     }
+ 1117              		.loc 1 586 7 discriminator 2 view .LVU282
+ 1118 0150 0A20     		movs	r0, #10
+ 1119 0152 FFF7FEFF 		bl	HAL_Delay
+ 1120              	.LVL43:
+ 583:Core/Src/main.c ****     {
+ 1121              		.loc 1 583 59 is_stmt 0 discriminator 2 view .LVU283
+ 1122 0156 164A     		ldr	r2, .L141
+ 1123 0158 1388     		ldrh	r3, [r2]
+ 1124 015a 013B     		subs	r3, r3, #1
+ 1125 015c 1380     		strh	r3, [r2]	@ movhi
+ 1126              	.L127:
+ 583:Core/Src/main.c ****     {
+ 1127              		.loc 1 583 37 discriminator 1 view .LVU284
+ 1128 015e 144B     		ldr	r3, .L141
+ 1129 0160 1B88     		ldrh	r3, [r3]
+ 583:Core/Src/main.c ****     {
+ 1130              		.loc 1 583 5 discriminator 1 view .LVU285
+ 1131 0162 B3F5487F 		cmp	r3, #800
+ 1132 0166 F0D8     		bhi	.L128
+ 1133 0168 E4E7     		b	.L126
+ 1134              	.L129:
+ 593:Core/Src/main.c ****     {
+ 1135              		.loc 1 593 37 discriminator 1 view .LVU286
+ 1136 016a 154B     		ldr	r3, .L141+16
+ 1137 016c 1B88     		ldrh	r3, [r3]
+ 593:Core/Src/main.c ****     {
+ 1138              		.loc 1 593 5 discriminator 1 view .LVU287
+ 1139 016e 40F2B532 		movw	r2, #949
+ 1140 0172 9342     		cmp	r3, r2
+ 1141 0174 E8D8     		bhi	.L104
+ 595:Core/Src/main.c ****       HAL_Delay(10);
+ 1142              		.loc 1 595 7 is_stmt 1 discriminator 2 view .LVU288
+ 1143 0176 114A     		ldr	r2, .L141+12
+ 1144 0178 1268     		ldr	r2, [r2]
+ 1145 017a 1364     		str	r3, [r2, #64]
+ 596:Core/Src/main.c ****     }
+ 1146              		.loc 1 596 7 discriminator 2 view .LVU289
+ 1147 017c 0A20     		movs	r0, #10
+ 1148 017e FFF7FEFF 		bl	HAL_Delay
+ 1149              	.LVL44:
+ 593:Core/Src/main.c ****     {
+ 1150              		.loc 1 593 59 is_stmt 0 discriminator 2 view .LVU290
+ 1151 0182 0F4A     		ldr	r2, .L141+16
+ 1152 0184 1388     		ldrh	r3, [r2]
+ 1153 0186 0133     		adds	r3, r3, #1
+ 1154 0188 1380     		strh	r3, [r2]	@ movhi
+ 1155 018a EEE7     		b	.L129
+ 1156              	.L133:
+ 601:Core/Src/main.c ****     {
+ 1157              		.loc 1 601 37 discriminator 1 view .LVU291
+ 1158 018c 0C4B     		ldr	r3, .L141+16
+ 1159 018e 1B88     		ldrh	r3, [r3]
+ 601:Core/Src/main.c ****     {
+ 1160              		.loc 1 601 5 discriminator 1 view .LVU292
+ 1161 0190 40F2B632 		movw	r2, #950
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 35
+
+
+ 1162 0194 9342     		cmp	r3, r2
+ 1163 0196 D7D9     		bls	.L104
+ 603:Core/Src/main.c ****       HAL_Delay(10);
+ 1164              		.loc 1 603 7 is_stmt 1 discriminator 2 view .LVU293
+ 1165 0198 084A     		ldr	r2, .L141+12
+ 1166 019a 1268     		ldr	r2, [r2]
+ 1167 019c 1364     		str	r3, [r2, #64]
+ 604:Core/Src/main.c ****     }
+ 1168              		.loc 1 604 7 discriminator 2 view .LVU294
+ 1169 019e 0A20     		movs	r0, #10
+ 1170 01a0 FFF7FEFF 		bl	HAL_Delay
+ 1171              	.LVL45:
+ 601:Core/Src/main.c ****     {
+ 1172              		.loc 1 601 59 is_stmt 0 discriminator 2 view .LVU295
+ 1173 01a4 064A     		ldr	r2, .L141+16
+ 1174 01a6 1388     		ldrh	r3, [r2]
+ 1175 01a8 013B     		subs	r3, r3, #1
+ 1176 01aa 1380     		strh	r3, [r2]	@ movhi
+ 1177 01ac EEE7     		b	.L133
+ 1178              	.L142:
+ 1179 01ae 00BF     		.align	2
+ 1180              	.L141:
+ 1181 01b0 00000000 		.word	.LANCHOR0
+ 1182 01b4 00000000 		.word	.LANCHOR1
+ 1183 01b8 00000000 		.word	.LANCHOR2
+ 1184 01bc 00000000 		.word	htim2
+ 1185 01c0 00000000 		.word	.LANCHOR3
+ 1186              		.cfi_endproc
+ 1187              	.LFE73:
+ 1189              		.section	.text.servo_left,"ax",%progbits
+ 1190              		.align	1
+ 1191              		.global	servo_left
+ 1192              		.syntax unified
+ 1193              		.thumb
+ 1194              		.thumb_func
+ 1195              		.fpu softvfp
+ 1197              	servo_left:
+ 1198              	.LFB74:
+ 608:Core/Src/main.c **** 
+ 609:Core/Src/main.c **** void servo_left(void)
+ 610:Core/Src/main.c **** {
+ 1199              		.loc 1 610 1 is_stmt 1 view -0
+ 1200              		.cfi_startproc
+ 1201              		@ args = 0, pretend = 0, frame = 0
+ 1202              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1203 0000 08B5     		push	{r3, lr}
+ 1204              	.LCFI4:
+ 1205              		.cfi_def_cfa_offset 8
+ 1206              		.cfi_offset 3, -8
+ 1207              		.cfi_offset 14, -4
+ 611:Core/Src/main.c ****   uint16_t joint1 = 1050;
+ 1208              		.loc 1 611 3 view .LVU297
+ 1209              	.LVL46:
+ 612:Core/Src/main.c ****   uint16_t joint2 = 650;
+ 1210              		.loc 1 612 3 view .LVU298
+ 613:Core/Src/main.c ****   uint16_t joint3 = 600;
+ 1211              		.loc 1 613 3 view .LVU299
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 36
+
+
+ 614:Core/Src/main.c ****   uint16_t joint4 = 950;
+ 1212              		.loc 1 614 3 view .LVU300
+ 615:Core/Src/main.c **** 
+ 616:Core/Src/main.c ****   // JOINT2
+ 617:Core/Src/main.c ****   if (current_pos2 < joint2)
+ 1213              		.loc 1 617 3 view .LVU301
+ 1214              		.loc 1 617 20 is_stmt 0 view .LVU302
+ 1215 0002 6B4B     		ldr	r3, .L180
+ 1216 0004 1B88     		ldrh	r3, [r3]
+ 1217              		.loc 1 617 6 view .LVU303
+ 1218 0006 40F28922 		movw	r2, #649
+ 1219 000a 9342     		cmp	r3, r2
+ 1220 000c 1FD9     		bls	.L144
+ 618:Core/Src/main.c ****   {
+ 619:Core/Src/main.c ****     for (current_pos2; current_pos2 < joint2; current_pos2++)
+ 620:Core/Src/main.c ****     {
+ 621:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 622:Core/Src/main.c ****       HAL_Delay(10);
+ 623:Core/Src/main.c ****     }
+ 624:Core/Src/main.c ****   }
+ 625:Core/Src/main.c ****   else if (current_pos2 > joint2)
+ 1221              		.loc 1 625 8 is_stmt 1 view .LVU304
+ 1222              		.loc 1 625 11 is_stmt 0 view .LVU305
+ 1223 000e 40F28A22 		movw	r2, #650
+ 1224 0012 9342     		cmp	r3, r2
+ 1225 0014 2CD8     		bhi	.L148
+ 1226              	.L147:
+ 626:Core/Src/main.c ****   {
+ 627:Core/Src/main.c ****     for (current_pos2; current_pos2 > joint2; current_pos2--)
+ 628:Core/Src/main.c ****     {
+ 629:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 630:Core/Src/main.c ****       HAL_Delay(10);
+ 631:Core/Src/main.c ****     }
+ 632:Core/Src/main.c ****   }
+ 633:Core/Src/main.c **** 
+ 634:Core/Src/main.c ****   
+ 635:Core/Src/main.c ****   // JOINT3
+ 636:Core/Src/main.c ****   if (current_pos3 < joint3)
+ 1227              		.loc 1 636 3 is_stmt 1 view .LVU306
+ 1228              		.loc 1 636 20 is_stmt 0 view .LVU307
+ 1229 0016 674B     		ldr	r3, .L180+4
+ 1230 0018 1B88     		ldrh	r3, [r3]
+ 1231              		.loc 1 636 6 view .LVU308
+ 1232 001a B3F5167F 		cmp	r3, #600
+ 1233 001e 38D3     		bcc	.L150
+ 637:Core/Src/main.c ****   {
+ 638:Core/Src/main.c ****     for (current_pos3; current_pos3 < joint3; current_pos3++)
+ 639:Core/Src/main.c ****     {
+ 640:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 641:Core/Src/main.c ****       HAL_Delay(10);
+ 642:Core/Src/main.c ****     }
+ 643:Core/Src/main.c ****   }
+ 644:Core/Src/main.c ****   else if (current_pos3 > joint3)
+ 1234              		.loc 1 644 8 is_stmt 1 view .LVU309
+ 1235              		.loc 1 644 11 is_stmt 0 view .LVU310
+ 1236 0020 B3F5167F 		cmp	r3, #600
+ 1237 0024 45D8     		bhi	.L154
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 37
+
+
+ 1238              	.L153:
+ 645:Core/Src/main.c ****   {
+ 646:Core/Src/main.c ****     for (current_pos3; current_pos3 > joint3; current_pos3--)
+ 647:Core/Src/main.c ****     {
+ 648:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3);
+ 649:Core/Src/main.c ****       HAL_Delay(10);
+ 650:Core/Src/main.c ****     }
+ 651:Core/Src/main.c ****   }
+ 652:Core/Src/main.c **** 
+ 653:Core/Src/main.c ****   // JOINT1
+ 654:Core/Src/main.c ****   joint2 = 800;
+ 1239              		.loc 1 654 3 is_stmt 1 view .LVU311
+ 1240              	.LVL47:
+ 655:Core/Src/main.c ****   if (current_pos1 < joint1)
+ 1241              		.loc 1 655 3 view .LVU312
+ 1242              		.loc 1 655 20 is_stmt 0 view .LVU313
+ 1243 0026 644B     		ldr	r3, .L180+8
+ 1244 0028 1B88     		ldrh	r3, [r3]
+ 1245              		.loc 1 655 6 view .LVU314
+ 1246 002a 40F21942 		movw	r2, #1049
+ 1247 002e 9342     		cmp	r3, r2
+ 1248 0030 4FD9     		bls	.L156
+ 656:Core/Src/main.c ****   {
+ 657:Core/Src/main.c ****     for (current_pos1; current_pos1 < joint1; current_pos1++)
+ 658:Core/Src/main.c ****     {
+ 659:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 660:Core/Src/main.c ****       HAL_Delay(10);
+ 661:Core/Src/main.c ****     }
+ 662:Core/Src/main.c ****   }
+ 663:Core/Src/main.c ****   else if (current_pos1 > joint1)
+ 1249              		.loc 1 663 8 is_stmt 1 view .LVU315
+ 1250              		.loc 1 663 11 is_stmt 0 view .LVU316
+ 1251 0032 40F21A42 		movw	r2, #1050
+ 1252 0036 9342     		cmp	r3, r2
+ 1253 0038 66D8     		bhi	.L160
+ 1254              	.L159:
+ 664:Core/Src/main.c ****   {
+ 665:Core/Src/main.c ****     for (current_pos1; current_pos1 > joint1; current_pos1--)
+ 666:Core/Src/main.c ****     {
+ 667:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1);
+ 668:Core/Src/main.c ****       HAL_Delay(10);
+ 669:Core/Src/main.c ****     }
+ 670:Core/Src/main.c ****   }
+ 671:Core/Src/main.c **** 
+ 672:Core/Src/main.c **** // JOINT2
+ 673:Core/Src/main.c ****   if (current_pos2 < joint2)
+ 1255              		.loc 1 673 3 is_stmt 1 view .LVU317
+ 1256              		.loc 1 673 20 is_stmt 0 view .LVU318
+ 1257 003a 5D4B     		ldr	r3, .L180
+ 1258 003c 1B88     		ldrh	r3, [r3]
+ 1259              		.loc 1 673 6 view .LVU319
+ 1260 003e B3F5487F 		cmp	r3, #800
+ 1261 0042 72D3     		bcc	.L162
+ 674:Core/Src/main.c ****   {
+ 675:Core/Src/main.c ****     for (current_pos2; current_pos2 < joint2; current_pos2++)
+ 676:Core/Src/main.c ****     {
+ 677:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 38
+
+
+ 678:Core/Src/main.c ****       HAL_Delay(10);
+ 679:Core/Src/main.c ****     }
+ 680:Core/Src/main.c ****   }
+ 681:Core/Src/main.c ****   else if (current_pos2 > joint2)
+ 1262              		.loc 1 681 8 is_stmt 1 view .LVU320
+ 1263              		.loc 1 681 11 is_stmt 0 view .LVU321
+ 1264 0044 B3F5487F 		cmp	r3, #800
+ 1265 0048 00F28980 		bhi	.L166
+ 1266 004c 72E0     		b	.L165
+ 1267              	.LVL48:
+ 1268              	.L144:
+ 619:Core/Src/main.c ****     {
+ 1269              		.loc 1 619 37 discriminator 1 view .LVU322
+ 1270 004e 584B     		ldr	r3, .L180
+ 1271 0050 1B88     		ldrh	r3, [r3]
+ 619:Core/Src/main.c ****     {
+ 1272              		.loc 1 619 5 discriminator 1 view .LVU323
+ 1273 0052 40F28922 		movw	r2, #649
+ 1274 0056 9342     		cmp	r3, r2
+ 1275 0058 DDD8     		bhi	.L147
+ 621:Core/Src/main.c ****       HAL_Delay(10);
+ 1276              		.loc 1 621 7 is_stmt 1 discriminator 2 view .LVU324
+ 1277 005a 584A     		ldr	r2, .L180+12
+ 1278 005c 1268     		ldr	r2, [r2]
+ 1279 005e 9363     		str	r3, [r2, #56]
+ 622:Core/Src/main.c ****     }
+ 1280              		.loc 1 622 7 discriminator 2 view .LVU325
+ 1281 0060 0A20     		movs	r0, #10
+ 1282 0062 FFF7FEFF 		bl	HAL_Delay
+ 1283              	.LVL49:
+ 619:Core/Src/main.c ****     {
+ 1284              		.loc 1 619 59 is_stmt 0 discriminator 2 view .LVU326
+ 1285 0066 524A     		ldr	r2, .L180
+ 1286 0068 1388     		ldrh	r3, [r2]
+ 1287 006a 0133     		adds	r3, r3, #1
+ 1288 006c 1380     		strh	r3, [r2]	@ movhi
+ 1289 006e EEE7     		b	.L144
+ 1290              	.L148:
+ 627:Core/Src/main.c ****     {
+ 1291              		.loc 1 627 37 discriminator 1 view .LVU327
+ 1292 0070 4F4B     		ldr	r3, .L180
+ 1293 0072 1B88     		ldrh	r3, [r3]
+ 627:Core/Src/main.c ****     {
+ 1294              		.loc 1 627 5 discriminator 1 view .LVU328
+ 1295 0074 40F28A22 		movw	r2, #650
+ 1296 0078 9342     		cmp	r3, r2
+ 1297 007a CCD9     		bls	.L147
+ 629:Core/Src/main.c ****       HAL_Delay(10);
+ 1298              		.loc 1 629 7 is_stmt 1 discriminator 2 view .LVU329
+ 1299 007c 4F4A     		ldr	r2, .L180+12
+ 1300 007e 1268     		ldr	r2, [r2]
+ 1301 0080 9363     		str	r3, [r2, #56]
+ 630:Core/Src/main.c ****     }
+ 1302              		.loc 1 630 7 discriminator 2 view .LVU330
+ 1303 0082 0A20     		movs	r0, #10
+ 1304 0084 FFF7FEFF 		bl	HAL_Delay
+ 1305              	.LVL50:
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 39
+
+
+ 627:Core/Src/main.c ****     {
+ 1306              		.loc 1 627 59 is_stmt 0 discriminator 2 view .LVU331
+ 1307 0088 494A     		ldr	r2, .L180
+ 1308 008a 1388     		ldrh	r3, [r2]
+ 1309 008c 013B     		subs	r3, r3, #1
+ 1310 008e 1380     		strh	r3, [r2]	@ movhi
+ 1311 0090 EEE7     		b	.L148
+ 1312              	.L150:
+ 638:Core/Src/main.c ****     {
+ 1313              		.loc 1 638 37 discriminator 1 view .LVU332
+ 1314 0092 484B     		ldr	r3, .L180+4
+ 1315 0094 1B88     		ldrh	r3, [r3]
+ 638:Core/Src/main.c ****     {
+ 1316              		.loc 1 638 5 discriminator 1 view .LVU333
+ 1317 0096 B3F5167F 		cmp	r3, #600
+ 1318 009a C4D2     		bcs	.L153
+ 640:Core/Src/main.c ****       HAL_Delay(10);
+ 1319              		.loc 1 640 7 is_stmt 1 discriminator 2 view .LVU334
+ 1320 009c 474A     		ldr	r2, .L180+12
+ 1321 009e 1268     		ldr	r2, [r2]
+ 1322 00a0 D363     		str	r3, [r2, #60]
+ 641:Core/Src/main.c ****     }
+ 1323              		.loc 1 641 7 discriminator 2 view .LVU335
+ 1324 00a2 0A20     		movs	r0, #10
+ 1325 00a4 FFF7FEFF 		bl	HAL_Delay
+ 1326              	.LVL51:
+ 638:Core/Src/main.c ****     {
+ 1327              		.loc 1 638 59 is_stmt 0 discriminator 2 view .LVU336
+ 1328 00a8 424A     		ldr	r2, .L180+4
+ 1329 00aa 1388     		ldrh	r3, [r2]
+ 1330 00ac 0133     		adds	r3, r3, #1
+ 1331 00ae 1380     		strh	r3, [r2]	@ movhi
+ 1332 00b0 EFE7     		b	.L150
+ 1333              	.L154:
+ 646:Core/Src/main.c ****     {
+ 1334              		.loc 1 646 37 discriminator 1 view .LVU337
+ 1335 00b2 404B     		ldr	r3, .L180+4
+ 1336 00b4 1B88     		ldrh	r3, [r3]
+ 646:Core/Src/main.c ****     {
+ 1337              		.loc 1 646 5 discriminator 1 view .LVU338
+ 1338 00b6 B3F5167F 		cmp	r3, #600
+ 1339 00ba B4D9     		bls	.L153
+ 648:Core/Src/main.c ****       HAL_Delay(10);
+ 1340              		.loc 1 648 7 is_stmt 1 discriminator 2 view .LVU339
+ 1341 00bc 3F4A     		ldr	r2, .L180+12
+ 1342 00be 1268     		ldr	r2, [r2]
+ 1343 00c0 D363     		str	r3, [r2, #60]
+ 649:Core/Src/main.c ****     }
+ 1344              		.loc 1 649 7 discriminator 2 view .LVU340
+ 1345 00c2 0A20     		movs	r0, #10
+ 1346 00c4 FFF7FEFF 		bl	HAL_Delay
+ 1347              	.LVL52:
+ 646:Core/Src/main.c ****     {
+ 1348              		.loc 1 646 59 is_stmt 0 discriminator 2 view .LVU341
+ 1349 00c8 3A4A     		ldr	r2, .L180+4
+ 1350 00ca 1388     		ldrh	r3, [r2]
+ 1351 00cc 013B     		subs	r3, r3, #1
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 40
+
+
+ 1352 00ce 1380     		strh	r3, [r2]	@ movhi
+ 1353 00d0 EFE7     		b	.L154
+ 1354              	.LVL53:
+ 1355              	.L156:
+ 657:Core/Src/main.c ****     {
+ 1356              		.loc 1 657 37 discriminator 1 view .LVU342
+ 1357 00d2 394B     		ldr	r3, .L180+8
+ 1358 00d4 1B88     		ldrh	r3, [r3]
+ 657:Core/Src/main.c ****     {
+ 1359              		.loc 1 657 5 discriminator 1 view .LVU343
+ 1360 00d6 40F21942 		movw	r2, #1049
+ 1361 00da 9342     		cmp	r3, r2
+ 1362 00dc ADD8     		bhi	.L159
+ 659:Core/Src/main.c ****       HAL_Delay(10);
+ 1363              		.loc 1 659 7 is_stmt 1 discriminator 2 view .LVU344
+ 1364 00de 374A     		ldr	r2, .L180+12
+ 1365 00e0 1268     		ldr	r2, [r2]
+ 1366 00e2 5363     		str	r3, [r2, #52]
+ 660:Core/Src/main.c ****     }
+ 1367              		.loc 1 660 7 discriminator 2 view .LVU345
+ 1368 00e4 0A20     		movs	r0, #10
+ 1369 00e6 FFF7FEFF 		bl	HAL_Delay
+ 1370              	.LVL54:
+ 657:Core/Src/main.c ****     {
+ 1371              		.loc 1 657 59 is_stmt 0 discriminator 2 view .LVU346
+ 1372 00ea 334A     		ldr	r2, .L180+8
+ 1373 00ec 1388     		ldrh	r3, [r2]
+ 1374 00ee 0133     		adds	r3, r3, #1
+ 1375 00f0 1380     		strh	r3, [r2]	@ movhi
+ 1376 00f2 EEE7     		b	.L156
+ 1377              	.L161:
+ 667:Core/Src/main.c ****       HAL_Delay(10);
+ 1378              		.loc 1 667 7 is_stmt 1 discriminator 2 view .LVU347
+ 1379 00f4 314A     		ldr	r2, .L180+12
+ 1380 00f6 1268     		ldr	r2, [r2]
+ 1381 00f8 5363     		str	r3, [r2, #52]
+ 668:Core/Src/main.c ****     }
+ 1382              		.loc 1 668 7 discriminator 2 view .LVU348
+ 1383 00fa 0A20     		movs	r0, #10
+ 1384 00fc FFF7FEFF 		bl	HAL_Delay
+ 1385              	.LVL55:
+ 665:Core/Src/main.c ****     {
+ 1386              		.loc 1 665 59 is_stmt 0 discriminator 2 view .LVU349
+ 1387 0100 2D4A     		ldr	r2, .L180+8
+ 1388 0102 1388     		ldrh	r3, [r2]
+ 1389 0104 013B     		subs	r3, r3, #1
+ 1390 0106 1380     		strh	r3, [r2]	@ movhi
+ 1391              	.L160:
+ 665:Core/Src/main.c ****     {
+ 1392              		.loc 1 665 37 discriminator 1 view .LVU350
+ 1393 0108 2B4B     		ldr	r3, .L180+8
+ 1394 010a 1B88     		ldrh	r3, [r3]
+ 665:Core/Src/main.c ****     {
+ 1395              		.loc 1 665 5 discriminator 1 view .LVU351
+ 1396 010c 40F21A42 		movw	r2, #1050
+ 1397 0110 9342     		cmp	r3, r2
+ 1398 0112 EFD8     		bhi	.L161
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 41
+
+
+ 1399 0114 91E7     		b	.L159
+ 1400              	.L164:
+ 677:Core/Src/main.c ****       HAL_Delay(10);
+ 1401              		.loc 1 677 7 is_stmt 1 discriminator 2 view .LVU352
+ 1402 0116 294A     		ldr	r2, .L180+12
+ 1403 0118 1268     		ldr	r2, [r2]
+ 1404 011a 9363     		str	r3, [r2, #56]
+ 678:Core/Src/main.c ****     }
+ 1405              		.loc 1 678 7 discriminator 2 view .LVU353
+ 1406 011c 0A20     		movs	r0, #10
+ 1407 011e FFF7FEFF 		bl	HAL_Delay
+ 1408              	.LVL56:
+ 675:Core/Src/main.c ****     {
+ 1409              		.loc 1 675 59 is_stmt 0 discriminator 2 view .LVU354
+ 1410 0122 234A     		ldr	r2, .L180
+ 1411 0124 1388     		ldrh	r3, [r2]
+ 1412 0126 0133     		adds	r3, r3, #1
+ 1413 0128 1380     		strh	r3, [r2]	@ movhi
+ 1414              	.L162:
+ 675:Core/Src/main.c ****     {
+ 1415              		.loc 1 675 37 discriminator 1 view .LVU355
+ 1416 012a 214B     		ldr	r3, .L180
+ 1417 012c 1B88     		ldrh	r3, [r3]
+ 675:Core/Src/main.c ****     {
+ 1418              		.loc 1 675 5 discriminator 1 view .LVU356
+ 1419 012e B3F5487F 		cmp	r3, #800
+ 1420 0132 F0D3     		bcc	.L164
+ 1421              	.L165:
+ 682:Core/Src/main.c ****   {
+ 683:Core/Src/main.c ****     for (current_pos2; current_pos2 > joint2; current_pos2--)
+ 684:Core/Src/main.c ****     {
+ 685:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2);
+ 686:Core/Src/main.c ****       HAL_Delay(10);
+ 687:Core/Src/main.c ****     }
+ 688:Core/Src/main.c ****   }
+ 689:Core/Src/main.c **** 
+ 690:Core/Src/main.c ****   // JOINT4
+ 691:Core/Src/main.c ****   if (current_pos4 < joint4)
+ 1422              		.loc 1 691 3 is_stmt 1 view .LVU357
+ 1423              		.loc 1 691 20 is_stmt 0 view .LVU358
+ 1424 0134 224B     		ldr	r3, .L180+16
+ 1425 0136 1B88     		ldrh	r3, [r3]
+ 1426              		.loc 1 691 6 view .LVU359
+ 1427 0138 40F2B532 		movw	r2, #949
+ 1428 013c 9342     		cmp	r3, r2
+ 1429 013e 14D9     		bls	.L168
+ 692:Core/Src/main.c ****   {
+ 693:Core/Src/main.c ****     for (current_pos4; current_pos4 < joint4; current_pos4++)
+ 694:Core/Src/main.c ****     {
+ 695:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 696:Core/Src/main.c ****       HAL_Delay(10);
+ 697:Core/Src/main.c ****     }
+ 698:Core/Src/main.c ****   }
+ 699:Core/Src/main.c ****   else if (current_pos4 > joint4)
+ 1430              		.loc 1 699 8 is_stmt 1 view .LVU360
+ 1431              		.loc 1 699 11 is_stmt 0 view .LVU361
+ 1432 0140 40F2B632 		movw	r2, #950
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 42
+
+
+ 1433 0144 9342     		cmp	r3, r2
+ 1434 0146 21D8     		bhi	.L172
+ 1435              	.L143:
+ 700:Core/Src/main.c ****   {
+ 701:Core/Src/main.c ****     for (current_pos4; current_pos4 > joint4; current_pos4--)
+ 702:Core/Src/main.c ****     {
+ 703:Core/Src/main.c ****       __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4);
+ 704:Core/Src/main.c ****       HAL_Delay(10);
+ 705:Core/Src/main.c ****     }
+ 706:Core/Src/main.c ****   }
+ 707:Core/Src/main.c **** }
+ 1436              		.loc 1 707 1 view .LVU362
+ 1437 0148 08BD     		pop	{r3, pc}
+ 1438              	.L167:
+ 685:Core/Src/main.c ****       HAL_Delay(10);
+ 1439              		.loc 1 685 7 is_stmt 1 discriminator 2 view .LVU363
+ 1440 014a 1C4A     		ldr	r2, .L180+12
+ 1441 014c 1268     		ldr	r2, [r2]
+ 1442 014e 9363     		str	r3, [r2, #56]
+ 686:Core/Src/main.c ****     }
+ 1443              		.loc 1 686 7 discriminator 2 view .LVU364
+ 1444 0150 0A20     		movs	r0, #10
+ 1445 0152 FFF7FEFF 		bl	HAL_Delay
+ 1446              	.LVL57:
+ 683:Core/Src/main.c ****     {
+ 1447              		.loc 1 683 59 is_stmt 0 discriminator 2 view .LVU365
+ 1448 0156 164A     		ldr	r2, .L180
+ 1449 0158 1388     		ldrh	r3, [r2]
+ 1450 015a 013B     		subs	r3, r3, #1
+ 1451 015c 1380     		strh	r3, [r2]	@ movhi
+ 1452              	.L166:
+ 683:Core/Src/main.c ****     {
+ 1453              		.loc 1 683 37 discriminator 1 view .LVU366
+ 1454 015e 144B     		ldr	r3, .L180
+ 1455 0160 1B88     		ldrh	r3, [r3]
+ 683:Core/Src/main.c ****     {
+ 1456              		.loc 1 683 5 discriminator 1 view .LVU367
+ 1457 0162 B3F5487F 		cmp	r3, #800
+ 1458 0166 F0D8     		bhi	.L167
+ 1459 0168 E4E7     		b	.L165
+ 1460              	.L168:
+ 693:Core/Src/main.c ****     {
+ 1461              		.loc 1 693 37 discriminator 1 view .LVU368
+ 1462 016a 154B     		ldr	r3, .L180+16
+ 1463 016c 1B88     		ldrh	r3, [r3]
+ 693:Core/Src/main.c ****     {
+ 1464              		.loc 1 693 5 discriminator 1 view .LVU369
+ 1465 016e 40F2B532 		movw	r2, #949
+ 1466 0172 9342     		cmp	r3, r2
+ 1467 0174 E8D8     		bhi	.L143
+ 695:Core/Src/main.c ****       HAL_Delay(10);
+ 1468              		.loc 1 695 7 is_stmt 1 discriminator 2 view .LVU370
+ 1469 0176 114A     		ldr	r2, .L180+12
+ 1470 0178 1268     		ldr	r2, [r2]
+ 1471 017a 1364     		str	r3, [r2, #64]
+ 696:Core/Src/main.c ****     }
+ 1472              		.loc 1 696 7 discriminator 2 view .LVU371
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 43
+
+
+ 1473 017c 0A20     		movs	r0, #10
+ 1474 017e FFF7FEFF 		bl	HAL_Delay
+ 1475              	.LVL58:
+ 693:Core/Src/main.c ****     {
+ 1476              		.loc 1 693 59 is_stmt 0 discriminator 2 view .LVU372
+ 1477 0182 0F4A     		ldr	r2, .L180+16
+ 1478 0184 1388     		ldrh	r3, [r2]
+ 1479 0186 0133     		adds	r3, r3, #1
+ 1480 0188 1380     		strh	r3, [r2]	@ movhi
+ 1481 018a EEE7     		b	.L168
+ 1482              	.L172:
+ 701:Core/Src/main.c ****     {
+ 1483              		.loc 1 701 37 discriminator 1 view .LVU373
+ 1484 018c 0C4B     		ldr	r3, .L180+16
+ 1485 018e 1B88     		ldrh	r3, [r3]
+ 701:Core/Src/main.c ****     {
+ 1486              		.loc 1 701 5 discriminator 1 view .LVU374
+ 1487 0190 40F2B632 		movw	r2, #950
+ 1488 0194 9342     		cmp	r3, r2
+ 1489 0196 D7D9     		bls	.L143
+ 703:Core/Src/main.c ****       HAL_Delay(10);
+ 1490              		.loc 1 703 7 is_stmt 1 discriminator 2 view .LVU375
+ 1491 0198 084A     		ldr	r2, .L180+12
+ 1492 019a 1268     		ldr	r2, [r2]
+ 1493 019c 1364     		str	r3, [r2, #64]
+ 704:Core/Src/main.c ****     }
+ 1494              		.loc 1 704 7 discriminator 2 view .LVU376
+ 1495 019e 0A20     		movs	r0, #10
+ 1496 01a0 FFF7FEFF 		bl	HAL_Delay
+ 1497              	.LVL59:
+ 701:Core/Src/main.c ****     {
+ 1498              		.loc 1 701 59 is_stmt 0 discriminator 2 view .LVU377
+ 1499 01a4 064A     		ldr	r2, .L180+16
+ 1500 01a6 1388     		ldrh	r3, [r2]
+ 1501 01a8 013B     		subs	r3, r3, #1
+ 1502 01aa 1380     		strh	r3, [r2]	@ movhi
+ 1503 01ac EEE7     		b	.L172
+ 1504              	.L181:
+ 1505 01ae 00BF     		.align	2
+ 1506              	.L180:
+ 1507 01b0 00000000 		.word	.LANCHOR0
+ 1508 01b4 00000000 		.word	.LANCHOR1
+ 1509 01b8 00000000 		.word	.LANCHOR2
+ 1510 01bc 00000000 		.word	htim2
+ 1511 01c0 00000000 		.word	.LANCHOR3
+ 1512              		.cfi_endproc
+ 1513              	.LFE74:
+ 1515              		.section	.text.Error_Handler,"ax",%progbits
+ 1516              		.align	1
+ 1517              		.global	Error_Handler
+ 1518              		.syntax unified
+ 1519              		.thumb
+ 1520              		.thumb_func
+ 1521              		.fpu softvfp
+ 1523              	Error_Handler:
+ 1524              	.LFB75:
+ 708:Core/Src/main.c **** /* USER CODE END 4 */
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 44
+
+
+ 709:Core/Src/main.c **** 
+ 710:Core/Src/main.c **** /**
+ 711:Core/Src/main.c ****   * @brief  This function is executed in case of error occurrence.
+ 712:Core/Src/main.c ****   * @retval None
+ 713:Core/Src/main.c ****   */
+ 714:Core/Src/main.c **** void Error_Handler(void)
+ 715:Core/Src/main.c **** {
+ 1525              		.loc 1 715 1 is_stmt 1 view -0
+ 1526              		.cfi_startproc
+ 1527              		@ Volatile: function does not return.
+ 1528              		@ args = 0, pretend = 0, frame = 0
+ 1529              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1530              		@ link register save eliminated.
+ 716:Core/Src/main.c ****   /* USER CODE BEGIN Error_Handler_Debug */
+ 717:Core/Src/main.c ****   /* User can add his own implementation to report the HAL error return state */
+ 718:Core/Src/main.c ****   __disable_irq();
+ 1531              		.loc 1 718 3 view .LVU379
+ 1532              	.LBB4:
+ 1533              	.LBI4:
+ 1534              		.file 2 "Drivers/CMSIS/Include/cmsis_gcc.h"
+   1:Drivers/CMSIS/Include/cmsis_gcc.h **** /**************************************************************************//**
+   2:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @file     cmsis_gcc.h
+   3:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @brief    CMSIS compiler GCC header file
+   4:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @version  V5.0.4
+   5:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @date     09. April 2018
+   6:Drivers/CMSIS/Include/cmsis_gcc.h ****  ******************************************************************************/
+   7:Drivers/CMSIS/Include/cmsis_gcc.h **** /*
+   8:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
+   9:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  10:Drivers/CMSIS/Include/cmsis_gcc.h ****  * SPDX-License-Identifier: Apache-2.0
+  11:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  12:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  13:Drivers/CMSIS/Include/cmsis_gcc.h ****  * not use this file except in compliance with the License.
+  14:Drivers/CMSIS/Include/cmsis_gcc.h ****  * You may obtain a copy of the License at
+  15:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  16:Drivers/CMSIS/Include/cmsis_gcc.h ****  * www.apache.org/licenses/LICENSE-2.0
+  17:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  18:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Unless required by applicable law or agreed to in writing, software
+  19:Drivers/CMSIS/Include/cmsis_gcc.h ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  20:Drivers/CMSIS/Include/cmsis_gcc.h ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  21:Drivers/CMSIS/Include/cmsis_gcc.h ****  * See the License for the specific language governing permissions and
+  22:Drivers/CMSIS/Include/cmsis_gcc.h ****  * limitations under the License.
+  23:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+  24:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  25:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __CMSIS_GCC_H
+  26:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __CMSIS_GCC_H
+  27:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  28:Drivers/CMSIS/Include/cmsis_gcc.h **** /* ignore some GCC warnings */
+  29:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic push
+  30:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wsign-conversion"
+  31:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wconversion"
+  32:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wunused-parameter"
+  33:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  34:Drivers/CMSIS/Include/cmsis_gcc.h **** /* Fallback for __has_builtin */
+  35:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __has_builtin
+  36:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __has_builtin(x) (0)
+  37:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 45
+
+
+  38:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  39:Drivers/CMSIS/Include/cmsis_gcc.h **** /* CMSIS compiler specific defines */
+  40:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __ASM
+  41:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __ASM                                  __asm
+  42:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  43:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __INLINE
+  44:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __INLINE                               inline
+  45:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  46:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __STATIC_INLINE
+  47:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __STATIC_INLINE                        static inline
+  48:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  49:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __STATIC_FORCEINLINE                 
+  50:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static inline
+  51:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif                                           
+  52:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __NO_RETURN
+  53:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __NO_RETURN                            __attribute__((__noreturn__))
+  54:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  55:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __USED
+  56:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __USED                                 __attribute__((used))
+  57:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  58:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __WEAK
+  59:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __WEAK                                 __attribute__((weak))
+  60:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  61:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED
+  62:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED                               __attribute__((packed, aligned(1)))
+  63:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  64:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED_STRUCT
+  65:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED_STRUCT                        struct __attribute__((packed, aligned(1)))
+  66:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  67:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED_UNION
+  68:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED_UNION                         union __attribute__((packed, aligned(1)))
+  69:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  70:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32        /* deprecated */
+  71:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  72:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  73:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  74:Drivers/CMSIS/Include/cmsis_gcc.h ****   struct __attribute__((packed)) T_UINT32 { uint32_t v; };
+  75:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  76:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32(x)                  (((struct T_UINT32 *)(x))->v)
+  77:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  78:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_WRITE
+  79:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  80:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  81:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  82:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_WRITE { uint16_t v; };
+  83:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  84:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_WRITE(addr, val)    (void)((((struct T_UINT16_WRITE *)(void *)(addr))-
+  85:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  86:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_READ
+  87:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  88:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  89:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  90:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_READ { uint16_t v; };
+  91:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  92:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_READ(addr)          (((const struct T_UINT16_READ *)(const void *)(add
+  93:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  94:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_WRITE
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 46
+
+
+  95:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  96:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  97:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  98:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_WRITE { uint32_t v; };
+  99:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 100:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_WRITE(addr, val)    (void)((((struct T_UINT32_WRITE *)(void *)(addr))-
+ 101:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 102:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_READ
+ 103:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+ 104:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+ 105:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+ 106:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_READ { uint32_t v; };
+ 107:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 108:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_READ(addr)          (((const struct T_UINT32_READ *)(const void *)(add
+ 109:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 110:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __ALIGNED
+ 111:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __ALIGNED(x)                           __attribute__((aligned(x)))
+ 112:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 113:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __RESTRICT
+ 114:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __RESTRICT                             __restrict
+ 115:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 116:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 117:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 118:Drivers/CMSIS/Include/cmsis_gcc.h **** /* ###########################  Core Function Access  ########################### */
+ 119:Drivers/CMSIS/Include/cmsis_gcc.h **** /** \ingroup  CMSIS_Core_FunctionInterface
+ 120:Drivers/CMSIS/Include/cmsis_gcc.h ****     \defgroup CMSIS_Core_RegAccFunctions CMSIS Core Register Access Functions
+ 121:Drivers/CMSIS/Include/cmsis_gcc.h ****   @{
+ 122:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 123:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 124:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
+ 125:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Enable IRQ Interrupts
+ 126:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
+ 127:Drivers/CMSIS/Include/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 128:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 129:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE void __enable_irq(void)
+ 130:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 131:Drivers/CMSIS/Include/cmsis_gcc.h ****   __ASM volatile ("cpsie i" : : : "memory");
+ 132:Drivers/CMSIS/Include/cmsis_gcc.h **** }
+ 133:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 134:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 135:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
+ 136:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Disable IRQ Interrupts
+ 137:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Disables IRQ interrupts by setting the I-bit in the CPSR.
+ 138:Drivers/CMSIS/Include/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 139:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 140:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE void __disable_irq(void)
+ 1535              		.loc 2 140 27 view .LVU380
+ 1536              	.LBB5:
+ 141:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 142:Drivers/CMSIS/Include/cmsis_gcc.h ****   __ASM volatile ("cpsid i" : : : "memory");
+ 1537              		.loc 2 142 3 view .LVU381
+ 1538              		.syntax unified
+ 1539              	@ 142 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 1540 0000 72B6     		cpsid i
+ 1541              	@ 0 "" 2
+ 1542              		.thumb
+ 1543              		.syntax unified
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 47
+
+
+ 1544              	.L183:
+ 1545              	.LBE5:
+ 1546              	.LBE4:
+ 719:Core/Src/main.c ****   while (1)
+ 1547              		.loc 1 719 3 discriminator 1 view .LVU382
+ 720:Core/Src/main.c ****   {
+ 721:Core/Src/main.c ****   }
+ 1548              		.loc 1 721 3 discriminator 1 view .LVU383
+ 1549 0002 FEE7     		b	.L183
+ 1550              		.cfi_endproc
+ 1551              	.LFE75:
+ 1553              		.section	.text.SystemClock_Config,"ax",%progbits
+ 1554              		.align	1
+ 1555              		.global	SystemClock_Config
+ 1556              		.syntax unified
+ 1557              		.thumb
+ 1558              		.thumb_func
+ 1559              		.fpu softvfp
+ 1561              	SystemClock_Config:
+ 1562              	.LFB69:
+ 222:Core/Src/main.c ****   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+ 1563              		.loc 1 222 1 view -0
+ 1564              		.cfi_startproc
+ 1565              		@ args = 0, pretend = 0, frame = 64
+ 1566              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1567 0000 00B5     		push	{lr}
+ 1568              	.LCFI5:
+ 1569              		.cfi_def_cfa_offset 4
+ 1570              		.cfi_offset 14, -4
+ 1571 0002 91B0     		sub	sp, sp, #68
+ 1572              	.LCFI6:
+ 1573              		.cfi_def_cfa_offset 72
+ 223:Core/Src/main.c ****   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+ 1574              		.loc 1 223 3 view .LVU385
+ 223:Core/Src/main.c ****   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+ 1575              		.loc 1 223 22 is_stmt 0 view .LVU386
+ 1576 0004 2422     		movs	r2, #36
+ 1577 0006 0021     		movs	r1, #0
+ 1578 0008 07A8     		add	r0, sp, #28
+ 1579 000a FFF7FEFF 		bl	memset
+ 1580              	.LVL60:
+ 224:Core/Src/main.c **** 
+ 1581              		.loc 1 224 3 is_stmt 1 view .LVU387
+ 224:Core/Src/main.c **** 
+ 1582              		.loc 1 224 22 is_stmt 0 view .LVU388
+ 1583 000e 0023     		movs	r3, #0
+ 1584 0010 0193     		str	r3, [sp, #4]
+ 1585 0012 0293     		str	r3, [sp, #8]
+ 1586 0014 0393     		str	r3, [sp, #12]
+ 1587 0016 0493     		str	r3, [sp, #16]
+ 1588 0018 0593     		str	r3, [sp, #20]
+ 229:Core/Src/main.c ****   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+ 1589              		.loc 1 229 3 is_stmt 1 view .LVU389
+ 229:Core/Src/main.c ****   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+ 1590              		.loc 1 229 36 is_stmt 0 view .LVU390
+ 1591 001a 0223     		movs	r3, #2
+ 1592 001c 0693     		str	r3, [sp, #24]
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 48
+
+
+ 230:Core/Src/main.c ****   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+ 1593              		.loc 1 230 3 is_stmt 1 view .LVU391
+ 230:Core/Src/main.c ****   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+ 1594              		.loc 1 230 30 is_stmt 0 view .LVU392
+ 1595 001e 0123     		movs	r3, #1
+ 1596 0020 0A93     		str	r3, [sp, #40]
+ 231:Core/Src/main.c ****   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+ 1597              		.loc 1 231 3 is_stmt 1 view .LVU393
+ 231:Core/Src/main.c ****   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+ 1598              		.loc 1 231 41 is_stmt 0 view .LVU394
+ 1599 0022 1023     		movs	r3, #16
+ 1600 0024 0B93     		str	r3, [sp, #44]
+ 232:Core/Src/main.c ****   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+ 1601              		.loc 1 232 3 is_stmt 1 view .LVU395
+ 233:Core/Src/main.c ****   {
+ 1602              		.loc 1 233 3 view .LVU396
+ 233:Core/Src/main.c ****   {
+ 1603              		.loc 1 233 7 is_stmt 0 view .LVU397
+ 1604 0026 06A8     		add	r0, sp, #24
+ 1605 0028 FFF7FEFF 		bl	HAL_RCC_OscConfig
+ 1606              	.LVL61:
+ 233:Core/Src/main.c ****   {
+ 1607              		.loc 1 233 6 view .LVU398
+ 1608 002c 68B9     		cbnz	r0, .L188
+ 239:Core/Src/main.c ****                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+ 1609              		.loc 1 239 3 is_stmt 1 view .LVU399
+ 239:Core/Src/main.c ****                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+ 1610              		.loc 1 239 31 is_stmt 0 view .LVU400
+ 1611 002e 0F23     		movs	r3, #15
+ 1612 0030 0193     		str	r3, [sp, #4]
+ 241:Core/Src/main.c ****   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+ 1613              		.loc 1 241 3 is_stmt 1 view .LVU401
+ 241:Core/Src/main.c ****   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+ 1614              		.loc 1 241 34 is_stmt 0 view .LVU402
+ 1615 0032 0021     		movs	r1, #0
+ 1616 0034 0291     		str	r1, [sp, #8]
+ 242:Core/Src/main.c ****   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+ 1617              		.loc 1 242 3 is_stmt 1 view .LVU403
+ 242:Core/Src/main.c ****   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+ 1618              		.loc 1 242 35 is_stmt 0 view .LVU404
+ 1619 0036 0391     		str	r1, [sp, #12]
+ 243:Core/Src/main.c ****   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+ 1620              		.loc 1 243 3 is_stmt 1 view .LVU405
+ 243:Core/Src/main.c ****   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+ 1621              		.loc 1 243 36 is_stmt 0 view .LVU406
+ 1622 0038 0491     		str	r1, [sp, #16]
+ 244:Core/Src/main.c **** 
+ 1623              		.loc 1 244 3 is_stmt 1 view .LVU407
+ 244:Core/Src/main.c **** 
+ 1624              		.loc 1 244 36 is_stmt 0 view .LVU408
+ 1625 003a 0591     		str	r1, [sp, #20]
+ 246:Core/Src/main.c ****   {
+ 1626              		.loc 1 246 3 is_stmt 1 view .LVU409
+ 246:Core/Src/main.c ****   {
+ 1627              		.loc 1 246 7 is_stmt 0 view .LVU410
+ 1628 003c 01A8     		add	r0, sp, #4
+ 1629 003e FFF7FEFF 		bl	HAL_RCC_ClockConfig
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 49
+
+
+ 1630              	.LVL62:
+ 246:Core/Src/main.c ****   {
+ 1631              		.loc 1 246 6 view .LVU411
+ 1632 0042 20B9     		cbnz	r0, .L189
+ 250:Core/Src/main.c **** 
+ 1633              		.loc 1 250 1 view .LVU412
+ 1634 0044 11B0     		add	sp, sp, #68
+ 1635              	.LCFI7:
+ 1636              		.cfi_remember_state
+ 1637              		.cfi_def_cfa_offset 4
+ 1638              		@ sp needed
+ 1639 0046 5DF804FB 		ldr	pc, [sp], #4
+ 1640              	.L188:
+ 1641              	.LCFI8:
+ 1642              		.cfi_restore_state
+ 235:Core/Src/main.c ****   }
+ 1643              		.loc 1 235 5 is_stmt 1 view .LVU413
+ 1644 004a FFF7FEFF 		bl	Error_Handler
+ 1645              	.LVL63:
+ 1646              	.L189:
+ 248:Core/Src/main.c ****   }
+ 1647              		.loc 1 248 5 view .LVU414
+ 1648 004e FFF7FEFF 		bl	Error_Handler
+ 1649              	.LVL64:
+ 1650              		.cfi_endproc
+ 1651              	.LFE69:
+ 1653              		.section	.text.main,"ax",%progbits
+ 1654              		.align	1
+ 1655              		.global	main
+ 1656              		.syntax unified
+ 1657              		.thumb
+ 1658              		.thumb_func
+ 1659              		.fpu softvfp
+ 1661              	main:
+ 1662              	.LFB68:
+  76:Core/Src/main.c ****   /* USER CODE BEGIN 1 */
+ 1663              		.loc 1 76 1 view -0
+ 1664              		.cfi_startproc
+ 1665              		@ args = 0, pretend = 0, frame = 48
+ 1666              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1667 0000 70B5     		push	{r4, r5, r6, lr}
+ 1668              	.LCFI9:
+ 1669              		.cfi_def_cfa_offset 16
+ 1670              		.cfi_offset 4, -16
+ 1671              		.cfi_offset 5, -12
+ 1672              		.cfi_offset 6, -8
+ 1673              		.cfi_offset 14, -4
+ 1674 0002 8CB0     		sub	sp, sp, #48
+ 1675              	.LCFI10:
+ 1676              		.cfi_def_cfa_offset 64
+ 1677 0004 0025     		movs	r5, #0
+  84:Core/Src/main.c **** 
+ 1678              		.loc 1 84 3 view .LVU416
+ 1679 0006 FFF7FEFF 		bl	HAL_Init
+ 1680              	.LVL65:
+  91:Core/Src/main.c **** 
+ 1681              		.loc 1 91 3 view .LVU417
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 50
+
+
+ 1682 000a FFF7FEFF 		bl	SystemClock_Config
+ 1683              	.LVL66:
+  98:Core/Src/main.c ****   MX_USART1_UART_Init();
+ 1684              		.loc 1 98 3 view .LVU418
+ 1685 000e FFF7FEFF 		bl	MX_GPIO_Init
+ 1686              	.LVL67:
+  99:Core/Src/main.c ****   MX_TIM2_Init();
+ 1687              		.loc 1 99 3 view .LVU419
+ 1688 0012 FFF7FEFF 		bl	MX_USART1_UART_Init
+ 1689              	.LVL68:
+ 100:Core/Src/main.c ****   /* USER CODE BEGIN 2 */
+ 1690              		.loc 1 100 3 view .LVU420
+ 1691 0016 FFF7FEFF 		bl	MX_TIM2_Init
+ 1692              	.LVL69:
+ 103:Core/Src/main.c ****   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+ 1693              		.loc 1 103 3 view .LVU421
+ 1694 001a 734C     		ldr	r4, .L207
+ 1695 001c 2946     		mov	r1, r5
+ 1696 001e 2046     		mov	r0, r4
+ 1697 0020 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 1698              	.LVL70:
+ 104:Core/Src/main.c ****   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+ 1699              		.loc 1 104 3 view .LVU422
+ 1700 0024 0421     		movs	r1, #4
+ 1701 0026 2046     		mov	r0, r4
+ 1702 0028 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 1703              	.LVL71:
+ 105:Core/Src/main.c ****   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+ 1704              		.loc 1 105 3 view .LVU423
+ 1705 002c 0821     		movs	r1, #8
+ 1706 002e 2046     		mov	r0, r4
+ 1707 0030 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 1708              	.LVL72:
+ 106:Core/Src/main.c ****   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, current_pos1); // START POSITION
+ 1709              		.loc 1 106 3 view .LVU424
+ 1710 0034 0C21     		movs	r1, #12
+ 1711 0036 2046     		mov	r0, r4
+ 1712 0038 FFF7FEFF 		bl	HAL_TIM_PWM_Start
+ 1713              	.LVL73:
+ 107:Core/Src/main.c ****   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, current_pos2); // START POSITION
+ 1714              		.loc 1 107 3 view .LVU425
+ 1715 003c 2368     		ldr	r3, [r4]
+ 1716 003e 6B4A     		ldr	r2, .L207+4
+ 1717 0040 1288     		ldrh	r2, [r2]
+ 1718 0042 5A63     		str	r2, [r3, #52]
+ 108:Core/Src/main.c ****   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, current_pos3); // START POSITION
+ 1719              		.loc 1 108 3 view .LVU426
+ 1720 0044 6A4A     		ldr	r2, .L207+8
+ 1721 0046 1288     		ldrh	r2, [r2]
+ 1722 0048 9A63     		str	r2, [r3, #56]
+ 109:Core/Src/main.c ****   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, current_pos4); // START POSITION
+ 1723              		.loc 1 109 3 view .LVU427
+ 1724 004a 6A4A     		ldr	r2, .L207+12
+ 1725 004c 1288     		ldrh	r2, [r2]
+ 1726 004e DA63     		str	r2, [r3, #60]
+ 110:Core/Src/main.c **** 
+ 1727              		.loc 1 110 3 view .LVU428
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 51
+
+
+ 1728 0050 694A     		ldr	r2, .L207+16
+ 1729 0052 1288     		ldrh	r2, [r2]
+ 1730 0054 1A64     		str	r2, [r3, #64]
+ 1731 0056 64E0     		b	.L199
+ 1732              	.LVL74:
+ 1733              	.L202:
+ 1734              	.LBB6:
+ 142:Core/Src/main.c ****           memset(&arr[0], 0, sizeof(arr)); // clear arr array
+ 1735              		.loc 1 142 11 view .LVU429
+ 142:Core/Src/main.c ****           memset(&arr[0], 0, sizeof(arr)); // clear arr array
+ 1736              		.loc 1 142 18 is_stmt 0 view .LVU430
+ 1737 0058 6846     		mov	r0, sp
+ 1738 005a FFF7FEFF 		bl	atoi
+ 1739              	.LVL75:
+ 142:Core/Src/main.c ****           memset(&arr[0], 0, sizeof(arr)); // clear arr array
+ 1740              		.loc 1 142 16 view .LVU431
+ 1741 005e 85B2     		uxth	r5, r0
+ 1742              	.LVL76:
+ 143:Core/Src/main.c ****         }
+ 1743              		.loc 1 143 11 is_stmt 1 view .LVU432
+ 1744 0060 0023     		movs	r3, #0
+ 1745 0062 0093     		str	r3, [sp]
+ 1746 0064 0193     		str	r3, [sp, #4]
+ 1747 0066 8DF80830 		strb	r3, [sp, #8]
+ 1748              	.L193:
+ 145:Core/Src/main.c ****         i++;
+ 1749              		.loc 1 145 9 view .LVU433
+ 145:Core/Src/main.c ****         i++;
+ 1750              		.loc 1 145 24 is_stmt 0 view .LVU434
+ 1751 006a 9DF82C20 		ldrb	r2, [sp, #44]	@ zero_extendqisi2
+ 145:Core/Src/main.c ****         i++;
+ 1752              		.loc 1 145 16 view .LVU435
+ 1753 006e 0CAB     		add	r3, sp, #48
+ 1754 0070 2344     		add	r3, r3, r4
+ 1755 0072 03F8302C 		strb	r2, [r3, #-48]
+ 146:Core/Src/main.c ****       }
+ 1756              		.loc 1 146 9 is_stmt 1 view .LVU436
+ 146:Core/Src/main.c ****       }
+ 1757              		.loc 1 146 10 is_stmt 0 view .LVU437
+ 1758 0076 0134     		adds	r4, r4, #1
+ 1759              	.LVL77:
+ 146:Core/Src/main.c ****       }
+ 1760              		.loc 1 146 10 view .LVU438
+ 1761 0078 E4B2     		uxtb	r4, r4
+ 1762              	.LVL78:
+ 1763              	.L192:
+ 130:Core/Src/main.c ****       {
+ 1764              		.loc 1 130 20 view .LVU439
+ 1765 007a 9DF82C30 		ldrb	r3, [sp, #44]	@ zero_extendqisi2
+ 130:Core/Src/main.c ****       {
+ 1766              		.loc 1 130 13 view .LVU440
+ 1767 007e 232B     		cmp	r3, #35
+ 1768 0080 0BD0     		beq	.L201
+ 132:Core/Src/main.c ****         // if (buffer[0] == ':') //save all char before ":" in myInt
+ 1769              		.loc 1 132 9 is_stmt 1 view .LVU441
+ 1770 0082 4FF47A73 		mov	r3, #1000
+ 1771 0086 0122     		movs	r2, #1
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 52
+
+
+ 1772 0088 0BA9     		add	r1, sp, #44
+ 1773 008a 5C48     		ldr	r0, .L207+20
+ 1774 008c FFF7FEFF 		bl	HAL_UART_Receive
+ 1775              	.LVL79:
+ 140:Core/Src/main.c ****         {
+ 1776              		.loc 1 140 9 view .LVU442
+ 140:Core/Src/main.c ****         {
+ 1777              		.loc 1 140 19 is_stmt 0 view .LVU443
+ 1778 0090 9DF82C30 		ldrb	r3, [sp, #44]	@ zero_extendqisi2
+ 140:Core/Src/main.c ****         {
+ 1779              		.loc 1 140 12 view .LVU444
+ 1780 0094 232B     		cmp	r3, #35
+ 1781 0096 E8D1     		bne	.L193
+ 1782 0098 DEE7     		b	.L202
+ 1783              	.L201:
+ 148:Core/Src/main.c ****       HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 1784              		.loc 1 148 7 is_stmt 1 view .LVU445
+ 1785 009a 2A46     		mov	r2, r5
+ 1786 009c 5849     		ldr	r1, .L207+24
+ 1787 009e 03A8     		add	r0, sp, #12
+ 1788 00a0 FFF7FEFF 		bl	sprintf
+ 1789              	.LVL80:
+ 149:Core/Src/main.c **** 
+ 1790              		.loc 1 149 7 view .LVU446
+ 149:Core/Src/main.c **** 
+ 1791              		.loc 1 149 39 is_stmt 0 view .LVU447
+ 1792 00a4 03A8     		add	r0, sp, #12
+ 1793 00a6 FFF7FEFF 		bl	strlen
+ 1794              	.LVL81:
+ 149:Core/Src/main.c **** 
+ 1795              		.loc 1 149 7 view .LVU448
+ 1796 00aa 4FF47A73 		mov	r3, #1000
+ 1797 00ae 82B2     		uxth	r2, r0
+ 1798 00b0 03A9     		add	r1, sp, #12
+ 1799 00b2 5248     		ldr	r0, .L207+20
+ 1800 00b4 FFF7FEFF 		bl	HAL_UART_Transmit
+ 1801              	.LVL82:
+ 168:Core/Src/main.c ****       {
+ 1802              		.loc 1 168 7 is_stmt 1 view .LVU449
+ 168:Core/Src/main.c ****       {
+ 1803              		.loc 1 168 10 is_stmt 0 view .LVU450
+ 1804 00b8 052D     		cmp	r5, #5
+ 1805 00ba 21D0     		beq	.L203
+ 175:Core/Src/main.c ****       {
+ 1806              		.loc 1 175 12 is_stmt 1 view .LVU451
+ 175:Core/Src/main.c ****       {
+ 1807              		.loc 1 175 15 is_stmt 0 view .LVU452
+ 1808 00bc 042D     		cmp	r5, #4
+ 1809 00be 44D0     		beq	.L204
+ 182:Core/Src/main.c ****       {
+ 1810              		.loc 1 182 12 is_stmt 1 view .LVU453
+ 182:Core/Src/main.c ****       {
+ 1811              		.loc 1 182 15 is_stmt 0 view .LVU454
+ 1812 00c0 002D     		cmp	r5, #0
+ 1813 00c2 55D0     		beq	.L205
+ 194:Core/Src/main.c ****       {
+ 1814              		.loc 1 194 12 is_stmt 1 view .LVU455
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 53
+
+
+ 194:Core/Src/main.c ****       {
+ 1815              		.loc 1 194 15 is_stmt 0 view .LVU456
+ 1816 00c4 012D     		cmp	r5, #1
+ 1817 00c6 78D0     		beq	.L206
+ 203:Core/Src/main.c ****       {
+ 1818              		.loc 1 203 12 is_stmt 1 view .LVU457
+ 203:Core/Src/main.c ****       {
+ 1819              		.loc 1 203 15 is_stmt 0 view .LVU458
+ 1820 00c8 022D     		cmp	r5, #2
+ 1821 00ca 2AD1     		bne	.L199
+ 205:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 1822              		.loc 1 205 9 is_stmt 1 view .LVU459
+ 1823 00cc 4D4B     		ldr	r3, .L207+28
+ 1824 00ce 93E80300 		ldm	r3, {r0, r1}
+ 1825 00d2 0390     		str	r0, [sp, #12]
+ 1826 00d4 ADF81010 		strh	r1, [sp, #16]	@ movhi
+ 1827 00d8 090C     		lsrs	r1, r1, #16
+ 1828 00da 8DF81210 		strb	r1, [sp, #18]
+ 206:Core/Src/main.c ****         servo_grap();
+ 1829              		.loc 1 206 9 view .LVU460
+ 206:Core/Src/main.c ****         servo_grap();
+ 1830              		.loc 1 206 41 is_stmt 0 view .LVU461
+ 1831 00de 03A8     		add	r0, sp, #12
+ 1832 00e0 FFF7FEFF 		bl	strlen
+ 1833              	.LVL83:
+ 206:Core/Src/main.c ****         servo_grap();
+ 1834              		.loc 1 206 9 view .LVU462
+ 1835 00e4 4FF47A73 		mov	r3, #1000
+ 1836 00e8 82B2     		uxth	r2, r0
+ 1837 00ea 03A9     		add	r1, sp, #12
+ 1838 00ec 4348     		ldr	r0, .L207+20
+ 1839 00ee FFF7FEFF 		bl	HAL_UART_Transmit
+ 1840              	.LVL84:
+ 207:Core/Src/main.c ****         servo_left();
+ 1841              		.loc 1 207 9 is_stmt 1 view .LVU463
+ 1842 00f2 FFF7FEFF 		bl	servo_grap
+ 1843              	.LVL85:
+ 208:Core/Src/main.c ****         servo_start();
+ 1844              		.loc 1 208 9 view .LVU464
+ 1845 00f6 FFF7FEFF 		bl	servo_left
+ 1846              	.LVL86:
+ 209:Core/Src/main.c ****       }
+ 1847              		.loc 1 209 9 view .LVU465
+ 1848 00fa FFF7FEFF 		bl	servo_start
+ 1849              	.LVL87:
+ 209:Core/Src/main.c ****       }
+ 1850              		.loc 1 209 9 is_stmt 0 view .LVU466
+ 1851              	.LBE6:
+ 119:Core/Src/main.c ****     /* USER CODE END WHILE */
+ 1852              		.loc 1 119 3 view .LVU467
+ 1853 00fe 10E0     		b	.L199
+ 1854              	.L203:
+ 1855              	.LBB7:
+ 170:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 1856              		.loc 1 170 9 is_stmt 1 view .LVU468
+ 1857 0100 414B     		ldr	r3, .L207+32
+ 1858 0102 03AC     		add	r4, sp, #12
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 54
+
+
+ 1859              	.LVL88:
+ 170:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 1860              		.loc 1 170 9 is_stmt 0 view .LVU469
+ 1861 0104 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 1862 0106 07C4     		stmia	r4!, {r0, r1, r2}
+ 1863 0108 2380     		strh	r3, [r4]	@ movhi
+ 171:Core/Src/main.c ****         servo_start();
+ 1864              		.loc 1 171 9 is_stmt 1 view .LVU470
+ 171:Core/Src/main.c ****         servo_start();
+ 1865              		.loc 1 171 41 is_stmt 0 view .LVU471
+ 1866 010a 03A8     		add	r0, sp, #12
+ 1867 010c FFF7FEFF 		bl	strlen
+ 1868              	.LVL89:
+ 171:Core/Src/main.c ****         servo_start();
+ 1869              		.loc 1 171 9 view .LVU472
+ 1870 0110 4FF47A73 		mov	r3, #1000
+ 1871 0114 82B2     		uxth	r2, r0
+ 1872 0116 03A9     		add	r1, sp, #12
+ 1873 0118 3848     		ldr	r0, .L207+20
+ 1874 011a FFF7FEFF 		bl	HAL_UART_Transmit
+ 1875              	.LVL90:
+ 172:Core/Src/main.c ****       }
+ 1876              		.loc 1 172 9 is_stmt 1 view .LVU473
+ 1877 011e FFF7FEFF 		bl	servo_start
+ 1878              	.LVL91:
+ 1879              	.L199:
+ 172:Core/Src/main.c ****       }
+ 1880              		.loc 1 172 9 is_stmt 0 view .LVU474
+ 1881              	.LBE7:
+ 112:Core/Src/main.c ****   char msg[30];
+ 1882              		.loc 1 112 3 is_stmt 1 view .LVU475
+ 113:Core/Src/main.c ****   /* USER CODE END 2 */
+ 1883              		.loc 1 113 3 view .LVU476
+ 118:Core/Src/main.c ****   {
+ 1884              		.loc 1 118 3 view .LVU477
+ 1885              	.LBB8:
+ 125:Core/Src/main.c ****     uint8_t i = 0, myInt = 0;
+ 1886              		.loc 1 125 5 view .LVU478
+ 125:Core/Src/main.c ****     uint8_t i = 0, myInt = 0;
+ 1887              		.loc 1 125 13 is_stmt 0 view .LVU479
+ 1888 0122 0023     		movs	r3, #0
+ 1889 0124 0093     		str	r3, [sp]
+ 1890 0126 0193     		str	r3, [sp, #4]
+ 1891 0128 8DF80830 		strb	r3, [sp, #8]
+ 126:Core/Src/main.c ****     uint16_t goal;
+ 1892              		.loc 1 126 5 is_stmt 1 view .LVU480
+ 1893              	.LVL92:
+ 127:Core/Src/main.c ****     if (HAL_UART_Receive(&huart1, buffer, 1, 1000) == HAL_OK && buffer[0] == '!') // only read if s
+ 1894              		.loc 1 127 5 view .LVU481
+ 128:Core/Src/main.c ****     {
+ 1895              		.loc 1 128 5 view .LVU482
+ 128:Core/Src/main.c ****     {
+ 1896              		.loc 1 128 9 is_stmt 0 view .LVU483
+ 1897 012c 4FF47A73 		mov	r3, #1000
+ 1898 0130 0122     		movs	r2, #1
+ 1899 0132 0BA9     		add	r1, sp, #44
+ 1900 0134 3148     		ldr	r0, .L207+20
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 55
+
+
+ 1901 0136 FFF7FEFF 		bl	HAL_UART_Receive
+ 1902              	.LVL93:
+ 128:Core/Src/main.c ****     {
+ 1903              		.loc 1 128 8 view .LVU484
+ 1904 013a 0446     		mov	r4, r0
+ 1905 013c 0028     		cmp	r0, #0
+ 1906 013e F0D1     		bne	.L199
+ 128:Core/Src/main.c ****     {
+ 1907              		.loc 1 128 71 discriminator 1 view .LVU485
+ 1908 0140 9DF82C30 		ldrb	r3, [sp, #44]	@ zero_extendqisi2
+ 128:Core/Src/main.c ****     {
+ 1909              		.loc 1 128 62 discriminator 1 view .LVU486
+ 1910 0144 212B     		cmp	r3, #33
+ 1911 0146 ECD1     		bne	.L199
+ 1912 0148 97E7     		b	.L192
+ 1913              	.LVL94:
+ 1914              	.L204:
+ 177:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 1915              		.loc 1 177 9 is_stmt 1 view .LVU487
+ 1916 014a 03AC     		add	r4, sp, #12
+ 1917              	.LVL95:
+ 177:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 1918              		.loc 1 177 9 is_stmt 0 view .LVU488
+ 1919 014c 2F4E     		ldr	r6, .L207+36
+ 1920 014e 0FCE     		ldmia	r6!, {r0, r1, r2, r3}
+ 1921 0150 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 1922 0152 3368     		ldr	r3, [r6]
+ 1923 0154 2370     		strb	r3, [r4]
+ 178:Core/Src/main.c ****         servo_grap();
+ 1924              		.loc 1 178 9 is_stmt 1 view .LVU489
+ 178:Core/Src/main.c ****         servo_grap();
+ 1925              		.loc 1 178 41 is_stmt 0 view .LVU490
+ 1926 0156 03A8     		add	r0, sp, #12
+ 1927 0158 FFF7FEFF 		bl	strlen
+ 1928              	.LVL96:
+ 178:Core/Src/main.c ****         servo_grap();
+ 1929              		.loc 1 178 9 view .LVU491
+ 1930 015c 4FF47A73 		mov	r3, #1000
+ 1931 0160 82B2     		uxth	r2, r0
+ 1932 0162 03A9     		add	r1, sp, #12
+ 1933 0164 2548     		ldr	r0, .L207+20
+ 1934 0166 FFF7FEFF 		bl	HAL_UART_Transmit
+ 1935              	.LVL97:
+ 179:Core/Src/main.c ****       }
+ 1936              		.loc 1 179 9 is_stmt 1 view .LVU492
+ 1937 016a FFF7FEFF 		bl	servo_grap
+ 1938              	.LVL98:
+ 1939 016e D8E7     		b	.L199
+ 1940              	.LVL99:
+ 1941              	.L205:
+ 184:Core/Src/main.c ****         HAL_Delay(500);
+ 1942              		.loc 1 184 9 view .LVU493
+ 1943 0170 274C     		ldr	r4, .L207+40
+ 1944              	.LVL100:
+ 184:Core/Src/main.c ****         HAL_Delay(500);
+ 1945              		.loc 1 184 9 is_stmt 0 view .LVU494
+ 1946 0172 4FF40051 		mov	r1, #8192
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 56
+
+
+ 1947 0176 2046     		mov	r0, r4
+ 1948 0178 FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ 1949              	.LVL101:
+ 185:Core/Src/main.c ****         HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+ 1950              		.loc 1 185 9 is_stmt 1 view .LVU495
+ 1951 017c 4FF4FA70 		mov	r0, #500
+ 1952 0180 FFF7FEFF 		bl	HAL_Delay
+ 1953              	.LVL102:
+ 186:Core/Src/main.c ****         sprintf(msg, "right	\r\n");
+ 1954              		.loc 1 186 9 view .LVU496
+ 1955 0184 4FF40051 		mov	r1, #8192
+ 1956 0188 2046     		mov	r0, r4
+ 1957 018a FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ 1958              	.LVL103:
+ 187:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 1959              		.loc 1 187 9 view .LVU497
+ 1960 018e 214A     		ldr	r2, .L207+44
+ 1961 0190 03AB     		add	r3, sp, #12
+ 1962 0192 07CA     		ldm	r2, {r0, r1, r2}
+ 1963 0194 03C3     		stmia	r3!, {r0, r1}
+ 1964 0196 1A70     		strb	r2, [r3]
+ 188:Core/Src/main.c ****         servo_grap();
+ 1965              		.loc 1 188 9 view .LVU498
+ 188:Core/Src/main.c ****         servo_grap();
+ 1966              		.loc 1 188 41 is_stmt 0 view .LVU499
+ 1967 0198 03A8     		add	r0, sp, #12
+ 1968 019a FFF7FEFF 		bl	strlen
+ 1969              	.LVL104:
+ 188:Core/Src/main.c ****         servo_grap();
+ 1970              		.loc 1 188 9 view .LVU500
+ 1971 019e 4FF47A73 		mov	r3, #1000
+ 1972 01a2 82B2     		uxth	r2, r0
+ 1973 01a4 03A9     		add	r1, sp, #12
+ 1974 01a6 1548     		ldr	r0, .L207+20
+ 1975 01a8 FFF7FEFF 		bl	HAL_UART_Transmit
+ 1976              	.LVL105:
+ 189:Core/Src/main.c ****         servo_right();
+ 1977              		.loc 1 189 9 is_stmt 1 view .LVU501
+ 1978 01ac FFF7FEFF 		bl	servo_grap
+ 1979              	.LVL106:
+ 190:Core/Src/main.c ****         servo_start();
+ 1980              		.loc 1 190 9 view .LVU502
+ 1981 01b0 FFF7FEFF 		bl	servo_right
+ 1982              	.LVL107:
+ 191:Core/Src/main.c ****       }
+ 1983              		.loc 1 191 9 view .LVU503
+ 1984 01b4 FFF7FEFF 		bl	servo_start
+ 1985              	.LVL108:
+ 1986 01b8 B3E7     		b	.L199
+ 1987              	.LVL109:
+ 1988              	.L206:
+ 196:Core/Src/main.c ****         HAL_UART_Transmit(&huart1, msg, strlen(msg), 1000);
+ 1989              		.loc 1 196 9 view .LVU504
+ 1990 01ba 174A     		ldr	r2, .L207+48
+ 1991 01bc 03AB     		add	r3, sp, #12
+ 1992 01be 07CA     		ldm	r2, {r0, r1, r2}
+ 1993 01c0 03C3     		stmia	r3!, {r0, r1}
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 57
+
+
+ 1994 01c2 1A70     		strb	r2, [r3]
+ 197:Core/Src/main.c ****         servo_grap();
+ 1995              		.loc 1 197 9 view .LVU505
+ 197:Core/Src/main.c ****         servo_grap();
+ 1996              		.loc 1 197 41 is_stmt 0 view .LVU506
+ 1997 01c4 03A8     		add	r0, sp, #12
+ 1998 01c6 FFF7FEFF 		bl	strlen
+ 1999              	.LVL110:
+ 197:Core/Src/main.c ****         servo_grap();
+ 2000              		.loc 1 197 9 view .LVU507
+ 2001 01ca 4FF47A73 		mov	r3, #1000
+ 2002 01ce 82B2     		uxth	r2, r0
+ 2003 01d0 03A9     		add	r1, sp, #12
+ 2004 01d2 0A48     		ldr	r0, .L207+20
+ 2005 01d4 FFF7FEFF 		bl	HAL_UART_Transmit
+ 2006              	.LVL111:
+ 198:Core/Src/main.c ****         servo_middle();
+ 2007              		.loc 1 198 9 is_stmt 1 view .LVU508
+ 2008 01d8 FFF7FEFF 		bl	servo_grap
+ 2009              	.LVL112:
+ 199:Core/Src/main.c ****         servo_start();
+ 2010              		.loc 1 199 9 view .LVU509
+ 2011 01dc FFF7FEFF 		bl	servo_middle
+ 2012              	.LVL113:
+ 200:Core/Src/main.c ****       }
+ 2013              		.loc 1 200 9 view .LVU510
+ 2014 01e0 FFF7FEFF 		bl	servo_start
+ 2015              	.LVL114:
+ 2016 01e4 9DE7     		b	.L199
+ 2017              	.L208:
+ 2018 01e6 00BF     		.align	2
+ 2019              	.L207:
+ 2020 01e8 00000000 		.word	htim2
+ 2021 01ec 00000000 		.word	.LANCHOR2
+ 2022 01f0 00000000 		.word	.LANCHOR0
+ 2023 01f4 00000000 		.word	.LANCHOR1
+ 2024 01f8 00000000 		.word	.LANCHOR3
+ 2025 01fc 00000000 		.word	huart1
+ 2026 0200 00000000 		.word	.LC0
+ 2027 0204 50000000 		.word	.LC5
+ 2028 0208 14000000 		.word	.LC1
+ 2029 020c 24000000 		.word	.LC2
+ 2030 0210 00100140 		.word	1073811456
+ 2031 0214 38000000 		.word	.LC3
+ 2032 0218 44000000 		.word	.LC4
+ 2033              	.LBE8:
+ 2034              		.cfi_endproc
+ 2035              	.LFE68:
+ 2037              		.global	current_pos4
+ 2038              		.global	current_pos3
+ 2039              		.global	current_pos2
+ 2040              		.global	current_pos1
+ 2041              		.section	.data.current_pos1,"aw"
+ 2042              		.align	1
+ 2043              		.set	.LANCHOR2,. + 0
+ 2046              	current_pos1:
+ 2047 0000 9001     		.short	400
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 58
+
+
+ 2048              		.section	.data.current_pos2,"aw"
+ 2049              		.align	1
+ 2050              		.set	.LANCHOR0,. + 0
+ 2053              	current_pos2:
+ 2054 0000 F401     		.short	500
+ 2055              		.section	.data.current_pos3,"aw"
+ 2056              		.align	1
+ 2057              		.set	.LANCHOR1,. + 0
+ 2060              	current_pos3:
+ 2061 0000 5802     		.short	600
+ 2062              		.section	.data.current_pos4,"aw"
+ 2063              		.align	1
+ 2064              		.set	.LANCHOR3,. + 0
+ 2067              	current_pos4:
+ 2068 0000 B603     		.short	950
+ 2069              		.section	.rodata.main.str1.4,"aMS",%progbits,1
+ 2070              		.align	2
+ 2071              	.LC0:
+ 2072 0000 54686520 		.ascii	"The goal is: %d \012\015\000"
+ 2072      676F616C 
+ 2072      2069733A 
+ 2072      20256420 
+ 2072      0A0D00
+ 2073 0013 00       		.space	1
+ 2074              	.LC1:
+ 2075 0014 476F2074 		.ascii	"Go to Start\015\012\000"
+ 2075      6F205374 
+ 2075      6172740D 
+ 2075      0A00
+ 2076 0022 0000     		.space	2
+ 2077              	.LC2:
+ 2078 0024 47726170 		.ascii	"Grapp the cube\015\012\000"
+ 2078      70207468 
+ 2078      65206375 
+ 2078      62650D0A 
+ 2078      00
+ 2079 0035 000000   		.space	3
+ 2080              	.LC3:
+ 2081 0038 72696768 		.ascii	"right\011\015\012\000"
+ 2081      74090D0A 
+ 2081      00
+ 2082 0041 000000   		.space	3
+ 2083              	.LC4:
+ 2084 0044 6D696464 		.ascii	"middle\015\012\000"
+ 2084      6C650D0A 
+ 2084      00
+ 2085 004d 000000   		.space	3
+ 2086              	.LC5:
+ 2087 0050 6C656674 		.ascii	"left\015\012\000"
+ 2087      0D0A00
+ 2088              		.text
+ 2089              	.Letext0:
+ 2090              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 2091              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\include
+ 2092              		.file 5 "Drivers/CMSIS/Include/core_cm3.h"
+ 2093              		.file 6 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h"
+ 2094              		.file 7 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 59
+
+
+ 2095              		.file 8 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 2096              		.file 9 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h"
+ 2097              		.file 10 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h"
+ 2098              		.file 11 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 2099              		.file 12 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h"
+ 2100              		.file 13 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h"
+ 2101              		.file 14 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"
+ 2102              		.file 15 "Core/Inc/tim.h"
+ 2103              		.file 16 "Core/Inc/usart.h"
+ 2104              		.file 17 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\lib\\gcc\\arm-none-ea
+ 2105              		.file 18 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\includ
+ 2106              		.file 19 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\includ
+ 2107              		.file 20 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\includ
+ 2108              		.file 21 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\includ
+ 2109              		.file 22 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\includ
+ 2110              		.file 23 "c:\\program files (x86)\\gnu tools arm embedded\\8 2019-q3-update\\arm-none-eabi\\includ
+ 2111              		.file 24 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ 2112              		.file 25 "Core/Inc/gpio.h"
+ 2113              		.file 26 "<built-in>"
+ARM GAS  C:\Users\user\AppData\Local\Temp\ccj2owlB.s 			page 60
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:16     .text.servo_start:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:24     .text.servo_start:00000000 servo_start
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:269    .text.servo_start:0000014c $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:278    .text.servo_grap:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:285    .text.servo_grap:00000000 servo_grap
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:529    .text.servo_grap:0000014c $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:538    .text.servo_right:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:545    .text.servo_right:00000000 servo_right
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:855    .text.servo_right:000001b0 $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:864    .text.servo_middle:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:871    .text.servo_middle:00000000 servo_middle
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1181   .text.servo_middle:000001b0 $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1190   .text.servo_left:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1197   .text.servo_left:00000000 servo_left
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1507   .text.servo_left:000001b0 $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1516   .text.Error_Handler:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1523   .text.Error_Handler:00000000 Error_Handler
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1554   .text.SystemClock_Config:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1561   .text.SystemClock_Config:00000000 SystemClock_Config
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1654   .text.main:00000000 $t
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:1661   .text.main:00000000 main
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2020   .text.main:000001e8 $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2067   .data.current_pos4:00000000 current_pos4
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2060   .data.current_pos3:00000000 current_pos3
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2053   .data.current_pos2:00000000 current_pos2
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2046   .data.current_pos1:00000000 current_pos1
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2042   .data.current_pos1:00000000 $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2049   .data.current_pos2:00000000 $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2056   .data.current_pos3:00000000 $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2063   .data.current_pos4:00000000 $d
+C:\Users\user\AppData\Local\Temp\ccj2owlB.s:2070   .rodata.main.str1.4:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_Delay
+htim2
+memset
+HAL_RCC_OscConfig
+HAL_RCC_ClockConfig
+HAL_Init
+MX_GPIO_Init
+MX_USART1_UART_Init
+MX_TIM2_Init
+HAL_TIM_PWM_Start
+atoi
+HAL_UART_Receive
+sprintf
+strlen
+HAL_UART_Transmit
+HAL_GPIO_TogglePin
+huart1

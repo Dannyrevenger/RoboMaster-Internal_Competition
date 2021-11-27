@@ -1,0 +1,48 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.15
+Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Daniel,  , LIC=6XJT4-F107E-353TX-HX1KN-6IJFL-CG5C0
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Professional  Version: 5.15.0
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.05 update 2 (build 169)
+Assembler:       Armasm.exe V5.05 update 2 (build 169)
+Linker/Locator:  ArmLink.exe V5.05 update 2 (build 169)
+Library Manager: ArmAr.exe V5.05 update 2 (build 169)
+Hex Converter:   FromElf.exe V5.05 update 2 (build 169)
+CPU DLL:         SARMCM3.DLL V5.15.0
+Dialog DLL:      DCM.DLL V1.13.2.0
+Target DLL:      Segger\JL2CM3.dll V2.99.15.0
+Dialog DLL:      TCM.DLL V1.14.5.0
+ 
+<h2>Project:</h2>
+C:\Users\Daniel\Desktop\CAN-Driver-master\CAN-Driver-master\MDK-ARM\3508MotorDrive.uvprojx
+Project File Date:  06/16/2019
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.05 update 2 (build 169)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+Build target '3508MotorDrive'
+compiling main.c...
+../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h(74): warning:  #47-D: incompatible redefinition of macro "LSI_VALUE" (declared at line 121 of "../Inc/stm32f1xx_hal_conf.h")
+  #define LSI_VALUE                 ((uint32_t)40000)  /* 40kHz */
+../Src/main.c(215): warning:  #177-D: variable "i" was declared but never referenced
+      int8_t i = 0; 
+../Src/main.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=24120 RO-data=6236 RW-data=28 ZI-data=4772  
+FromELF: creating hex file...
+"3508MotorDrive\3508MotorDrive.axf" - 0 Error(s), 2 Warning(s).
+
+<h2>Collection of Component include folders:</h2>
+  C:\Users\Daniel\Desktop\CAN-Driver-master\CAN-Driver-master\MDK-ARM\RTE
+  C:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include
+
+<h2>Collection of Component Files used:</h2>
+</pre>
+</body>
+</html>

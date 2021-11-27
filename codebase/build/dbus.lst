@@ -1,0 +1,271 @@
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 1
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"dbus.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.dbus_init,"ax",%progbits
+  16              		.align	1
+  17              		.global	dbus_init
+  18              		.arch armv7-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	dbus_init:
+  25              	.LFB65:
+  26              		.file 1 "private/dbus.c"
+   1:private/dbus.c **** #include "dbus.h"
+   2:private/dbus.c **** 
+   3:private/dbus.c **** uint8_t rx_buffer[18];
+   4:private/dbus.c **** uint8_t RX_STA = 0;
+   5:private/dbus.c **** 
+   6:private/dbus.c **** RC rc_reciever;
+   7:private/dbus.c **** 
+   8:private/dbus.c **** uint8_t MAX_BYTE = DBUS_LENGTH;
+   9:private/dbus.c **** 
+  10:private/dbus.c **** extern UART_HandleTypeDef huart1;
+  11:private/dbus.c **** 
+  12:private/dbus.c **** void dbus_init(void){
+  27              		.loc 1 12 21 view -0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 08B5     		push	{r3, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+  13:private/dbus.c **** 
+  14:private/dbus.c ****  HAL_UART_Receive_IT( &huart1,  rx_buffer,  18);
+  36              		.loc 1 14 2 view .LVU1
+  37 0002 1222     		movs	r2, #18
+  38 0004 0249     		ldr	r1, .L3
+  39 0006 0348     		ldr	r0, .L3+4
+  40 0008 FFF7FEFF 		bl	HAL_UART_Receive_IT
+  41              	.LVL0:
+  15:private/dbus.c **** 
+  16:private/dbus.c **** }
+  42              		.loc 1 16 1 is_stmt 0 view .LVU2
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s 			page 2
+
+
+  43 000c 08BD     		pop	{r3, pc}
+  44              	.L4:
+  45 000e 00BF     		.align	2
+  46              	.L3:
+  47 0010 00000000 		.word	.LANCHOR0
+  48 0014 00000000 		.word	huart1
+  49              		.cfi_endproc
+  50              	.LFE65:
+  52              		.section	.text.update_dbus,"ax",%progbits
+  53              		.align	1
+  54              		.global	update_dbus
+  55              		.syntax unified
+  56              		.thumb
+  57              		.thumb_func
+  58              		.fpu softvfp
+  60              	update_dbus:
+  61              	.LVL1:
+  62              	.LFB66:
+  17:private/dbus.c **** 
+  18:private/dbus.c **** //void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+  19:private/dbus.c **** 
+  20:private/dbus.c **** //	//int i;
+  21:private/dbus.c **** ////  while(huart->Instance ==USART1){
+  22:private/dbus.c **** //	
+  23:private/dbus.c **** //	
+  24:private/dbus.c **** ////	  datas[RX_STA] = rx_buffer[0];
+  25:private/dbus.c **** ////		RX_STA++;
+  26:private/dbus.c **** ////		
+  27:private/dbus.c **** ////		if(RX_STA > 20){
+  28:private/dbus.c **** ////		
+  29:private/dbus.c **** ////		    RX_STA = 0;
+  30:private/dbus.c **** ////		}
+  31:private/dbus.c **** ////		if(RX_STA == 18){
+  32:private/dbus.c **** ////		
+  33:private/dbus.c **** //			//update_dbus(rx_buffer);
+  34:private/dbus.c **** //		//	break;
+  35:private/dbus.c **** ////		   
+  36:private/dbus.c **** ////			for(i = 0;i<DBUS_LENGTH; i++){
+  37:private/dbus.c **** ////			  
+  38:private/dbus.c **** ////				datas[i] = 0;
+  39:private/dbus.c **** ////			
+  40:private/dbus.c **** ////			}
+  41:private/dbus.c **** ////			    RX_STA = 0;
+  42:private/dbus.c **** //		
+  43:private/dbus.c **** ////		}
+  44:private/dbus.c **** ////	}
+  45:private/dbus.c **** //  
+  46:private/dbus.c **** //	HAL_UART_Receive_IT( &huart1,  rx_buffer,  1);
+  47:private/dbus.c **** //		
+  48:private/dbus.c **** //}
+  49:private/dbus.c **** 
+  50:private/dbus.c **** 
+  51:private/dbus.c **** void update_dbus(uint8_t *data){
+  63              		.loc 1 51 32 is_stmt 1 view -0
+  64              		.cfi_startproc
+  65              		@ args = 0, pretend = 0, frame = 0
+  66              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s 			page 3
+
+
+  67              		@ link register save eliminated.
+  52:private/dbus.c **** 
+  53:private/dbus.c ****      rc_reciever.ch0 = ((int16_t)data[0] | ((int16_t)data[1] << 8)) & 0x07FF;
+  68              		.loc 1 53 6 view .LVU4
+  69              		.loc 1 53 38 is_stmt 0 view .LVU5
+  70 0000 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+  71              		.loc 1 53 58 view .LVU6
+  72 0002 4278     		ldrb	r2, [r0, #1]	@ zero_extendqisi2
+  73              		.loc 1 53 42 view .LVU7
+  74 0004 43EA0223 		orr	r3, r3, r2, lsl #8
+  75              		.loc 1 53 69 view .LVU8
+  76 0008 C3F30A03 		ubfx	r3, r3, #0, #11
+  77              		.loc 1 53 22 view .LVU9
+  78 000c 124A     		ldr	r2, .L6
+  79 000e 1380     		strh	r3, [r2]	@ movhi
+  54:private/dbus.c ****      rc_reciever.ch1 = (((int16_t)data[1] >> 3) | ((int16_t)data[2] << 5))& 0x07FF;
+  80              		.loc 1 54 6 is_stmt 1 view .LVU10
+  81              		.loc 1 54 39 is_stmt 0 view .LVU11
+  82 0010 4378     		ldrb	r3, [r0, #1]	@ zero_extendqisi2
+  83              		.loc 1 54 65 view .LVU12
+  84 0012 8178     		ldrb	r1, [r0, #2]	@ zero_extendqisi2
+  85              		.loc 1 54 49 view .LVU13
+  86 0014 DB08     		lsrs	r3, r3, #3
+  87 0016 43EA4113 		orr	r3, r3, r1, lsl #5
+  88              		.loc 1 54 75 view .LVU14
+  89 001a C3F30A03 		ubfx	r3, r3, #0, #11
+  90              		.loc 1 54 22 view .LVU15
+  91 001e 5380     		strh	r3, [r2, #2]	@ movhi
+  55:private/dbus.c ****      rc_reciever.ch2 = (((int16_t)data[2] >> 6) | ((int16_t)data[3] << 2) |((int16_t)data[4] << 10)
+  92              		.loc 1 55 6 is_stmt 1 view .LVU16
+  93              		.loc 1 55 39 is_stmt 0 view .LVU17
+  94 0020 8378     		ldrb	r3, [r0, #2]	@ zero_extendqisi2
+  95              		.loc 1 55 65 view .LVU18
+  96 0022 C178     		ldrb	r1, [r0, #3]	@ zero_extendqisi2
+  97              		.loc 1 55 49 view .LVU19
+  98 0024 9B09     		lsrs	r3, r3, #6
+  99 0026 43EA8103 		orr	r3, r3, r1, lsl #2
+ 100              		.loc 1 55 90 view .LVU20
+ 101 002a 0179     		ldrb	r1, [r0, #4]	@ zero_extendqisi2
+ 102              		.loc 1 55 75 view .LVU21
+ 103 002c 43EA8123 		orr	r3, r3, r1, lsl #10
+ 104              		.loc 1 55 102 view .LVU22
+ 105 0030 C3F30A03 		ubfx	r3, r3, #0, #11
+ 106              		.loc 1 55 22 view .LVU23
+ 107 0034 9380     		strh	r3, [r2, #4]	@ movhi
+  56:private/dbus.c ****      rc_reciever.ch3 = (((int16_t)data[4] >> 1) | ((int16_t)data[5]<<7)) &0x07FF;
+ 108              		.loc 1 56 6 is_stmt 1 view .LVU24
+ 109              		.loc 1 56 39 is_stmt 0 view .LVU25
+ 110 0036 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 111              		.loc 1 56 65 view .LVU26
+ 112 0038 4179     		ldrb	r1, [r0, #5]	@ zero_extendqisi2
+ 113              		.loc 1 56 49 view .LVU27
+ 114 003a 5B08     		lsrs	r3, r3, #1
+ 115 003c 43EAC113 		orr	r3, r3, r1, lsl #7
+ 116              		.loc 1 56 74 view .LVU28
+ 117 0040 C3F30A03 		ubfx	r3, r3, #0, #11
+ 118              		.loc 1 56 22 view .LVU29
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s 			page 4
+
+
+ 119 0044 D380     		strh	r3, [r2, #6]	@ movhi
+  57:private/dbus.c **** 
+  58:private/dbus.c ****      rc_reciever.s1 = ((data[5] >> 4) & 0x000C) >> 2;
+ 120              		.loc 1 58 6 is_stmt 1 view .LVU30
+ 121              		.loc 1 58 29 is_stmt 0 view .LVU31
+ 122 0046 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 123              		.loc 1 58 49 view .LVU32
+ 124 0048 9B09     		lsrs	r3, r3, #6
+ 125              		.loc 1 58 21 view .LVU33
+ 126 004a 1372     		strb	r3, [r2, #8]
+  59:private/dbus.c ****      rc_reciever.s2 = ((data[5] >> 4) & 0x0003);
+ 127              		.loc 1 59 6 is_stmt 1 view .LVU34
+ 128              		.loc 1 59 29 is_stmt 0 view .LVU35
+ 129 004c 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 130              		.loc 1 59 39 view .LVU36
+ 131 004e C3F30113 		ubfx	r3, r3, #4, #2
+ 132              		.loc 1 59 21 view .LVU37
+ 133 0052 5372     		strb	r3, [r2, #9]
+  60:private/dbus.c **** 
+  61:private/dbus.c **** }
+ 134              		.loc 1 61 1 view .LVU38
+ 135 0054 7047     		bx	lr
+ 136              	.L7:
+ 137 0056 00BF     		.align	2
+ 138              	.L6:
+ 139 0058 00000000 		.word	.LANCHOR1
+ 140              		.cfi_endproc
+ 141              	.LFE66:
+ 143              		.global	MAX_BYTE
+ 144              		.global	rc_reciever
+ 145              		.global	RX_STA
+ 146              		.global	rx_buffer
+ 147              		.section	.bss.RX_STA,"aw",%nobits
+ 150              	RX_STA:
+ 151 0000 00       		.space	1
+ 152              		.section	.bss.rc_reciever,"aw",%nobits
+ 153              		.align	2
+ 154              		.set	.LANCHOR1,. + 0
+ 157              	rc_reciever:
+ 158 0000 00000000 		.space	10
+ 158      00000000 
+ 158      0000
+ 159              		.section	.bss.rx_buffer,"aw",%nobits
+ 160              		.align	2
+ 161              		.set	.LANCHOR0,. + 0
+ 164              	rx_buffer:
+ 165 0000 00000000 		.space	18
+ 165      00000000 
+ 165      00000000 
+ 165      00000000 
+ 165      0000
+ 166              		.section	.data.MAX_BYTE,"aw"
+ 169              	MAX_BYTE:
+ 170 0000 12       		.byte	18
+ 171              		.text
+ 172              	.Letext0:
+ 173              		.file 2 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.07\\arm-none-eabi\\include\\
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s 			page 5
+
+
+ 174              		.file 3 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.07\\arm-none-eabi\\include\\
+ 175              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 176              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 177              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 178              		.file 7 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h"
+ 179              		.file 8 "private/dbus.h"
+ARM GAS  C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 dbus.c
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:16     .text.dbus_init:00000000 $t
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:24     .text.dbus_init:00000000 dbus_init
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:47     .text.dbus_init:00000010 $d
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:53     .text.update_dbus:00000000 $t
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:60     .text.update_dbus:00000000 update_dbus
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:139    .text.update_dbus:00000058 $d
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:169    .data.MAX_BYTE:00000000 MAX_BYTE
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:157    .bss.rc_reciever:00000000 rc_reciever
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:150    .bss.RX_STA:00000000 RX_STA
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:164    .bss.rx_buffer:00000000 rx_buffer
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:151    .bss.RX_STA:00000000 $d
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:153    .bss.rc_reciever:00000000 $d
+C:\Users\Administrator.DESKTOP-24M4MSA\AppData\Local\Temp\ccxrdqlD.s:160    .bss.rx_buffer:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_UART_Receive_IT
+huart1
