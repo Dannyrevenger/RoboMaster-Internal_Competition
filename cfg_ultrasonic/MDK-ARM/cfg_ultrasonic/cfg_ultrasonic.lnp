@@ -1,0 +1,22 @@
+--cpu Cortex-M3
+"cfg_ultrasonic\startup_stm32f103xe.o"
+"cfg_ultrasonic\main.o"
+"cfg_ultrasonic\stm32f1xx_it.o"
+"cfg_ultrasonic\stm32f1xx_hal_msp.o"
+"cfg_ultrasonic\stm32f1xx_hal_gpio_ex.o"
+"cfg_ultrasonic\stm32f1xx_hal_tim.o"
+"cfg_ultrasonic\stm32f1xx_hal_tim_ex.o"
+"cfg_ultrasonic\stm32f1xx_hal.o"
+"cfg_ultrasonic\stm32f1xx_hal_rcc.o"
+"cfg_ultrasonic\stm32f1xx_hal_rcc_ex.o"
+"cfg_ultrasonic\stm32f1xx_hal_gpio.o"
+"cfg_ultrasonic\stm32f1xx_hal_dma.o"
+"cfg_ultrasonic\stm32f1xx_hal_cortex.o"
+"cfg_ultrasonic\stm32f1xx_hal_pwr.o"
+"cfg_ultrasonic\stm32f1xx_hal_flash.o"
+"cfg_ultrasonic\stm32f1xx_hal_flash_ex.o"
+"cfg_ultrasonic\system_stm32f1xx.o"
+--library_type=microlib --strict --scatter "cfg_ultrasonic\cfg_ultrasonic.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "cfg_ultrasonic.map" -o cfg_ultrasonic\cfg_ultrasonic.axf
