@@ -47,7 +47,7 @@
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan;
 
-TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
@@ -64,7 +64,10 @@ static volatile HAL_StatusTypeDef canTxStatus = HAL_OK;
 static volatile HAL_StatusTypeDef canRxStatus = HAL_OK;
 uint32_t canMailbox;
 uint16_t target = 600;
-static volatile int16_t target_A=0, target_B, target_C, target_D;
+static volatile int16_t target_A=1200, target_B=-900, target_C=-600, target_D=850;
+int vf,vr,vz,vg;
+// static volatile int16_t target_A=0, target_B=0, target_C=0, target_D=0;
+//A=-2, B=1.5, C=1. D=-17/12
 static volatile int16_t current_rpm_A,current_rpm_B,current_rpm_C,current_rpm_D;
 pid_struct_t motorA, motorB, motorC, motorD;
 arm_struct_t arm;
@@ -73,13 +76,13 @@ arm_struct_t arm;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_TIM1_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
-void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint8_t target_buffer[]);
+void CAN_Set_Motor_Voltage(int16_t v1_, int16_t v2_, int16_t v3_, int16_t v4_, uint8_t target_buffer[]);
 void Integrate_Contorl();
 /* USER CODE END PFP */
 
@@ -116,13 +119,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM1_Init();
   MX_USART2_UART_Init();
   MX_DMA_Init();
   MX_CAN_Init();
   MX_USART1_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  static volatile uint16_t encoder = 0;
   CAN_FilterTypeDef canfil; // CAN Bus Filter
 
   canfil.FilterBank = 0;
@@ -145,13 +147,17 @@ int main(void)
 
   HAL_CAN_ConfigFilter(&hcan, &canfil);
   HAL_CAN_Start(&hcan);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
   // HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
   // HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxHeader, (uint8_t *)canRX);
-  pid_init(&motorA, 8, 0.6, 3, 8000, 16000);
-  pid_init(&motorB, 5, 0.1, 2, 8000, 16000);
-  pid_init(&motorC, 2, 0.2, 4, 8000, 16000);
-  pid_init(&motorD, 3, 0.5, 4, 8000, 16000);
-  arm_init(&arm, 120, 120, 120, 120);
+  pid_init(&motorA, 5, 0.05, 0, 8000, 16000);
+  pid_init(&motorB, 8, 1.5, 0, 8000, 16000);
+  pid_init(&motorC, 8, 1.5, 0, 8000, 16000);
+  pid_init(&motorD, 8, 1, 0, 8000, 16000);
+  arm_init(&arm, 150, 150, 150, 150);
   HAL_UART_Receive_DMA(&huart1, dbus_rx_buffer, 18);
   /* USER CODE END 2 */
 
@@ -162,10 +168,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    // canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
-    // HAL_Delay(100);
+    
     canRxStatus = HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX);
-    // current_rpm_A = -(1+~((canRX[2]<<8)+canRX[3]));
     switch(rxHeader.StdId){
       case 0x201:{
         current_rpm_A = -(1+~((canRX[2]<<8)+canRX[3]));
@@ -184,14 +188,12 @@ int main(void)
         break;
       }
     }
-    // CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
-    //                       pid_calc(&motorB,target_B,current_rpm_B),
-    //                       pid_calc(&motorC,target_C,current_rpm_C),
-    //                       pid_calc(&motorD,target_D,current_rpm_D),
-    //                       msg);
-   
-    // encoder = canRX[0] << 8 | canRX[1];
-    HAL_Delay(10);
+    move_arm(&arm,vf,vr,vz,vg);
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, arm.angle[0]);
+	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, arm.angle[1]>>2);
+	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, arm.angle[2]>>2);
+	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, arm.angle[3]);
+    // HAL_Delay(1);
   }
   /* USER CODE END 3 */
 }
@@ -271,77 +273,73 @@ static void MX_CAN_Init(void)
 }
 
 /**
-  * @brief TIM1 Initialization Function
+  * @brief TIM2 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_TIM1_Init(void)
+static void MX_TIM2_Init(void)
 {
 
-  /* USER CODE BEGIN TIM1_Init 0 */
+  /* USER CODE BEGIN TIM2_Init 0 */
 
-  /* USER CODE END TIM1_Init 0 */
+  /* USER CODE END TIM2_Init 0 */
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
-  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
 
-  /* USER CODE BEGIN TIM1_Init 1 */
+  /* USER CODE BEGIN TIM2_Init 1 */
 
-  /* USER CODE END TIM1_Init 1 */
-  htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
-  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 0;
-  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 719;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 1999;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
     Error_Handler();
   }
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_TIM_OC_Init(&htim1) != HAL_OK)
+  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
   {
     Error_Handler();
   }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  sConfigOC.OCMode = TIM_OCMODE_TIMING;
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-  if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
   }
-  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-  sBreakDeadTimeConfig.DeadTime = 0;
-  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-  if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN TIM1_Init 2 */
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
 
-  /* USER CODE END TIM1_Init 2 */
-  HAL_TIM_MspPostInit(&htim1);
+  /* USER CODE END TIM2_Init 2 */
+  HAL_TIM_MspPostInit(&htim2);
 
 }
 
@@ -440,6 +438,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
@@ -476,46 +475,46 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart)
 			//HAL_UART_Receive_DMA(&huart3, dbus_rx_buffer, 18);
       Integrate_Contorl();
 }
-void HAL_CAN_RxFIFO1MsgPendingCallback(CAN_HandleTypeDef *hcan){
-  for(int i=0;i<6;i++){
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-    HAL_Delay(200);
-  }
-  if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX) != HAL_OK){
-    Error_Handler();
-    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
-    canRxStatus = HAL_ERROR;
-  }
-  else{
-    // HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
-    switch(rxHeader.StdId){
-      case 0x201:{
-        current_rpm_A = -(1+~((canRX[2]<<8)+canRX[3]));
-        break;
-      }
-      case 0x202:{
-        current_rpm_B = -(1+~((canRX[2]<<8)+canRX[3]));
-        break;
-      }
-      case 0x203:{
-        current_rpm_C = -(1+~((canRX[2]<<8)+canRX[3]));
-        break;
-      }
-      case 0x204:{
-        current_rpm_D = -(1+~((canRX[2]<<8)+canRX[3]));
-        break;
-      }
-    }
-    CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
-                          pid_calc(&motorB,target_B,current_rpm_B),
-                          pid_calc(&motorC,target_C,current_rpm_C),
-                          pid_calc(&motorD,target_D,current_rpm_D),
-                          msg);
-    canTxStatus = HAL_CAN_AddTxMessage(hcan, &txHeader, msg, &canMailbox);
-    HAL_Delay(5);
-    canRxStatus = HAL_OK;
-  }
-}
+// void HAL_CAN_RxFIFO1MsgPendingCallback(CAN_HandleTypeDef *hcan){
+//   for(int i=0;i<6;i++){
+//     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+//     HAL_Delay(200);
+//   }
+//   if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rxHeader, (uint8_t *)canRX) != HAL_OK){
+//     Error_Handler();
+//     HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
+//     canRxStatus = HAL_ERROR;
+//   }
+//   else{
+//     // HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
+//     switch(rxHeader.StdId){
+//       case 0x201:{
+//         current_rpm_A = -(1+~((canRX[2]<<8)+canRX[3]));
+//         break;
+//       }
+//       case 0x202:{
+//         current_rpm_B = -(1+~((canRX[2]<<8)+canRX[3]));
+//         break;
+//       }
+//       case 0x203:{
+//         current_rpm_C = -(1+~((canRX[2]<<8)+canRX[3]));
+//         break;
+//       }
+//       case 0x204:{
+//         current_rpm_D = -(1+~((canRX[2]<<8)+canRX[3]));
+//         break;
+//       }
+//     }
+//     CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
+//                           pid_calc(&motorB,target_B,current_rpm_B),
+//                           pid_calc(&motorC,target_C,current_rpm_C),
+//                           pid_calc(&motorD,target_D,current_rpm_D),
+//                           msg);
+//     canTxStatus = HAL_CAN_AddTxMessage(hcan, &txHeader, msg, &canMailbox);
+//     HAL_Delay(5);
+//     canRxStatus = HAL_OK;
+//   }
+// }
 /* 
 void HAL_CAN_RxFIFO1FullCallback(CAN_HandleTypeDef *hcan){
   for(int i=0;i<6;i++){
@@ -557,7 +556,8 @@ void HAL_CAN_RxFIFO1FullCallback(CAN_HandleTypeDef *hcan){
     HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
   }
 } */
-void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint8_t target_buffer[]){
+void CAN_Set_Motor_Voltage(int16_t v1_, int16_t v2_, int16_t v3_, int16_t v4_, uint8_t target_buffer[]){
+  uint16_t v1=v1_,v2=v2_,v3=v3_,v4=v4_;
   target_buffer[0] = v1 >> 8;
   target_buffer[1] = v1;
   target_buffer[2] = v2 >> 8;
@@ -571,14 +571,16 @@ void CAN_Set_Motor_Voltage(uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, u
 void Integrate_Contorl(){
   switch(RC_CtrlData.rc.s2){
     case 1:{
+      //A=2, B=-1.5, C=-1. D=17/12
       int vv,vp,vr;
-      vv=(RC_CtrlData.rc.ch3-1024);
-      vp=(RC_CtrlData.rc.ch2-1024);
-      vr=(RC_CtrlData.rc.ch0-1024);
-      target_A=vv+vp;
-      target_B=vv-vp;
-      target_C=vv-vp;
-      target_D=vv+vp;
+      vv=(RC_CtrlData.rc.ch3-1024)*4;
+      vp=(RC_CtrlData.rc.ch2-1024)*4;
+      vr=(RC_CtrlData.rc.ch0-1024)*4;
+      vr+=vp*0.05;
+      target_A=(vv+vp+vr)*(1.8);
+      target_B=(vv-vp-vr)*(-1.7);
+      target_C=(vv+vp-vr)*(-1);
+      target_D=(vv-vp+vr)*(1.5);
       CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
                           pid_calc(&motorB,target_B,current_rpm_B),
                           pid_calc(&motorC,target_C,current_rpm_C),
@@ -587,25 +589,23 @@ void Integrate_Contorl(){
       canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
       break;
     }
-    case 3:{
-      int vf,vr,vz;
-      vf=((RC_CtrlData.rc.ch3-1024)>0)?1:(((RC_CtrlData.rc.ch3-1024)<0)?-1:0);
-      vr=((RC_CtrlData.rc.ch2-1024)>0)?1:(((RC_CtrlData.rc.ch2-1024)<0)?-1:0);
-      vz=((RC_CtrlData.rc.ch0-1024)>0)?1:(((RC_CtrlData.rc.ch0-1024)<0)?-1:0);
-      move_arm(&arm,vf,vr,vz);
-      __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, arm.angle[0]);
-	    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, arm.angle[1]);
-	    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, arm.angle[2]);
-	    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, arm.angle[3]);
-      HAL_Delay(5);
-      break;
-    }
-  }
-  switch(RC_CtrlData.rc.s1){
-    case 0:{
-      break;
-    }
-    case 1:{
+    case 2:{
+      int vp=(RC_CtrlData.rc.ch2-1024);
+      target_A=vp*(1.8);
+      target_B=vp*(1.7);
+      target_C=vp*(-1);
+      target_D=vp*(-1.5);
+      CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
+                          pid_calc(&motorB,target_B,current_rpm_B),
+                          pid_calc(&motorC,target_C,current_rpm_C),
+                          pid_calc(&motorD,target_D,current_rpm_D),
+                          msg);
+      canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
+      vf=(RC_CtrlData.rc.ch3>1024)?1:((RC_CtrlData.rc.ch3<1024)?-1:0);
+      vr=(RC_CtrlData.rc.ch2>1024)?148:((RC_CtrlData.rc.ch2<1024)?152:150);
+      vz=(RC_CtrlData.rc.ch1>1024)?1:((RC_CtrlData.rc.ch1<1024)?-1:0);
+      vg=(RC_CtrlData.rc.s1>1)?vg++:((RC_CtrlData.rc.s1=1)?vg--:0);
+      LIMIT_MIN_MAX(vg,50,250);
       break;
     }
   }
