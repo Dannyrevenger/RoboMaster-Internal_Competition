@@ -1,0 +1,23 @@
+--cpu Cortex-M3
+"can_b_board\startup_stm32f105xc.o"
+"can_b_board\main.o"
+"can_b_board\stm32f1xx_it.o"
+"can_b_board\stm32f1xx_hal_msp.o"
+"can_b_board\stm32f1xx_hal_gpio_ex.o"
+"can_b_board\stm32f1xx_hal_can.o"
+"can_b_board\stm32f1xx_hal_tim.o"
+"can_b_board\stm32f1xx_hal_tim_ex.o"
+"can_b_board\stm32f1xx_hal.o"
+"can_b_board\stm32f1xx_hal_rcc.o"
+"can_b_board\stm32f1xx_hal_rcc_ex.o"
+"can_b_board\stm32f1xx_hal_gpio.o"
+"can_b_board\stm32f1xx_hal_dma.o"
+"can_b_board\stm32f1xx_hal_cortex.o"
+"can_b_board\stm32f1xx_hal_pwr.o"
+"can_b_board\stm32f1xx_hal_flash.o"
+"can_b_board\stm32f1xx_hal_flash_ex.o"
+"can_b_board\system_stm32f1xx.o"
+--library_type=microlib --strict --scatter "can_b_Board\can_b_Board.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "can_b_Board.map" -o can_b_Board\can_b_Board.axf
