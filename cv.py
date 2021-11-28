@@ -56,7 +56,7 @@ while True:
     value_white = np.count_nonzero(white_mask)
     value_black = np.count_nonzero(black_mask)
     value_red = np.count_nonzero(red_red)
-    value = [value_black, value_red, value_white]
+    value = [value_red, value_black, value_white]
     max_value = value.index(max(value))
     if max_value == 0:
         print('!0######')
