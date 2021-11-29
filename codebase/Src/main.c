@@ -48,6 +48,7 @@
 CAN_HandleTypeDef hcan;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
@@ -65,7 +66,7 @@ static volatile HAL_StatusTypeDef canRxStatus = HAL_OK;
 uint32_t canMailbox;
 uint16_t target = 600;
 static volatile int16_t target_A=1200, target_B=-900, target_C=-600, target_D=850;
-int vf,vr,vz,vg;
+int vf=0,vr=150,vz=0,vg=150;
 // static volatile int16_t target_A=0, target_B=0, target_C=0, target_D=0;
 //A=-2, B=1.5, C=1. D=-17/12
 static volatile int16_t current_rpm_A,current_rpm_B,current_rpm_C,current_rpm_D;
@@ -81,9 +82,10 @@ static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 void CAN_Set_Motor_Voltage(int16_t v1_, int16_t v2_, int16_t v3_, int16_t v4_, uint8_t target_buffer[]);
-void Integrate_Contorl();
+void Integrate_Control();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -124,6 +126,7 @@ int main(void)
   MX_CAN_Init();
   MX_USART1_UART_Init();
   MX_TIM2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   CAN_FilterTypeDef canfil; // CAN Bus Filter
 
@@ -151,13 +154,14 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   // HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO1_MSG_PENDING);
   // HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxHeader, (uint8_t *)canRX);
   pid_init(&motorA, 5, 0.05, 0, 8000, 16000);
   pid_init(&motorB, 8, 1.5, 0, 8000, 16000);
   pid_init(&motorC, 8, 1.5, 0, 8000, 16000);
   pid_init(&motorD, 8, 1, 0, 8000, 16000);
-  arm_init(&arm, 150, 150, 150, 150);
+  arm_init(&arm, 150, 150, 160, 150);
   HAL_UART_Receive_DMA(&huart1, dbus_rx_buffer, 18);
   /* USER CODE END 2 */
 
@@ -188,12 +192,22 @@ int main(void)
         break;
       }
     }
-    move_arm(&arm,vf,vr,vz,vg);
-    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, arm.angle[0]);
-	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, arm.angle[1]>>2);
-	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, arm.angle[2]>>2);
-	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, arm.angle[3]);
-    // HAL_Delay(1);
+    // (RC_CtrlData.rc.s1>2)?vg++:vg--;
+    // LIMIT_MIN_MAX(vg,150,220);
+    // move_arm(&arm,vf,vr,vz,vg);
+    // __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, arm.angle[0]);
+	  // __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, arm.angle[1]>>8);
+	  // // __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, arm.angle[2]>>12);
+    // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, arm.angle[2]>>12);
+	  // __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, arm.angle[3]);
+    // for(int i=50;i<=250;i++){
+    //   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, i);
+    //   HAL_Delay(10);
+    // }
+    // for(int i=250;i>=50;i--){
+    //   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, i);
+    //   HAL_Delay(10);
+    // }
   }
   /* USER CODE END 3 */
 }
@@ -344,6 +358,65 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 719;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 1999;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+  HAL_TIM_MspPostInit(&htim3);
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -473,7 +546,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart)
 			// RC_CtrlData.key.v = ((int16_t)dbus_rx_buffer[14]);// | ((int16_t)pData[15] << 8);
 			//HAL_UART_Receive_IT(&huart3, dbus_rx_buffer, 18);
 			//HAL_UART_Receive_DMA(&huart3, dbus_rx_buffer, 18);
-      Integrate_Contorl();
+      Integrate_Control();
 }
 // void HAL_CAN_RxFIFO1MsgPendingCallback(CAN_HandleTypeDef *hcan){
 //   for(int i=0;i<6;i++){
@@ -568,15 +641,12 @@ void CAN_Set_Motor_Voltage(int16_t v1_, int16_t v2_, int16_t v3_, int16_t v4_, u
   target_buffer[7] = v4;
   return;
 }
-void Integrate_Contorl(){
-  switch(RC_CtrlData.rc.s2){
-    case 1:{
-      //A=2, B=-1.5, C=-1. D=17/12
+void Integrate_Control(){
       int vv,vp,vr;
-      vv=(RC_CtrlData.rc.ch3-1024)*4;
-      vp=(RC_CtrlData.rc.ch2-1024)*4;
-      vr=(RC_CtrlData.rc.ch0-1024)*4;
-      vr+=vp*0.05;
+      vv=(RC_CtrlData.rc.ch3-1024)*5;
+      vp=(RC_CtrlData.rc.ch2-1024)*5;
+      vr=(RC_CtrlData.rc.ch0-1024)*3;
+      vr-=vp*0.04;
       target_A=(vv+vp+vr)*(1.8);
       target_B=(vv-vp-vr)*(-1.7);
       target_C=(vv+vp-vr)*(-1);
@@ -586,29 +656,45 @@ void Integrate_Contorl(){
                           pid_calc(&motorC,target_C,current_rpm_C),
                           pid_calc(&motorD,target_D,current_rpm_D),
                           msg);
-      canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
-      break;
-    }
-    case 2:{
-      int vp=(RC_CtrlData.rc.ch2-1024);
-      target_A=vp*(1.8);
-      target_B=vp*(1.7);
-      target_C=vp*(-1);
-      target_D=vp*(-1.5);
-      CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
-                          pid_calc(&motorB,target_B,current_rpm_B),
-                          pid_calc(&motorC,target_C,current_rpm_C),
-                          pid_calc(&motorD,target_D,current_rpm_D),
-                          msg);
-      canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
-      vf=(RC_CtrlData.rc.ch3>1024)?1:((RC_CtrlData.rc.ch3<1024)?-1:0);
-      vr=(RC_CtrlData.rc.ch2>1024)?148:((RC_CtrlData.rc.ch2<1024)?152:150);
-      vz=(RC_CtrlData.rc.ch1>1024)?1:((RC_CtrlData.rc.ch1<1024)?-1:0);
-      vg=(RC_CtrlData.rc.s1>1)?vg++:((RC_CtrlData.rc.s1=1)?vg--:0);
-      LIMIT_MIN_MAX(vg,50,250);
-      break;
-    }
-  }
+     canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
+  // switch(RC_CtrlData.rc.s2){
+  //   case 1:{
+  //     //A=2, B=-1.5, C=-1. D=17/12
+  //     int vv,vp,vr;
+  //     vv=(RC_CtrlData.rc.ch3-1024)*4;
+  //     vp=(RC_CtrlData.rc.ch2-1024)*4;
+  //     vr=(RC_CtrlData.rc.ch0-1024)*4;
+  //     vr-=vp*0.04;
+  //     target_A=(vv+vp+vr)*(1.8);
+  //     target_B=(vv-vp-vr)*(-1.7);
+  //     target_C=(vv+vp-vr)*(-1);
+  //     target_D=(vv-vp+vr)*(1.5);
+  //     CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
+  //                         pid_calc(&motorB,target_B,current_rpm_B),
+  //                         pid_calc(&motorC,target_C,current_rpm_C),
+  //                         pid_calc(&motorD,target_D,current_rpm_D),
+  //                         msg);
+  //     canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
+  //     break;
+  //   }
+  //   case 3:{
+  //     int vp=(RC_CtrlData.rc.ch0-1024)*0.2;
+  //     target_A=vp*(1.8);
+  //     target_B=vp*(1.7);
+  //     target_C=vp*(-1);
+  //     target_D=vp*(-1.5);
+  //     CAN_Set_Motor_Voltage(pid_calc(&motorA,target_A,current_rpm_A),
+  //                         pid_calc(&motorB,target_B,current_rpm_B),
+  //                         pid_calc(&motorC,target_C,current_rpm_C),
+  //                         pid_calc(&motorD,target_D,current_rpm_D),
+  //                         msg);
+  //     canTxStatus = HAL_CAN_AddTxMessage(&hcan, &txHeader, msg, &canMailbox);
+  //     vf=(RC_CtrlData.rc.ch3>1034)?1:((RC_CtrlData.rc.ch3<1014)?-1:0);
+  //     vr=(RC_CtrlData.rc.ch2>1034)?130:((RC_CtrlData.rc.ch2<1014)?170:150);
+  //     vz=(RC_CtrlData.rc.ch1>1034)?1:((RC_CtrlData.rc.ch1<1014)?-1:0);
+  //     break;
+  //   }
+  // }
 }
 /* USER CODE END 4 */
 
